@@ -1,3 +1,7 @@
+# PROJECT SPECIFIC
+postgres-data/
+
+# COMMON
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
