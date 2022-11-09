@@ -1,0 +1,52 @@
+version: '3.2'
+
+services:
+  db:
+    image: postgres:14
+    environment: &common-environment
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-deep-nlp}
+      POSTGRES_HOSTNAME: ${POSTGRES_HOSTNAME:-db}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      REDIS_HOST: ${REDIS_HOST:-redis}
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    command: -p 5432
+    ports:
+      - "5433:5432"
+
+  redis:
+    image: redis:7-alpine
+
+  server: &server-config
+    build: ./
+    env_file: .env
+    environment:
+      <<: *common-environment
+    volumes:
+      - ./:/code/
+    ports:
+      - "9000:8000"
+    tty: true
+    depends_on:
+      - db
+      - redis
+    command: bash -c '/code/scripts/wait-for-it.sh $$POSTGRES_HOSTNAME:$$POSTGRES_PORT && python manage.py runserver 0.0.0.0:8000'
+
+  celery: &celery-config
+    build: ./
+    env_file: .env
+    environment:
+      <<: *common-environment
+    volumes:
+      - ./:/code/
+    tty: true
+    depends_on:
+      - db
+      - redis
+    command: bash -c '/code/scripts/wait-for-it.sh $$POSTGRES_HOSTNAME:$$POSTGRES_PORT && celery -A core_server worker -l info'
+
+  celery_beat:
+    <<: *celery-config
+    command: bash -c '/code/scripts/wait-for-it.sh $$POSTGRES_HOSTNAME:$$POSTGRES_PORT && celery -A core_server beat -l info'

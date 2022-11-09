@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "core-server"
+version = "0.1.0"
+description = "Server for DEEP NLP"
+authors = ["Bibek Pandey <bewakepandey@gmail.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.10.6"
+Django = "^4.1.1"
+celery = "^5.2.7"
+redis = "^4.3.4"
+
+[tool.poetry.dev-dependencies]
+mypy = "^0.990"
+django-stubs = "^1.13.0"
+flake8 = "^5.0.4"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
