@@ -3,21 +3,46 @@ from django.db import models
 from core_server.base_models import BaseModel
 
 
+class DeepDataFetchTracker(BaseModel):
+    last_fetched_org_created_at = models.DateTimeField(null=True)
+    last_fetched_af_created_at = models.DateTimeField(null=True)
+
+    def save(self, *args, **kwargs):
+        if self.pk is None and DeepDataFetchTracker.objects.first() is not None:
+            raise Exception('Cannot create multiple trackers')
+        super().save(*args, **kwargs)
+
+
+class ToFetchProject(BaseModel):
+    """This model keeps track of the projects whose data needs to be fetched.
+    Also keeps track of last leads and entries fetched
+    """
+    class FetchStatus(models.TextChoices):
+        NOT_FETCHED = 'not_fetched', 'Not Fetched'
+        FETCHED = 'fetched', 'Fetched'
+        ERRORED = 'errored', 'Errored'
+        NOT_FOUND = 'not_found', 'Not Found'
+
+    original_project_id = models.PositiveIntegerField(unique=True)
+    status = models.CharField(
+        max_length=20,
+        choices=FetchStatus.choices,
+        default=FetchStatus.NOT_FETCHED,
+    )
+    last_fetched_lead_created_at = models.DateTimeField(null=True)
+    last_fetched_entry_created_at = models.DateTimeField(null=True)
+    error = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return str(self.original_project_id)
+
+
 class Organization(BaseModel):
     original_organization_id = models.PositiveIntegerField(unique=True)
     name = models.CharField(max_length=200)
     short_name = models.CharField(max_length=50)
     long_name = models.CharField(max_length=50)
-
-    def __str__(self):
-        return self.name
-
-
-class Project(BaseModel):
-    original_project_id = models.PositiveIntegerField(unique=True)
-    name = models.CharField(max_length=200)
-    location = models.CharField(max_length=200)
-    description = models.TextField(null=True, blank=True)
+    extra = models.JSONField()
 
     def __str__(self):
         return self.name
@@ -29,36 +54,54 @@ class AFMapping(BaseModel):
     original_af_tags = models.JSONField(default=dict)
     nlp_tags = models.JSONField(default=dict)
     is_mapped_manually = models.BooleanField()
+    extra = models.JSONField(default=dict)
 
     def __str__(self):
         return self.af_name
 
 
+class Project(BaseModel):
+    original_project_id = models.PositiveIntegerField(unique=True)
+    af_mapping = models.ForeignKey(AFMapping, null=True, on_delete=models.CASCADE)
+    to_fetch_project = models.ForeignKey(ToFetchProject, on_delete=models.CASCADE)
+    title = models.CharField(max_length=200)
+    location = models.CharField(max_length=200)
+    description = models.TextField(null=True, blank=True)
+    extra = models.JSONField(default=dict)
+
+    def __str__(self):
+        return self.title
+
+
 class Lead(BaseModel):
-    class Confidentiality(models.IntegerChoices):
-        UNCLASSIFIED = 0, 'Unclassified'
-        CLASSIFIED = 5, 'Classified'
-        TOP_SECRET = 10, 'Top Secret'
+    class Confidentiality(models.TextChoices):
+        UNPROTECTED = 'unprotected', 'Public'
+        RESTRICTED = 'restricted', 'Restricted'
+        CONFIDENTIAL = 'confidential', 'Confidential'
 
     original_lead_id = models.PositiveIntegerField(unique=True)
-    af_mapping = models.ForeignKey(AFMapping, on_delete=models.CASCADE)
+    title = models.CharField(max_length=255)
     text_extract = models.TextField()
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     authoring_org = models.ForeignKey(
         Organization,
+        null=True,
         on_delete=models.CASCADE,
         related_name='authored_leads',
     )
     publishing_org = models.ForeignKey(
         Organization,
+        null=True,
         on_delete=models.CASCADE,
         related_name='published_leads',
     )
-    confidentiality = models.IntegerField(
+    confidentiality = models.CharField(
+        max_length=30,
         choices=Confidentiality.choices,
-        default=Confidentiality.CLASSIFIED,
+        default=Confidentiality.UNPROTECTED
     )
     source_url = models.TextField()
+    extra = models.JSONField(default=dict)
 
     def __str__(self):
         return self.text_extract[:50]
@@ -74,6 +117,8 @@ class Entry(BaseModel):
     excerpt_pt = models.TextField()
     original_af_tags = models.JSONField(default=dict)
     nlp_af_tags = models.JSONField(default=dict)
+    exportdata = models.JSONField(default=dict)
+    extra = models.JSONField(default=dict)
 
     def __str__(self):
         return f'Original entry {self.original_entry_id}'
@@ -82,6 +127,7 @@ class Entry(BaseModel):
 class ClassificationModel(BaseModel):
     name = models.CharField(max_length=200)
     version = models.CharField(max_length=20)
+    url = models.TextField(null=True, blank=True)
     description = models.TextField()
     extra_info = models.JSONField(default=dict)
 
