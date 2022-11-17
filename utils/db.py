@@ -55,7 +55,7 @@ def connect_db():
     # return cursor
 
 
-def cursor_fetch_iterator(cursor: CursorWrapper, size=1000, limit=None):
+def cursor_fetch_iterator(cursor: CursorWrapper, size=2000, limit=None):
     count = 0
     while True:
         records = cursor.fetchmany(size)

@@ -29,8 +29,8 @@ class ToFetchProject(BaseModel):
         choices=FetchStatus.choices,
         default=FetchStatus.NOT_FETCHED,
     )
-    last_fetched_lead_created_at = models.DateTimeField(null=True)
-    last_fetched_entry_created_at = models.DateTimeField(null=True)
+    last_fetched_lead_created_at = models.DateTimeField(null=True, blank=True)
+    last_fetched_entry_created_at = models.DateTimeField(null=True, blank=True)
     error = models.TextField(blank=True, null=True)
 
     def __str__(self):
@@ -62,8 +62,15 @@ class AFMapping(BaseModel):
 
 class Project(BaseModel):
     original_project_id = models.PositiveIntegerField(unique=True)
-    af_mapping = models.ForeignKey(AFMapping, null=True, on_delete=models.CASCADE)
-    to_fetch_project = models.ForeignKey(ToFetchProject, on_delete=models.CASCADE)
+    af_mapping = models.ForeignKey(
+        AFMapping,
+        null=True,
+        on_delete=models.CASCADE
+    )
+    to_fetch_project = models.ForeignKey(
+        ToFetchProject,
+        on_delete=models.CASCADE
+    )
     title = models.CharField(max_length=200)
     location = models.CharField(max_length=200)
     description = models.TextField(null=True, blank=True)

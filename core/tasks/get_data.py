@@ -6,7 +6,9 @@ from celery import shared_task
 from django.db import transaction
 
 from core.tasks import queries
+from utils.decorators import log_time
 from utils.db import connect_db, cursor_fetch_iterator, CursorWrapper
+from utils.transformations import batched
 from core.models import (
     ToFetchProject,
     Project,
@@ -27,11 +29,9 @@ OptDictIntObj = Optional[Dict[int, T]]
 # Data will be fetched later than the following date
 VERY_PAST_DATE = datetime(1990, 10, 10)   # Before creation of deep platform
 
-tracker = None
 
-
+@log_time()
 def fetch_deep_data():
-    global tracker
     tracker = DeepDataFetchTracker.objects.first()
     if tracker is None:
         tracker = DeepDataFetchTracker.objects.create()
@@ -39,11 +39,11 @@ def fetch_deep_data():
     cursor = connect_db()
     print('connected')
     try:
-        afs_set = fetch_afs(cursor, tracker)
-        orgs_set = fetch_orgs(cursor, tracker)
-        if orgs_set is None:
+        afs_dict = fetch_afs(cursor, tracker)
+        orgs_dict = fetch_orgs(cursor, tracker)
+        if orgs_dict is None:
             logger.warning('Could not fetch orgs. Continuing without orgs, some lead fields may be null')  # noqa
-        if afs_set is None:
+        if afs_dict is None:
             logger.warning('Could not fetch analysis frameowrks. Exiting.')
             return
         not_fetched = ToFetchProject.FetchStatus.NOT_FETCHED
@@ -53,8 +53,8 @@ def fetch_deep_data():
             fetch_project_data(
                 cursor,
                 prj,
-                afs_set,
-                orgs_set or set()
+                afs_dict,
+                orgs_dict or {}
             )
             logger.info(f'Fetched deep project with id {prj.original_project_id}')  # noqa
     finally:
@@ -65,8 +65,8 @@ def fetch_deep_data():
 def fetch_project_data(
     cursor: CursorWrapper,
     to_fetch: ToFetchProject,
-    afs_set: set[int],
-    orgs_set: set[int],
+    afs_dict: Dict[int, int],
+    orgs_dict: Dict[int, int],
 ):
     pid = to_fetch.original_project_id
     print(f'Fetching data for deep project {pid}')
@@ -85,7 +85,7 @@ def fetch_project_data(
         columns = [c.name for c in cursor.description]
         project_dict = dict(zip(columns, data[0]))
         afid = project_dict['analysis_framework_id']
-        if afid is not None and afid not in afs_set:
+        if afid is not None and afid not in afs_dict:
             to_fetch.status = ToFetchProject.FetchStatus.NOT_FOUND
             to_fetch.error = "Af not found for project"
             to_fetch.save()
@@ -98,43 +98,71 @@ def fetch_project_data(
             to_fetch.status = ToFetchProject.FetchStatus.NOT_FOUND
             to_fetch.save()
             return
-        project = Project(
+        project, _ = Project.objects.update_or_create(
             original_project_id=to_fetch.original_project_id,
-            af_mapping_id=afid,
-            to_fetch_project=to_fetch,
-            title=project_dict['title'],
-            location='',  # TODO: fill this up. To discuss what to put in here
-            description=project_dict['description'],
-            extra={
-                k: str(project_dict[k])
-                for k in ['start_date', 'end_date']
+            defaults={
+                'af_mapping_id': afs_dict.get(afid),
+                'to_fetch_project': to_fetch,
+                'title': project_dict['title'],
+                'location': '',  # TODO: To discuss what to put in here
+                'description': project_dict['description'],
+                'extra': {
+                    k: str(project_dict[k])
+                    for k in ['start_date', 'end_date']
+                }
             }
         )
-        project.save()
-        logger.info(f'Fetched data for deep project {pid}')
-        print(f'Fetched data for deep project {pid}')
-        to_fetch.status = ToFetchProject.FetchStatus.FETCHED
-        to_fetch.save()
+        logger.info(f'Fetched project data for deep project {pid}')
+        print(f'Fetched project data for deep project {pid}')
 
-        leads_set = fetch_project_leads(cursor, project, orgs_set)
+        leads_set = fetch_project_leads(cursor, project, orgs_dict)
         if leads_set is not None:
             fetch_project_entries(cursor, project, leads_set)
 
+        logger.info(f'Fetched all data for deep project {pid}')
+        print(f'Fetched all data for deep project {pid}')
+        to_fetch.status = ToFetchProject.FetchStatus.FETCHED
+        to_fetch.save()
 
-# TODO: maybe atomic transaction? I think perhaps not.
-def fetch_project_leads(
-    cursor: CursorWrapper,
-    project: Project,
-    orgs_set: set[int],
-) -> Optional[set[int]]:
+
+def _process_lead_batch(lead_batch, project, orgs_dict, columns):
     lead_extra_fields = [
         'author_raw', 'source_raw', 'priority', 'status', 'published_on',
     ]
+    lead_dict = {}
+    for lead in lead_batch:
+        lead_dict = dict(zip(columns, lead))
+        auth_id = lead_dict['author_id']
+        source_id = lead_dict['source_id']
+        Lead.objects.update_or_create(
+            original_lead_id=lead_dict['id'],
+            defaults={
+                'project': project,
+                'authoring_org_id': orgs_dict.get(auth_id),
+                'publishing_org_id': orgs_dict.get(source_id),
+                'title': lead_dict['title'],
+                'text_extract': lead_dict['text_extract'],
+                'source_url': lead_dict['url'],
+                'confidentiality': lead_dict['confidentiality'],
+                'extra': {
+                    k: str(lead_dict[k])
+                    for k in lead_extra_fields
+                }
+            }
+        )
+    return lead_dict
+
+
+def fetch_project_leads(
+    cursor: CursorWrapper,
+    project: Project,
+    orgs_dict: Dict[int, int],
+) -> OptDictIntObj[int]:
     pid = project.original_project_id
     print(f'Fetching lead data for deep project {pid}')
     try:
         last_fetched = project.to_fetch_project.last_fetched_lead_created_at
-        cursor.execute(queries.lead_q.format(pid, last_fetched or VERY_PAST_DATE))
+        cursor.execute(queries.lead_q.format(pid, last_fetched or VERY_PAST_DATE))  # noqa
         rows = cursor_fetch_iterator(cursor)
     except psycopg2.ProgrammingError:
         logger.warning(f'Error fetching leads for deep project {pid}')
@@ -142,80 +170,83 @@ def fetch_project_leads(
     else:
         columns = []
         # fetched in asc order
-        for row in rows:
-            columns = columns if columns else [c.name for c in cursor.description]
-            lead_dict = dict(zip(columns, row))
-            auth_id = lead_dict['author_id']
-            source_id = lead_dict['source_id']
+        batch_size = 500
+        for i, row_batch in enumerate(batched(rows, batch_size)):
+            columns = columns if columns else [c.name for c in cursor.description]  # noqa
             with transaction.atomic():
-                lead = Lead(
-                    project=project,
-                    authoring_org_id=auth_id if auth_id in orgs_set else None,
-                    publishing_org_id=source_id if source_id in orgs_set else None,
-                    original_lead_id=lead_dict['id'],
-                    title=lead_dict['title'],
-                    text_extract=lead_dict['text_extract'],
-                    source_url=lead_dict['url'],
-                    confidentiality=lead_dict['confidentiality'],
-                    extra={
-                        k: str(lead_dict[k])
-                        for k in lead_extra_fields
-                    }
-                )
-                lead.save()
-                project.to_fetch_project.last_fetched_lead_created_at = lead_dict['created_at']
+                last_lead_dict = _process_lead_batch(row_batch, project, orgs_dict, columns)  # noqa
+                project.to_fetch_project.last_fetched_lead_created_at = last_lead_dict['created_at']  # noqa
                 project.to_fetch_project.save()
+            print(f'fetched {i+1} batch({batch_size}) of leads')
     print(f'Fetched lead data for deep project {pid}')
-    return set(Lead.objects.values_list('id'))
+    return dict(Lead.objects.values_list('original_lead_id', 'id'))
 
 
-# TODO: maybe atomic transaction? I think perhaps not.
-def fetch_project_entries(
-    cursor: CursorWrapper,
-    project: Project,
-    leads_set: set[int],
-):
-    pid = project.original_project_id
+def _process_entries_batch(entries_batch, leads_dict, columns):
     entry_extra_fields = [
         'information_date', 'entry_type', 'excerpt_modified', 'excerpt'
     ]
+    entry_dict = {}
+    for row in entries_batch:
+        entry_dict = dict(zip(columns, row))
+        lead_id = leads_dict.get(entry_dict['lead_id'])
+        if lead_id is None:
+            continue
+        Entry.objects.update_or_create(
+            original_entry_id=entry_dict['id'],
+            lead_id=lead_id,
+            defaults={
+                'original_lang': '',  # TODO: fill this
+                'excerpt_en': '',  # TODO: fill this
+                'excerpt_es': '',  # TODO: fill this
+                'excerpt_fr': '',  # TODO: fill this
+                'excerpt_pt': '',  # TODO: fill this
+                'original_af_tags': {},  # TODO: fill this
+                'nlp_af_tags': {},  # TODO: fill this
+                'extra': {
+                    k: entry_dict[k]
+                    for k in entry_extra_fields
+                }
+            }
+        )
+    return entry_dict
+
+
+def fetch_project_entries(
+    cursor: CursorWrapper,
+    project: Project,
+    leads_dict: Dict[int, int],
+):
+    pid = project.original_project_id
     try:
         last_fetched = project.to_fetch_project.last_fetched_entry_created_at
-        cursor.execute(queries.lead_q.format(pid, last_fetched or VERY_PAST_DATE))
+        cursor.execute(queries.entries_q.format(pid, last_fetched or VERY_PAST_DATE))
         rows = cursor_fetch_iterator(cursor)
     except psycopg2.ProgrammingError:
         logger.warning(f'Error fetching entries for deep project {pid}')
         return
     else:
         columns = []
-        for row in rows:
+        batch_size = 500
+        for i, row_batch in enumerate(batched(rows, batch_size)):
             columns = columns if columns else [c.name for c in cursor.description]
-            entry_dict = dict(zip(columns, row))
-            lead_id = entry_dict['lead_id']
-            if lead_id not in leads_set:
-                continue
             with transaction.atomic():
-                Entry.objects.create(
-                    original_entry_id=entry_dict['id'],
-                    lead_id=lead_id,
-                    original_lang='',  # TODO: fill this
-                    excerpt_en='',  # TODO: fill this
-                    excerpt_es='',  # TODO: fill this
-                    excerpt_fr='',  # TODO: fill this
-                    excerpt_pt='',  # TODO: fill this
-                    original_af_tags={},  # TODO: fill this
-                    nlp_af_tags={},  # TODO: fill this
-                    extra={
-                        k: entry_dict[k]
-                        for k in entry_extra_fields
-                    }
+                last_entry_dict = _process_entries_batch(
+                    row_batch,
+                    leads_dict,
+                    columns
                 )
-                project.to_fetch_project.last_fetched_entry_created_at = entry_dict['created_at']
-                project.to_fetch_project.save()
+                to_fetch = project.to_fetch_project
+                to_fetch.last_fetched_entry_created_at = last_entry_dict['created_at']
+                to_fetch.save()
+            print(f'Fetched {i+1} batches({batch_size}) entries')
     print(f'fetched entries for project {pid}')
 
 
-def fetch_afs(cursor: CursorWrapper, tracker: DeepDataFetchTracker) -> Optional[set[int]]:
+def fetch_afs(
+    cursor: CursorWrapper,
+    tracker: DeepDataFetchTracker
+) -> OptDictIntObj[int]:
     af_extra_fields = ['description', 'properties']
     try:
         last_fetched = tracker.last_fetched_af_created_at
@@ -259,10 +290,13 @@ def fetch_afs(cursor: CursorWrapper, tracker: DeepDataFetchTracker) -> Optional[
                 tracker.last_fetched_af_created_at = af_dict['created_at']
                 tracker.save()
         print('fetched afs')
-        return set(AFMapping.objects.values_list('id'))
+        return dict(AFMapping.objects.values_list('original_af_id', 'id'))
 
 
-def fetch_orgs(cursor: CursorWrapper, tracker: DeepDataFetchTracker) -> Optional[set[int]]:
+def fetch_orgs(
+    cursor: CursorWrapper,
+    tracker: DeepDataFetchTracker
+) -> OptDictIntObj[int]:
     org_extra_fields = ["url", "source", "parent_id", "organization_type"]
     try:
         last_fetched = tracker.last_fetched_org_created_at
@@ -295,4 +329,6 @@ def fetch_orgs(cursor: CursorWrapper, tracker: DeepDataFetchTracker) -> Optional
                 if i % 200 == 0:
                     print(f'Inerserted {i+1} org')
         print('fetched orgs')
-        return set(Organization.objects.values_list('id'))
+        return dict(
+            Organization.objects.values_list('original_organization_id', 'id')
+        )
