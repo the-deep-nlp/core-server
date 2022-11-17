@@ -15,7 +15,9 @@ FROM
 WHERE
   pp.id IN (
     '{}'
-  )
+  ) and
+  ee.created_at >= '{}'
+order by ee.created_at asc
 """
 
 af_widget_q = """SELECT
