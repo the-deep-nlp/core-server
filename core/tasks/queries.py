@@ -105,17 +105,20 @@ order by ll.created_at asc
 entries_exportable_q = """
 select
     e.id,
+    e.lead_id,
+    e.information_date,
     exportable_id,
     entry_type,
     excerpt,
     excerpt_modified,
-    ee.data,
-    ex.data
+    ee.data export_data,
+    ex.data af_exportable_data,
     e.created_at
 from entry_entry e
 inner join entry_exportdata ee on e.id = ee.entry_id
 inner join analysis_framework_exportable ex on ex.id = ee.exportable_id
-where e.created_at >= '{}'
+where e.project_id={} and
+      e.created_at >= '{}'
 order by e.created_at asc
 """
 
