@@ -86,8 +86,18 @@ class Lead(BaseModel):
         RESTRICTED = 'restricted', 'Restricted'
         CONFIDENTIAL = 'confidential', 'Confidential'
 
+    class ExtractionStatus(models.IntegerChoices):
+        PENDING = 0, 'Pending'
+        STARTED = 1, 'Started'
+        RETRYING = 4, 'Retrying'
+        SUCCESS = 2, 'Success'
+        FAILED = 3, 'Failed'
+
     original_lead_id = models.PositiveIntegerField(unique=True)
     title = models.CharField(max_length=255)
+    extraction_status = models.SmallIntegerField(
+        choices=ExtractionStatus.choices, default=ExtractionStatus.PENDING
+    )
     text_extract = models.TextField()
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     authoring_org = models.ForeignKey(
@@ -124,7 +134,8 @@ class Entry(BaseModel):
     excerpt_pt = models.TextField()
     original_af_tags = models.JSONField(default=dict)
     nlp_af_tags = models.JSONField(default=dict)
-    exportdata = models.JSONField(default=dict)
+    export_data = models.JSONField(default=dict)
+    af_exportable_data = models.JSONField(default=dict)
     extra = models.JSONField(default=dict)
 
     def __str__(self):

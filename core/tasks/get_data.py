@@ -115,9 +115,10 @@ def fetch_project_data(
         logger.info(f'Fetched project data for deep project {pid}')
         print(f'Fetched project data for deep project {pid}')
 
-        leads_set = fetch_project_leads(cursor, project, orgs_dict)
-        if leads_set is not None:
-            fetch_project_entries(cursor, project, leads_set)
+        leads_dict = fetch_project_leads(cursor, project, orgs_dict)
+        print('leads_dict', leads_dict)
+        if leads_dict:
+            fetch_project_entries(cursor, project, leads_dict)
 
         logger.info(f'Fetched all data for deep project {pid}')
         print(f'Fetched all data for deep project {pid}')
@@ -164,8 +165,9 @@ def fetch_project_leads(
         last_fetched = project.to_fetch_project.last_fetched_lead_created_at
         cursor.execute(queries.lead_q.format(pid, last_fetched or VERY_PAST_DATE))  # noqa
         rows = cursor_fetch_iterator(cursor)
-    except psycopg2.ProgrammingError:
-        logger.warning(f'Error fetching leads for deep project {pid}')
+    except psycopg2.ProgrammingError as e:
+        logger.warning(f'Error fetching leads for deep project {pid}: {e}')
+        print(f'Error fetching leads for deep project {pid}: {e}')
         return
     else:
         columns = []
@@ -203,6 +205,8 @@ def _process_entries_batch(entries_batch, leads_dict, columns):
                 'excerpt_pt': '',  # TODO: fill this
                 'original_af_tags': {},  # TODO: fill this
                 'nlp_af_tags': {},  # TODO: fill this
+                'export_data': entry_dict['export_data'],
+                'af_exportable_data': entry_dict['af_exportable_data'],
                 'extra': {
                     k: entry_dict[k]
                     for k in entry_extra_fields
@@ -220,13 +224,19 @@ def fetch_project_entries(
     pid = project.original_project_id
     try:
         last_fetched = project.to_fetch_project.last_fetched_entry_created_at
-        cursor.execute(queries.entries_q.format(pid, last_fetched or VERY_PAST_DATE))
+        cursor.execute(
+            queries.entries_exportable_q.format(
+                pid, last_fetched or VERY_PAST_DATE
+            )
+        )
         rows = cursor_fetch_iterator(cursor)
-    except psycopg2.ProgrammingError:
+    except psycopg2.ProgrammingError as e:
         logger.warning(f'Error fetching entries for deep project {pid}')
+        print(f'Error fetching entries for deep project {pid} : {e}')
         return
     else:
         columns = []
+        print('fetching entries')
         batch_size = 500
         for i, row_batch in enumerate(batched(rows, batch_size)):
             columns = columns if columns else [c.name for c in cursor.description]
