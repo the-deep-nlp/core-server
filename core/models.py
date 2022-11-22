@@ -19,6 +19,7 @@ class ToFetchProject(BaseModel):
     """
     class FetchStatus(models.TextChoices):
         NOT_FETCHED = 'not_fetched', 'Not Fetched'
+        FETCHING = 'fetching', 'Fetching'
         FETCHED = 'fetched', 'Fetched'
         ERRORED = 'errored', 'Errored'
         NOT_FOUND = 'not_found', 'Not Found'
@@ -98,7 +99,7 @@ class Lead(BaseModel):
     extraction_status = models.SmallIntegerField(
         choices=ExtractionStatus.choices, default=ExtractionStatus.PENDING
     )
-    text_extract = models.TextField()
+    text_extract = models.TextField(null=True, blank=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     authoring_org = models.ForeignKey(
         Organization,
@@ -121,7 +122,8 @@ class Lead(BaseModel):
     extra = models.JSONField(default=dict)
 
     def __str__(self):
-        return self.text_extract[:50]
+        return self.text_extract[:50] \
+            if self.text_extract else '-- Not extracted --'
 
 
 class Entry(BaseModel):
