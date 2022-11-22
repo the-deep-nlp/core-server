@@ -68,8 +68,11 @@ def fetch_project_data(
     afs_dict: Dict[int, int],
     orgs_dict: Dict[int, int],
 ):
+    # Set status to fetching
+    to_fetch.status = ToFetchProject.FetchStatus.FETCHING
+    to_fetch.save()
     pid = to_fetch.original_project_id
-    print(f'Fetching data for deep project {pid}')
+    logger.info(f'Fetching data for deep project {pid}')
     try:
         cursor.execute(queries.projects_q.format(pid))
         data = cursor.fetchall()
@@ -116,7 +119,6 @@ def fetch_project_data(
         print(f'Fetched project data for deep project {pid}')
 
         leads_dict = fetch_project_leads(cursor, project, orgs_dict)
-        print('leads_dict', leads_dict)
         if leads_dict:
             fetch_project_entries(cursor, project, leads_dict)
 
@@ -141,6 +143,7 @@ def _process_lead_batch(lead_batch, project, orgs_dict, columns):
                 'project': project,
                 'authoring_org_id': orgs_dict.get(auth_id),
                 'publishing_org_id': orgs_dict.get(source_id),
+                'extraction_status': lead_dict['extraction_status'],
                 'title': lead_dict['title'],
                 'text_extract': lead_dict['text_extract'],
                 'source_url': lead_dict['url'],
@@ -164,7 +167,7 @@ def fetch_project_leads(
     try:
         last_fetched = project.to_fetch_project.last_fetched_lead_created_at
         cursor.execute(queries.lead_q.format(pid, last_fetched or VERY_PAST_DATE))  # noqa
-        rows = cursor_fetch_iterator(cursor)
+        rows = cursor_fetch_iterator(cursor, 3000)
     except psycopg2.ProgrammingError as e:
         logger.warning(f'Error fetching leads for deep project {pid}: {e}')
         print(f'Error fetching leads for deep project {pid}: {e}')
@@ -193,6 +196,7 @@ def _process_entries_batch(entries_batch, leads_dict, columns):
         entry_dict = dict(zip(columns, row))
         lead_id = leads_dict.get(entry_dict['lead_id'])
         if lead_id is None:
+            print('no lead for lead id', entry_dict['lead_id'])
             continue
         Entry.objects.update_or_create(
             original_entry_id=entry_dict['id'],
@@ -229,14 +233,13 @@ def fetch_project_entries(
                 pid, last_fetched or VERY_PAST_DATE
             )
         )
-        rows = cursor_fetch_iterator(cursor)
+        rows = cursor_fetch_iterator(cursor, 3000)
     except psycopg2.ProgrammingError as e:
-        logger.warning(f'Error fetching entries for deep project {pid}')
-        print(f'Error fetching entries for deep project {pid} : {e}')
+        logger.warning(f'Error fetching entries for deep project {pid}: {e}')
         return
     else:
         columns = []
-        print('fetching entries')
+        logger.info('fetching entries')
         batch_size = 500
         for i, row_batch in enumerate(batched(rows, batch_size)):
             columns = columns if columns else [c.name for c in cursor.description]
@@ -249,8 +252,8 @@ def fetch_project_entries(
                 to_fetch = project.to_fetch_project
                 to_fetch.last_fetched_entry_created_at = last_entry_dict['created_at']
                 to_fetch.save()
-            print(f'Fetched {i+1} batches({batch_size}) entries')
-    print(f'fetched entries for project {pid}')
+            logger.info(f'Fetched {i+1} batches({batch_size}) entries')
+    logger.info(f'fetched entries for project {pid}')
 
 
 def fetch_afs(
@@ -268,7 +271,7 @@ def fetch_afs(
         return
     else:
         columns = []
-        for i, row in enumerate(rows):
+        for row in rows:
             columns = columns if columns else [c.name for c in cursor.description]  # noqa
             af_dict = dict(zip(columns, row))
             widgets_data = {
@@ -285,7 +288,7 @@ def fetch_afs(
                 }
             }
             with transaction.atomic():
-                af_mapping, _ = AFMapping.objects.update_or_create(
+                AFMapping.objects.update_or_create(
                     original_af_id=af_dict['id'],
                     defaults={
                         'af_name': af_dict['title'],
@@ -295,11 +298,9 @@ def fetch_afs(
                         'extra': extra_data,
                     }
                 )
-                if i % 200 == 0:
-                    print(f'Inerserted {i+1} af')
                 tracker.last_fetched_af_created_at = af_dict['created_at']
                 tracker.save()
-        print('fetched afs')
+        logger.info('fetched afs')
         return dict(AFMapping.objects.values_list('original_af_id', 'id'))
 
 
@@ -318,11 +319,11 @@ def fetch_orgs(
         return
     else:
         columns = []
-        for i, row in enumerate(rows):
+        for row in rows:
             columns = columns if columns else [c.name for c in cursor.description]  # noqa
             org_dict = dict(zip(columns, row))
             with transaction.atomic():
-                org, _ = Organization.objects.update_or_create(
+                Organization.objects.update_or_create(
                     original_organization_id=org_dict["id"],
                     defaults={
                         "name": org_dict["title"],
@@ -336,9 +337,6 @@ def fetch_orgs(
                 )
                 tracker.last_fetched_org_created_at = org_dict['created_at']
                 tracker.save()
-                if i % 200 == 0:
-                    print(f'Inerserted {i+1} org')
-        print('fetched orgs')
         return dict(
             Organization.objects.values_list('original_organization_id', 'id')
         )

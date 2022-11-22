@@ -6,7 +6,8 @@ class CursorWrapper:
     """
     This is just a wrapper over psycopg2 cursor. This exists because we use
     named cursor which needs to be closed after each call to execute. Named
-    cursor is used to prevent fetching of all rows.
+    cursor is used to prevent fetching of all rows. This also contains the
+    original connection.
 
     The idea is to initialize with a cursor and a connection and override the
     execute function(which closes existing cursor and re-creates) and rest of
@@ -56,6 +57,9 @@ def connect_db():
 
 
 def cursor_fetch_iterator(cursor: CursorWrapper, size=2000, limit=None):
+    """
+    Just don't fetch everything from the server. Fetch in batches of `size`
+    """
     count = 0
     while True:
         records = cursor.fetchmany(size)
