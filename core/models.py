@@ -8,7 +8,7 @@ class DeepDataFetchTracker(BaseModel):
     last_fetched_af_created_at = models.DateTimeField(null=True)
 
     def save(self, *args, **kwargs):
-        if self.pk is None and DeepDataFetchTracker.objects.first() is not None:
+        if self.pk is None and DeepDataFetchTracker.objects.first() is not None:  # noqa
             raise Exception('Cannot create multiple trackers')
         super().save(*args, **kwargs)
 
@@ -170,18 +170,3 @@ class ClassificationPredictions(BaseModel):
 
     def __str__(self):
         return self.entry
-
-
-class LeadVectorsNLP(BaseModel):
-    class EncodingType(models.TextChoices):
-        GLOVE_6B_300 = 'glove_6b_300', 'Glove 6B 300d'
-        GLOVE_840B_300 = 'glove_840b_300', 'Glove 840B 300d'
-        LSH_256_PERMS = 'lsh_256_perms', 'LSH 256 Perms'
-        LSH_128_PERMS = 'lsh_128_perms', 'LSH 128 Perms'
-
-    lead = models.ForeignKey(Lead, on_delete=models.CASCADE)
-    encoding_type = models.CharField(
-        max_length=50,
-        choices=EncodingType.choices
-    )
-    encoding = models.JSONField()
