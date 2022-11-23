@@ -30,6 +30,7 @@ OptDictIntObj = Optional[Dict[int, T]]
 VERY_PAST_DATE = datetime(1990, 10, 10)   # Before creation of deep platform
 
 
+@shared_task
 @log_time()
 def fetch_deep_data():
     tracker = DeepDataFetchTracker.objects.first()

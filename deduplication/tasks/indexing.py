@@ -1,6 +1,7 @@
 import pickle
 from datasketch import MinHashLSH
 from django.db import transaction
+from celery import shared_task
 
 from utils.decorators import log_time
 from utils.transformations import batched, serialize_minhash
@@ -47,6 +48,7 @@ def create_project_index(project: Project):
     index_obj.save()
 
 
+@shared_task
 def create_indices():
     all_projects = Project.objects.filter(
         to_fetch_project__status=ToFetchProject.FetchStatus.FETCHED
