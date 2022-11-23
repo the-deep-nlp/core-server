@@ -27,4 +27,5 @@ class log_time:
             self.end = time.time()
             self.log()
             return res
+        wrapped_f.__name__ = f.__name__
         return wrapped_f
