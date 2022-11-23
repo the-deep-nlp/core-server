@@ -25,7 +25,7 @@ class CursorWrapper:
         if name == 'execute':
             try:
                 self.cursor.close()
-            except Exception as e:
+            except Exception:
                 pass
             else:
                 self.cursor = self.connection.cursor(name='deepl_cursor')
