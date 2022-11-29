@@ -2,12 +2,15 @@ import pickle
 from datasketch import MinHashLSH
 from django.db import transaction
 from celery import shared_task
+from celery.utils.log import get_task_logger
 
 from utils.decorators import log_time
 from utils.transformations import batched, serialize_minhash
 from core.models import Lead, Project, ToFetchProject
 from deduplication.models import LSHIndex, LeadHash
 from deduplication.utils import get_minhash, insert_to_index
+
+logger = get_task_logger(__name__)
 
 
 def create_project_index(project: Project):

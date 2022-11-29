@@ -70,7 +70,8 @@ class Project(BaseModel):
     )
     to_fetch_project = models.ForeignKey(
         ToFetchProject,
-        on_delete=models.CASCADE
+        null=True,
+        on_delete=models.SET_NULL,
     )
     title = models.CharField(max_length=200)
     location = models.CharField(max_length=200)
