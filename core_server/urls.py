@@ -16,6 +16,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from deduplication.views import deduplication
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/deduplication/', deduplication),
 ]

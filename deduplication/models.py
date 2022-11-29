@@ -83,3 +83,36 @@ class LeadHash(BaseModel):
 
     class Meta:
         unique_together = ('lead', 'lsh_index')
+
+
+class DeduplicationRequest(BaseModel):
+    class RequestStatus(models.TextChoices):
+        PENDING = "pending", "Pending"
+        COMPLETE = "complete", "Complete"
+        ERRORED = "errored", "Errored"
+
+    class RequestClient(models.TextChoices):
+        DEEP = "deep", "DEEP"
+
+    request_client = models.CharField(
+        max_length=30,
+        choices=RequestClient.choices,
+        default=RequestClient.DEEP,
+    )
+    status = models.CharField(
+        max_length=15,
+        choices=RequestStatus.choices,
+        default=RequestStatus.COMPLETE,
+    )
+    project_id = models.IntegerField()
+    lead_id = models.IntegerField()
+    callback_url = models.TextField()
+    text_extract = models.TextField()
+    error = models.TextField(null=True, blank=True)
+    result = models.JSONField(default=dict)
+
+    class Meta:
+        unique_together = ('request_client', 'project_id', 'lead_id')
+
+    def __str__(self):
+        return f'{self.status}: Project({self.project_id}) Lead({self.lead_id})'
