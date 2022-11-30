@@ -1,6 +1,7 @@
 """
 @main_author: Nicolo(nico@datafriendlyspace.org)
 @modified_by: Bibek(bibek.pandey@togglecorp.com)
+NOTE: this module is not in use at the moment. This exists just for reference.
 """
 
 import pandas as pd
@@ -46,17 +47,10 @@ def pull_data(cursor, prj_id):
 
     with log_time("entries get_data"):
         entries = _get_data(cursor, projects, queries.entries_q, "entries")
-    # print("----------------- af widgets")
     with log_time("af_widgets get_data"):
         af_widgets = _get_data(cursor, projects, queries.af_widget_q, "af_widget")
-    """print("----------------- exportables")
-    exportables = _get_data(
-        cursor, projects, queries.af_exportables_q, "af_exportables"
-    )"""
-    # print("----------------- exportdata")
     with log_time('exportdata get_data'):
         exportdata = _get_data(cursor, projects, queries.exportdata_q, "exportdata")
-        print()
         print(exportdata)
 
     return (entries, af_widgets, exportdata)
@@ -99,8 +93,6 @@ generalize, for example:
 
 
 def _get_id2label(frame):
-    print('in get_id2label')
-    print(frame)
     t = {}
     d = frame[frame.widget_id.isin(["matrix2dWidget"])]
 
@@ -108,7 +100,6 @@ def _get_id2label(frame):
 
         _, a = c
         prop = a.properties
-        # print(prop)
         for p in prop.get("rows", []):
             t.update({p["key"]: p["label"]})
             for pp in p.get("subRows", []):
@@ -169,13 +160,6 @@ def _get_values_one_row(c, widget, id2label):
         for all other widgets: values : list
     """
 
-    # global omg
-    # omg += 1
-
-    # if omg % 1000 == 0:
-    #    print(omg)
-
-    # master = master_dict(widget)
     key_title, key_id = "MISSING", ""
 
     if "common" in c.keys():
@@ -205,9 +189,6 @@ def _get_values_one_row(c, widget, id2label):
                 tip = "empty"
         else:
             tip = "empty"
-
-    # print(tip)
-    # print(c)
 
     if tip in ["geoWidget", "dateRangeWidget"]:
         output = c["common"]["values"]
@@ -415,9 +396,6 @@ def fetch_data(prj_id):
         suffixes=("", "_lead"),
     )"""
 
-    # print(raw)
-    # date = datetime.today().date().isoformat().replace("-", "_")
-    # raw.to_csv(f"ukr_{date}.csv", index=False)
     cursor.close()
     cursor.connection.close()
     return raw

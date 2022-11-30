@@ -69,7 +69,6 @@ class TestAPIs(APITestCase):
         dedup_obj = DeduplicationRequest.objects.filter(
             lead_id=original_lead_id,
             project_id=original_project_id,
-            request_client="deep",
         ).first()
         assert dedup_obj is not None, "Deduplication request should be created"
         process_dedup_request.delay.assert_called_once_with(dedup_obj.pk)
