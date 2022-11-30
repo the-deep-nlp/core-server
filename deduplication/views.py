@@ -15,7 +15,6 @@ from .serializers import DeduplicationRequestSerializer
 def deduplication(request: Request):
     serializer = DeduplicationRequestSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    print(serializer.validated_data)
 
     if not LSHIndex.objects.filter(
         project__original_project_id=serializer.validated_data["project_id"],

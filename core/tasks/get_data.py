@@ -47,8 +47,9 @@ def fetch_deep_data():
         if afs_dict is None:
             logger.warning('Could not fetch analysis frameowrks. Exiting.')
             return
-        not_fetched = ToFetchProject.FetchStatus.NOT_FETCHED
-        for prj in ToFetchProject.objects.filter(status=not_fetched):
+        for prj in ToFetchProject.objects.filter(
+            status=ToFetchProject.FetchStatus.NOT_FETCHED,
+        ):
             print(f'Fetching deep project with id {prj.original_project_id}')  # noqa
             logger.info(f'Fetching deep project with id {prj.original_project_id}')  # noqa
             fetch_project_data(
@@ -71,7 +72,7 @@ def fetch_project_data(
 ):
     # Set status to fetching
     to_fetch.status = ToFetchProject.FetchStatus.FETCHING
-    to_fetch.save()
+    to_fetch.save(update_fields=['status'])
     pid = to_fetch.original_project_id
     logger.info(f'Fetching data for deep project {pid}')
     try:
@@ -80,11 +81,11 @@ def fetch_project_data(
         if not data:
             print('no project', pid)
             to_fetch.status = ToFetchProject.FetchStatus.NOT_FOUND
-            to_fetch.save()
+            to_fetch.save(update_fields=['status'])
             return
     except psycopg2.ProgrammingError:
         to_fetch.status = ToFetchProject.FetchStatus.ERRORED
-        to_fetch.save()
+        to_fetch.save(update_fields=['status'])
     else:
         columns = [c.name for c in cursor.description]
         project_dict = dict(zip(columns, data[0]))
@@ -92,7 +93,7 @@ def fetch_project_data(
         if afid is not None and afid not in afs_dict:
             to_fetch.status = ToFetchProject.FetchStatus.NOT_FOUND
             to_fetch.error = "Af not found for project"
-            to_fetch.save()
+            to_fetch.save(update_fields=['status', 'error'])
             logger.warning(f'Could not find DEEP af with id {afid} and project id {pid}. Skipping.')  # noqa
             print(f'Could not find DEEP af with id {afid} and project id {pid}. Skipping.')  # noqa
             return
@@ -100,7 +101,7 @@ def fetch_project_data(
             logger.warning(f'Could not find DEEP project with id {pid}. Skipping.')  # noqa
             print(f'Could not find DEEP project with id {pid}. Skipping.')  # noqa
             to_fetch.status = ToFetchProject.FetchStatus.NOT_FOUND
-            to_fetch.save()
+            to_fetch.save(update_fields=['status'])
             return
         project, _ = Project.objects.update_or_create(
             original_project_id=to_fetch.original_project_id,
@@ -126,7 +127,7 @@ def fetch_project_data(
         logger.info(f'Fetched all data for deep project {pid}')
         print(f'Fetched all data for deep project {pid}')
         to_fetch.status = ToFetchProject.FetchStatus.FETCHED
-        to_fetch.save()
+        to_fetch.save(update_fields=['status'])
 
 
 def _process_lead_batch(lead_batch, project, orgs_dict, columns):

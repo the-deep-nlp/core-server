@@ -36,6 +36,9 @@ class LSHIndex(BaseModel):
     pickle_version = models.CharField(max_length=10, null=True)
     index_pickle = models.BinaryField(null=True)
 
+    class Meta:
+        verbose_name_plural = "LSH Indices"
+
     def load_index(self):
         """This sets the attribute index if pickle is present"""
         if hasattr(self, 'index_pickle') and self.index_pickle is not None \
@@ -83,36 +86,33 @@ class LeadHash(BaseModel):
 
     class Meta:
         unique_together = ('lead', 'lsh_index')
+        verbose_name_plural = "Lead Hashes"
 
 
 class DeduplicationRequest(BaseModel):
     class RequestStatus(models.TextChoices):
         PENDING = "pending", "Pending"
-        COMPLETE = "complete", "Complete"
-        ERRORED = "errored", "Errored"
+        CALCULATED = "calculated", "Calculated"
+        RESPONDED = "responded", "Responded"
 
     class RequestClient(models.TextChoices):
         DEEP = "deep", "DEEP"
 
-    request_client = models.CharField(
-        max_length=30,
-        choices=RequestClient.choices,
-        default=RequestClient.DEEP,
-    )
     status = models.CharField(
         max_length=15,
         choices=RequestStatus.choices,
-        default=RequestStatus.COMPLETE,
+        default=RequestStatus.PENDING,
     )
     project_id = models.IntegerField()
     lead_id = models.IntegerField()
     callback_url = models.TextField()
     text_extract = models.TextField()
+    has_errored = models.BooleanField(default=False)
     error = models.TextField(null=True, blank=True)
     result = models.JSONField(default=dict)
 
     class Meta:
-        unique_together = ('request_client', 'project_id', 'lead_id')
+        unique_together = ('project_id', 'lead_id')
 
     def __str__(self):
         return f'{self.status}: Project({self.project_id}) Lead({self.lead_id})'
