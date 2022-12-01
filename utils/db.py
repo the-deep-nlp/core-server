@@ -1,5 +1,6 @@
-import os
 import psycopg2
+
+from core_server.env import env
 
 
 class CursorWrapper:
@@ -41,11 +42,11 @@ def connect_db():
     # we can access the db only thourgh an EC2 instances and not directly for
     # security reason.
     params = {
-        "host": os.environ['DEEP_DB_HOST'],
-        "port": os.environ.get('DEEP_DB_PORT', '5432'),
-        "dbname": os.environ['DEEP_DB_NAME'],
-        "user": os.environ['DEEP_DB_USER'],
-        "password": os.environ['DEEP_DB_PASSWORD'],
+        "host": env('DEEP_DB_HOST'),
+        "port": env('DEEP_DB_PORT'),
+        "dbname": env('DEEP_DB_NAME'),
+        "user": env('DEEP_DB_USER'),
+        "password": env('DEEP_DB_PASSWORD'),
         "sslmode": "require",
     }
     connection = psycopg2.connect(**params)
