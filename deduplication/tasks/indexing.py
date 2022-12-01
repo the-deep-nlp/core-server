@@ -4,6 +4,7 @@ from django.db import transaction
 from celery import shared_task
 from celery.utils.log import get_task_logger
 
+from core_server.celery import app
 from utils.decorators import log_time
 from utils.transformations import batched, serialize_minhash
 from core.models import Lead, Project, ToFetchProject
