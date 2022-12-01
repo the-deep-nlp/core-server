@@ -5,7 +5,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.request import Request
 
-from .tasks import process_dedup_request
+from .tasks.callback import process_dedup_request
 from .models import LSHIndex
 from .serializers import DeduplicationRequestSerializer
 
