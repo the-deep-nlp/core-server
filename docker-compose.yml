@@ -30,7 +30,7 @@ services:
     depends_on:
       - db
       - redis
-    command: bash -c '/code/scripts/wait-for-it.sh $$POSTGRES_HOSTNAME:$$POSTGRES_PORT && python manage.py runserver 0.0.0.0:8000'
+    command: bash -c '/code/scripts/run_dev.sh server'
 
   celery: &celery-config
     build: ./
@@ -43,8 +43,8 @@ services:
     depends_on:
       - db
       - redis
-    command: bash -c '/code/scripts/wait-for-it.sh $$POSTGRES_HOSTNAME:$$POSTGRES_PORT && celery -A core_server worker -l info'
+    command: bash -c '/code/scripts/run_dev.sh celery'
 
   celery_beat:
     <<: *celery-config
-    command: bash -c '/code/scripts/wait-for-it.sh $$POSTGRES_HOSTNAME:$$POSTGRES_PORT && celery -A core_server beat -l info'
+    command: bash -c '/code/scripts/run_dev.sh beat'
