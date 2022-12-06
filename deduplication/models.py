@@ -35,6 +35,8 @@ class LSHIndex(BaseModel):
     )
     pickle_version = models.CharField(max_length=10, null=True)
     index_pickle = models.BinaryField(null=True)
+    has_errored = models.BooleanField(default=False)
+    error = models.TextField(null=True, blank=True)
 
     class Meta:
         verbose_name_plural = "LSH Indices"

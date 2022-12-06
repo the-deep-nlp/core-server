@@ -4,6 +4,7 @@ from typing import Tuple, Optional
 from celery import shared_task
 from celery.utils.log import get_task_logger
 
+from utils.transformations import serialize_minhash
 from deduplication.models import DeduplicationRequest, LSHIndex
 from deduplication.utils import get_minhash
 
@@ -40,7 +41,6 @@ def process_dedup_request(dedup_pk: int):
         lead_hash = get_minhash(dedup_req.text_extract)
         duplicate_lead_ids = lsh_index.index.query(lead_hash)
         dedup_req.result = {
-            "lead_has": lead_hash,
             "duplicate_lead_ids": duplicate_lead_ids,
         }
     except Exception:
@@ -49,7 +49,7 @@ def process_dedup_request(dedup_pk: int):
         dedup_req.save(update_fields=['has_errored', 'error'])
 
     dedup_req.status = RequestStatus.CALCULATED
-    dedup_req.save(update_fields=['status'])
+    dedup_req.save(update_fields=['status', 'result'])
 
     # Send to DEEP
     success, err = respond_to_deep(dedup_req)
@@ -73,7 +73,11 @@ def respond_to_deep(dedup_req: DeduplicationRequest) -> Tuple[bool, Optional[str
             "Result does not contain appropriate key(duplicate_lead_ids)",
         )
 
-    resp = requests.post(dedup_req.callback_url, data=data)
+    try:
+        resp = requests.post(dedup_req.callback_url, data=data)
+    except Exception:
+        return False, traceback.format_exc()
+
     if resp.status_code >= 300 or resp.status_code < 200:
         return False, resp.text
     return True, None

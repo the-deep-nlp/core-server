@@ -14,18 +14,28 @@ logger = get_task_logger(__name__)
 
 
 def create_project_index(project: Project):
-    index_obj, _ = LSHIndex.objects.get_or_create(
+    index_obj, created = LSHIndex.objects.get_or_create(
         name=project.title,
         project=project,
         defaults={
             "pickle_version": pickle.format_version,
         },
     )
-    leads = Lead.objects.filter(project=project, text_extract__isnull=False)
-    index = MinHashLSH(
-        threshold=LSHIndex.THRESHOLD,
-        num_perm=LSHIndex.NUM_PERM,
+    if index_obj.has_errored:
+        return
+    # Fetch leads which have been extracted and whose hash does not exist
+    leads = Lead.objects.filter(
+        project=project,
+        text_extract__isnull=False,
+        leadhash__isnull=True,
     )
+    if created:
+        index = MinHashLSH(
+            threshold=LSHIndex.THRESHOLD,
+            num_perm=LSHIndex.NUM_PERM,
+        )
+    else:
+        index = index_obj.index
 
     def _process_and_insert_lead(lead):
         minhash = get_minhash(lead.text_extract)
@@ -38,17 +48,24 @@ def create_project_index(project: Project):
             },
         )
 
-    batches = batched(leads, batch_size=200)
-    for i, batch in enumerate(batches):
-        with transaction.atomic():
-            for lead in batch:
-                _process_and_insert_lead(lead)
-        print('processed batch', i)
-
-    # Update the index
-    index_obj.index = index
-    index_obj.status = LSHIndex.IndexStatus.CREATED
-    index_obj.save()
+    try:
+        batches = batched(leads, batch_size=200)
+        for i, batch in enumerate(batches):
+            with transaction.atomic():
+                for lead in batch:
+                    _process_and_insert_lead(lead)
+            logger.info('processed batch', i)
+    except Exception:
+        logger.warning(f"Error creating index for project {project.original_project_id}")
+        import traceback
+        index_obj.has_errored = True
+        index_obj.error = traceback.format_exc()
+        index_obj.save()
+    else:
+        # Update the index
+        index_obj.index = index
+        index_obj.status = LSHIndex.IndexStatus.CREATED
+        index_obj.save()
 
 
 @shared_task
