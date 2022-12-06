@@ -31,14 +31,12 @@ VERY_PAST_DATE = datetime(1990, 10, 10)   # Before creation of deep platform
 
 
 @shared_task(name='core.tasks.get_data.fetch_deep_data')
-@log_time()
+@log_time(log_function=logger.info)
 def fetch_deep_data():
     tracker = DeepDataFetchTracker.objects.first()
     if tracker is None:
         tracker = DeepDataFetchTracker.objects.create()
-    print('connecting')
     cursor = connect_db()
-    print('connected')
     try:
         afs_dict = fetch_afs(cursor, tracker)
         orgs_dict = fetch_orgs(cursor, tracker)

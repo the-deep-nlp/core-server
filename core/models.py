@@ -40,9 +40,9 @@ class ToFetchProject(BaseModel):
 
 class Organization(BaseModel):
     original_organization_id = models.PositiveIntegerField(unique=True)
-    name = models.CharField(max_length=200)
-    short_name = models.CharField(max_length=50)
-    long_name = models.CharField(max_length=50)
+    name = models.CharField(max_length=255)
+    short_name = models.CharField(max_length=255)
+    long_name = models.CharField(max_length=255)
     extra = models.JSONField()
 
     def __str__(self):
