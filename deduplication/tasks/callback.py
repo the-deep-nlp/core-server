@@ -40,7 +40,7 @@ def process_dedup_request(dedup_pk: int):
         lead_hash = get_minhash(dedup_req.text_extract)
         duplicate_lead_ids = lsh_index.index.query(lead_hash)
         dedup_req.result = {
-            "lead_hash": lead_hash,
+            "lead_has": lead_hash,
             "duplicate_lead_ids": duplicate_lead_ids,
         }
     except Exception:
@@ -60,6 +60,8 @@ def process_dedup_request(dedup_pk: int):
         dedup_req.status = RequestStatus.RESPONDED
 
     dedup_req.save(update_fields=['has_errored', 'error', 'status'])
+
+    # Update index
 
 
 def respond_to_deep(dedup_req: DeduplicationRequest) -> Tuple[bool, Optional[str]]:

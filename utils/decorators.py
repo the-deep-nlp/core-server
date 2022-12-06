@@ -7,17 +7,18 @@ from rest_framework.serializers import Serializer
 
 
 class log_time:
-    def __init__(self, block_name='BLOCK'):
+    def __init__(self, block_name='BLOCK', log_function=print):
         self.block_name = block_name
         self.start = 0
         self.end = 0
+        self.log_function = log_function
 
     def __enter__(self, *args, **kwargs):
         self.start = time.time()
 
     def log(self):
         dtime = self.end - self.start
-        print(f'{self.block_name} took {round(dtime, 4)} seconds.')
+        self.log_function(f'{self.block_name} took {round(dtime, 4)} seconds.')
 
     def __exit__(self, *args, **kwargs):
         self.end = time.time()
