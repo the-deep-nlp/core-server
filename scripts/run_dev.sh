@@ -1,4 +1,5 @@
 #!/bin/bash
+
 run=${1:-server}
 wait_cmd="/code/scripts/wait-for-it.sh $POSTGRES_HOSTNAME:$POSTGRES_PORT"
 
