@@ -1,0 +1,35 @@
+version: '3.2'
+
+services:
+  redis:
+    image: redis:7-alpine
+
+  server: &server-config
+    build: ./
+    env_file: .env
+    environment:
+      <<: *common-environment
+    ports:
+      - "9000:8000"
+    tty: true
+    depends_on:
+      - redis
+    command: bash -c '/code/scripts/run_prod.sh server'
+
+  celery: &celery-config
+    build: ./
+    env_file: .env
+    environment:
+      <<: *common-environment
+    tty: true
+    depends_on:
+      - redis
+    command: bash -c '/code/scripts/run_prod.sh celery'
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  celery_beat:
+    <<: *celery-config
+    command: bash -c '/code/scripts/run_prod.sh beat'
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
