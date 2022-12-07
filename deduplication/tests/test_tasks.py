@@ -1,10 +1,11 @@
 import pytest
 from unittest import TestCase
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 
 from core.models import Project
 from deduplication.models import DeduplicationRequest, LSHIndex
 from deduplication.tasks.callback import process_dedup_request
+from deduplication.tasks.indexing import create_project_index
 
 
 @pytest.mark.django_db
@@ -56,3 +57,48 @@ class TestTasks(TestCase):
         respond_to_deep.return_value = True, ""
         process_dedup_request(dedup_req.pk)
         respond_to_deep.assert_called_once_with(dedup_req)
+
+    @patch('deduplication.tasks.indexing.process_and_insert_leads')
+    def test_do_not_calculate_indices_for_errored_index_object(self, process_func: Mock):
+        original_project_id = 10
+        project = Project.objects.create(
+            original_project_id=original_project_id,
+            title="test proejct",
+        )
+        # Create an errored LSHIndex
+        LSHIndex.objects.create(
+            name="errored lsh",
+            has_errored=True,
+            project=project,
+            pickle_version="5.0",
+            error="Something went wrong",
+        )
+        create_project_index(project)
+        process_func.assert_not_called()
+
+    @patch('deduplication.tasks.indexing.process_and_insert_leads')
+    def test_calculate_indices_for_index_object(self, process_func: Mock):
+        original_project_id = 10
+        project = Project.objects.create(
+            original_project_id=original_project_id,
+            title="test proejct",
+        )
+        # Create an errored LSHIndex
+        LSHIndex.objects.create(
+            name="errored lsh",
+            has_errored=False,
+            project=project,
+            pickle_version="5.0",
+        )
+        create_project_index(project)
+        process_func.assert_called_once()
+
+    @patch('deduplication.tasks.indexing.process_and_insert_leads')
+    def test_calculate_indices_without_index_object(self, process_func: Mock):
+        original_project_id = 10
+        project = Project.objects.create(
+            original_project_id=original_project_id,
+            title="test proejct",
+        )
+        create_project_index(project)
+        process_func.assert_called_once()
