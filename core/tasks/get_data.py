@@ -128,33 +128,33 @@ def fetch_project_data(
         to_fetch.save(update_fields=['status'])
 
 
-def _process_lead_batch(lead_batch, project, orgs_dict, columns):
+def _process_lead_batch(lead_batch, project, orgs_dict, columns) -> dict:
     lead_extra_fields = [
         'author_raw', 'source_raw', 'priority', 'status', 'published_on',
     ]
-    lead_dict = {}
+    last_lead_dict = {}
     for lead in lead_batch:
-        lead_dict = dict(zip(columns, lead))
-        auth_id = lead_dict['author_id']
-        source_id = lead_dict['source_id']
+        last_lead_dict = dict(zip(columns, lead))
+        auth_id = last_lead_dict['author_id']
+        source_id = last_lead_dict['source_id']
         Lead.objects.update_or_create(
-            original_lead_id=lead_dict['id'],
+            original_lead_id=last_lead_dict['id'],
             defaults={
                 'project': project,
                 'authoring_org_id': orgs_dict.get(auth_id),
                 'publishing_org_id': orgs_dict.get(source_id),
-                'extraction_status': lead_dict['extraction_status'],
-                'title': lead_dict['title'],
-                'text_extract': lead_dict['text_extract'],
-                'source_url': lead_dict['url'],
-                'confidentiality': lead_dict['confidentiality'],
+                'extraction_status': last_lead_dict['extraction_status'],
+                'title': last_lead_dict['title'],
+                'text_extract': last_lead_dict['text_extract'],
+                'source_url': last_lead_dict['url'],
+                'confidentiality': last_lead_dict['confidentiality'],
                 'extra': {
-                    k: str(lead_dict[k])
+                    k: str(last_lead_dict[k])
                     for k in lead_extra_fields
                 }
             }
         )
-    return lead_dict
+    return last_lead_dict
 
 
 def fetch_project_leads(
@@ -187,19 +187,19 @@ def fetch_project_leads(
     return dict(Lead.objects.values_list('original_lead_id', 'id'))
 
 
-def _process_entries_batch(entries_batch, leads_dict, columns):
+def _process_entries_batch(entries_batch, leads_dict, columns) -> dict:
     entry_extra_fields = [
         'information_date', 'entry_type', 'excerpt_modified', 'excerpt'
     ]
-    entry_dict = {}
+    last_entry_dict = {}
     for row in entries_batch:
-        entry_dict = dict(zip(columns, row))
-        lead_id = leads_dict.get(entry_dict['lead_id'])
+        last_entry_dict = dict(zip(columns, row))
+        lead_id = leads_dict.get(last_entry_dict['lead_id'])
         if lead_id is None:
-            print('no lead for lead id', entry_dict['lead_id'])
+            print('no lead for lead id', last_entry_dict['lead_id'])
             continue
         Entry.objects.update_or_create(
-            original_entry_id=entry_dict['id'],
+            original_entry_id=last_entry_dict['id'],
             lead_id=lead_id,
             defaults={
                 'original_lang': '',  # TODO: fill this
@@ -209,15 +209,15 @@ def _process_entries_batch(entries_batch, leads_dict, columns):
                 'excerpt_pt': '',  # TODO: fill this
                 'original_af_tags': {},  # TODO: fill this
                 'nlp_af_tags': {},  # TODO: fill this
-                'export_data': entry_dict['export_data'],
-                'af_exportable_data': entry_dict['af_exportable_data'],
+                'export_data': last_entry_dict['export_data'],
+                'af_exportable_data': last_entry_dict['af_exportable_data'],
                 'extra': {
-                    k: entry_dict[k]
+                    k: last_entry_dict[k]
                     for k in entry_extra_fields
                 }
             }
         )
-    return entry_dict
+    return last_entry_dict
 
 
 def fetch_project_entries(
