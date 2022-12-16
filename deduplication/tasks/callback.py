@@ -66,7 +66,10 @@ def process_dedup_request(dedup_pk: int):
 
 def respond_to_deep(dedup_req: DeduplicationRequest) -> Tuple[bool, Optional[str]]:
     try:
-        data = {"duplicate_lead_ids": dedup_req.result["duplicate_lead_ids"]}
+        data = {
+            "lead_id": dedup_req.lead_id,
+            "duplicate_lead_ids": dedup_req.result["duplicate_lead_ids"],
+        }
     except KeyError:
         return (
             False,
