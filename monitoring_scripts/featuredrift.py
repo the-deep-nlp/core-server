@@ -1,3 +1,4 @@
+import datetime
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
@@ -47,7 +48,7 @@ class FeatureDrift:
     
         return df
 
-    def compute_feature_drift(self) -> pd.DataFrame:
+    def compute_feature_drift(self, n_samples: int=500, random_state: int=5432) -> pd.DataFrame:
         """
         Computes the feature drift based on feature embeddings
         Input: DataFrame containing columns 'project_id', 'embeddings'
@@ -67,8 +68,8 @@ class FeatureDrift:
                 reference_embedding_lst = self._process_embeddings(reference_df["embeddings"])
                 current_embedding_lst = self._process_embeddings(current_df["embeddings"])
 
-                reference_df = pd.DataFrame(reference_embedding_lst)
-                current_df = pd.DataFrame(current_embedding_lst)
+                reference_df = pd.DataFrame(reference_embedding_lst).sample(n=n_samples, random_state=random_state)
+                current_df = pd.DataFrame(current_embedding_lst).sample(n=n_samples, random_state=random_state)
 
                 if len(reference_df) and len(current_df):
                     self.data_drift_dataset_report.run(
@@ -88,6 +89,7 @@ class FeatureDrift:
                     temp_result["number_of_drifted_columns"] = data_drift_report["metrics"][0]["result"]["number_of_drifted_columns"]
                     temp_result["share_of_drifted_columns"] = temp_result["drift_share"] = data_drift_report["metrics"][0]["result"]["share_of_drifted_columns"]
                     temp_result["dataset_drift"] = temp_result["drift_share"] = data_drift_report["metrics"][0]["result"]["dataset_drift"]
+                    temp_result["generated_at"] = datetime.date.today()
 
                     final_result.append(temp_result)
         
@@ -102,6 +104,6 @@ if __name__ == "__main__":
     current_data_df = pd.read_csv(current_data_path)
 
     feature_drift = FeatureDrift(reference_data_df, current_data_df)
-    df = feature_drift.compute_feature_drift()
+    df = feature_drift.compute_feature_drift(n_samples=10)
     print(df)
 
