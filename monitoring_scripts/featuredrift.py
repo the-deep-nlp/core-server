@@ -9,7 +9,7 @@ from evidently.metrics import DatasetDriftMetric, DataDriftTable
 
 class FeatureDrift:
     """
-    Calculates the per project feature drift of excerpts
+    Calculates per project feature drift of excerpts
     Input: DataFrame with columns 'project_id', 'embeddings'
     Output: DataFrame containing columns 'reference_project_id', 'current_project_id',
             'reference_dataset_len', 'current_dataset_len', 'drift_share', 'number_of_columns',
@@ -36,7 +36,7 @@ class FeatureDrift:
     
     def _project_id_based_mask(self,
         df: pd.DataFrame,
-        project_id: float=None
+        project_id: int=None
     ) -> pd.DataFrame:
         """
         Input: DataFrame with column 'project_id'
@@ -48,7 +48,11 @@ class FeatureDrift:
     
         return df
 
-    def compute_feature_drift(self, n_samples: int=500, random_state: int=5432) -> pd.DataFrame:
+    def compute_feature_drift(self,
+        ref_n_samples: int=500,
+        cur_n_samples: int=500,
+        random_state: int=5432
+    ) -> pd.DataFrame:
         """
         Computes the feature drift based on feature embeddings
         Input: DataFrame containing columns 'project_id', 'embeddings'
@@ -68,10 +72,14 @@ class FeatureDrift:
                 reference_embedding_lst = self._process_embeddings(reference_df["embeddings"])
                 current_embedding_lst = self._process_embeddings(current_df["embeddings"])
 
-                reference_df = pd.DataFrame(reference_embedding_lst).sample(n=n_samples, random_state=random_state)
-                current_df = pd.DataFrame(current_embedding_lst).sample(n=n_samples, random_state=random_state)
+                if len(reference_embedding_lst) and len(current_embedding_lst):
+                    # Note that sample size is less by 1 because it should less than population size
+                    ref_n_samples = len(reference_embedding_lst) - 1 if ref_n_samples >= len(reference_embedding_lst) else ref_n_samples
+                    cur_n_samples = len(current_embedding_lst) - 1  if cur_n_samples >= len(current_embedding_lst) else cur_n_samples
+                    
+                    reference_df = pd.DataFrame(reference_embedding_lst).sample(n=ref_n_samples, random_state=random_state)
+                    current_df = pd.DataFrame(current_embedding_lst).sample(n=cur_n_samples, random_state=random_state)
 
-                if len(reference_df) and len(current_df):
                     self.data_drift_dataset_report.run(
                         reference_data=reference_df,
                         current_data=current_df
@@ -104,6 +112,6 @@ if __name__ == "__main__":
     current_data_df = pd.read_csv(current_data_path)
 
     feature_drift = FeatureDrift(reference_data_df, current_data_df)
-    df = feature_drift.compute_feature_drift(n_samples=10)
+    df = feature_drift.compute_feature_drift(ref_n_samples=10, cur_n_samples=10)
     print(df)
 
