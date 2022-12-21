@@ -1,3 +1,4 @@
+import os
 import json
 import logging
 import datetime
@@ -11,8 +12,9 @@ from botocore.exceptions import ClientError
 
 from postprocess_cpu_model_outputs import convert_current_dict_to_previous_one, get_predictions_all
 
-ENDPOINT_NAME = "main-model-cpu"
-AWS_REGION = "us-east-1"
+
+ENDPOINT_NAME = os.getenv("ENDPOINT_NAME")
+AWS_REGION = os.getenv("AWS_REGION")
 BATCH = 10
 
 logging.basicConfig(level=logging.INFO)
