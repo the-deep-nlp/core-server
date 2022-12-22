@@ -235,15 +235,9 @@ def _get_values_one_row(c, widget, id2label):
         sectors, sub_sectors, sub_pillars = [], [], []
         rep = c["report"]["keys"]
 
-        # key = f"{id2af[entry_id)}_{key_id}"
-
         m2widget = id2label  # [key)
-        # print(tip)
-        # print(m2widget)
-        # print(c)
 
         for r in rep:
-            # print(r)
             keys = _reshape_report(r)
 
             if len(keys) == 3:
@@ -295,7 +289,6 @@ def _get_values_one_row(c, widget, id2label):
 
 
 def get_values(exports, widgets):
-    # print("get values")
     id2label = _get_id2label(widgets)
 
     values = []
