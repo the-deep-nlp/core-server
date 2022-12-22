@@ -9,7 +9,7 @@ Core Project for maintaining database, jobs and tasks.
   need configurations for deep server as well.
     - There's a chance a proxy is being used to access the DEEP db server.
     - In that case, you need to set up a ssh tunnel to the proxy server as:
-       `ssh -i ~/.ssh/ec2monitoring.pem -N -L 0.0.0.0:5432:34.202.46.89:8432 ubuntu@54.173.1.227`.
+       `ssh -i ~/.ssh/ec2monitoring.pem -N -L 0.0.0.0:5432:<server_ip>:<server_port> ubuntu@<proxy_host>`.
     - This will listen to port 5432 on your host machine.
     - If you need to access this from inside container, set `DEEP_DB_HOST` env var to `host.docker.internal`.
     - Learn more about ssh tunneling [here](https://linuxhint.com/setup-ssh-tunneling-linux/).

@@ -51,8 +51,8 @@ class TestTasks(TestCase):
         dedup_req = DeduplicationRequest.objects.create(
             project_id=1,  # dummy id
             lead_id=1,  # dummy
+            client_id="some_client_id",
             callback_url=deep_callback_url,
-
         )
         respond_to_deep.return_value = True, ""
         process_dedup_request(dedup_req.pk)

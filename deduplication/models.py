@@ -14,7 +14,20 @@ class LSHIndex(BaseModel):
     """
     Uses datasketch LSH Index
     """
-    THRESHOLD = 0.55
+
+    THRESHOLD = 0.55  # The value comes from experiments conducted on test CORE dataset
+    """
+    EXPERIMENTS SUMMARY
+    ====================
+    MODEL                  BEST THRESHOLD CORRESP JACC SIM SENTENCE_ENC_TIME(S) CREATE_INDEX_TIME(S)
+    -----                  -------------- ---------------- -------------------- --------------------
+    glove_6b_300d          0.675          0.7709           9.38197              0.02754
+    paraphrase_Lm          1.5            0.6184           697                  0.00779
+    glove_840b_300d        0.525          0.7385           9.7624               0.00705
+
+    datasketch_lsh_perm256 0.55           0.7981           52.82732             6.4
+    datasketch_lsh_perm128 0.55           0.7816           37.68474             4.81983
+    """
     NUM_PERM = 256
 
     class IndexStatus(models.TextChoices):
@@ -43,8 +56,11 @@ class LSHIndex(BaseModel):
 
     def load_index(self):
         """This sets the attribute index if pickle is present"""
-        if hasattr(self, 'index_pickle') and self.index_pickle is not None \
-                and self.pickle_version is not None:
+        if (
+            hasattr(self, 'index_pickle') and
+            self.index_pickle is not None and
+            self.pickle_version is not None
+        ):
             supported_formats = pickle.compatible_formats
             if self.pickle_version not in supported_formats:
                 logger.warn('Pickle versions not compatible, setting index to None')  # noqa
@@ -105,6 +121,7 @@ class DeduplicationRequest(BaseModel):
         choices=RequestStatus.choices,
         default=RequestStatus.PENDING,
     )
+    client_id = models.TextField()
     project_id = models.IntegerField()
     lead_id = models.IntegerField()
     callback_url = models.TextField()

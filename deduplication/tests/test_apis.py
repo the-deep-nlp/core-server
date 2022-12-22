@@ -16,6 +16,7 @@ class TestAPIs(APITestCase):
         url = "/api/deduplication/"
         full_data = {
             "lead_id": 10,
+            "client_id": "client_id",
             "project_id": 1,
             "text_extract": "extract",
             "callback_url": "/https://someurl.com",
@@ -24,10 +25,12 @@ class TestAPIs(APITestCase):
         def select(keys: List[str]):
             return {k: full_data[k] for k in keys}
 
+        # The following invalid data consists of different combinations of full data
+        # with missing one or two parameters
         invalid_data = [
             select([]),
-            select(['lead_id', 'project_id', 'callback_url']),
-            select(['text_extract', 'project_id', 'callback_url']),
+            select(['lead_id', 'project_id', 'callback_url', 'text_extract']),
+            select(['text_extract', 'project_id', 'callback_url', 'client_id']),
             select(['text_extract', 'lead_id', 'callback_url']),
             select(['text_extract', 'project_id', 'lead_id']),
         ]
@@ -55,6 +58,7 @@ class TestAPIs(APITestCase):
         )
         data = {
             "lead_id": original_lead_id,
+            "client_id": "some_client_id",
             "project_id": original_project_id,
             "text_extract": "some extract",
             "callback_url": "some url",
@@ -77,6 +81,7 @@ class TestAPIs(APITestCase):
         data = {
             "lead_id": 10,
             "project_id": 1000,  # ID 1000 does not exist
+            "client_id": "client_id",
             "text_extract": "some extract",
             "callback_url": "some url",
         }
