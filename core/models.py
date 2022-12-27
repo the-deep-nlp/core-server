@@ -32,6 +32,17 @@ class ToFetchProject(BaseModel):
     )
     last_fetched_lead_created_at = models.DateTimeField(null=True, blank=True)
     last_fetched_entry_created_at = models.DateTimeField(null=True, blank=True)
+    """
+    is_added_manually:
+    There are two ways this object is added: one when user manually adds it and the other
+    when some request(for eg: dedup) from DEEP requires the project data to be fetched.
+    For example: User might want to fetch project data(leads, entries, etc) for other nlp tasks.
+    However DEEP might send dedup request for a lead in a project that is not yet in nlp server.
+    In later case too, we need to have ToFetchProject object added as DEEP data is fetched based
+    on this object.
+    is_added_manually just distinguishes how this object was added.
+    """
+    is_added_manually = models.BooleanField(default=True)
     error = models.TextField(blank=True, null=True)
 
     def __str__(self):
@@ -70,8 +81,7 @@ class Project(BaseModel):
     )
     to_fetch_project = models.ForeignKey(
         ToFetchProject,
-        null=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
     )
     title = models.CharField(max_length=200)
     location = models.CharField(max_length=200)

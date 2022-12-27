@@ -82,7 +82,6 @@ def create_project_index(project: Project):
 @shared_task
 def create_indices():
     all_projects = Project.objects.filter(
-        # TODO: What to do for projects that are not listed as ToFetchProject
         to_fetch_project__status=ToFetchProject.FetchStatus.FETCHED
     )
     for project in all_projects:

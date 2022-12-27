@@ -3,15 +3,45 @@ import traceback
 from typing import Tuple, Optional
 from celery import shared_task
 from celery.utils.log import get_task_logger
+from django.db import transaction
 
+from core.models import Lead
 from utils.transformations import serialize_minhash
-from deduplication.models import DeduplicationRequest, LSHIndex
-from deduplication.utils import get_minhash
+from deduplication.models import DeduplicationRequest, LSHIndex, LeadHash
+from deduplication.utils import get_minhash, insert_to_index
 
 logger = get_task_logger(__name__)
 
 
 RequestStatus = DeduplicationRequest.RequestStatus
+
+
+def create_lead_and_update_index(dedup_req: DeduplicationRequest, lsh_index: LSHIndex):
+    lead_object, created = Lead.objects.get_or_create(
+        original_lead_id=dedup_req.lead_id,
+        defaults={
+            'project': lsh_index.project,
+            'text_extract': dedup_req.text_extract,
+        }
+    )
+    lead_hash = get_minhash(dedup_req.text_extract)
+    lead_hash_obj, created = LeadHash.objects.get_or_create(
+        lead=lead_object,
+        lsh_index=lsh_index,
+        defaults={
+            "lead_hash": serialize_minhash(lead_hash),
+        }
+    )
+    # insert to index, if lead is created(which means it has not been indexed)
+    if created:
+        insert_to_index(lsh_index.index, dedup_req.lead_id, lead_hash)
+
+    duplicate_lead_ids = lsh_index.index.query(lead_hash)
+    dedup_req.result = {
+        "duplicate_lead_ids": duplicate_lead_ids,
+    }
+    dedup_req.status = RequestStatus.CALCULATED
+    dedup_req.save()
 
 
 @shared_task
@@ -31,25 +61,26 @@ def process_dedup_request(dedup_pk: int):
     lsh_index = LSHIndex.objects.filter(
         project__original_project_id=dedup_req.project_id
     ).first()
+
     if lsh_index is None:
         logger.warning(
             f"LSH Index corresponding to project {dedup_req.project_id} not found."
         )
         return
 
+    if lsh_index.status == LSHIndex.IndexStatus.CREATING:
+        logger.warning(
+            f"LSH Index is still being created for project {dedup_req.project_id}."
+        )
+        return
+
     try:
-        lead_hash = get_minhash(dedup_req.text_extract)
-        duplicate_lead_ids = lsh_index.index.query(lead_hash)
-        dedup_req.result = {
-            "duplicate_lead_ids": duplicate_lead_ids,
-        }
+        with transaction.atomic():
+            create_lead_and_update_index(dedup_req, lsh_index)
     except Exception:
         dedup_req.has_errored = True
         dedup_req.error = f"StackTrace:\n{traceback.format_exc()}"
         dedup_req.save(update_fields=['has_errored', 'error'])
-
-    dedup_req.status = RequestStatus.CALCULATED
-    dedup_req.save(update_fields=['status', 'result'])
 
     # Send to DEEP
     success, err = respond_to_deep(dedup_req)
@@ -60,8 +91,6 @@ def process_dedup_request(dedup_pk: int):
         dedup_req.status = RequestStatus.RESPONDED
 
     dedup_req.save(update_fields=['has_errored', 'error', 'status'])
-
-    # Update index
 
 
 def respond_to_deep(dedup_req: DeduplicationRequest) -> Tuple[bool, Optional[str]]:
@@ -85,3 +114,12 @@ def respond_to_deep(dedup_req: DeduplicationRequest) -> Tuple[bool, Optional[str
     if resp.status_code >= 300 or resp.status_code < 200:
         return False, resp.text
     return True, None
+
+
+@shared_task
+def process_dedup_requests():
+    dedup_reqs = DeduplicationRequest.objects.filter(
+        status=DeduplicationRequest.RequestStatus.PENDING
+    )
+    for req in dedup_reqs:
+        process_dedup_request(req.pk)
