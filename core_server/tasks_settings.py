@@ -16,4 +16,11 @@ CELERY_BEAT_SCHEDULE = {
             hour=env("CRON_CREATE_INDICES_HOUR"),
         ),  # defaults to every day at 02:00 AM
     },
+    "process_dedup_requests": {
+        "task": "deduplication.tasks.callback.process_dedup_requests",
+        "schedule": crontab(
+            minute="0",
+            hour="*/2",  # do it every 2 hours  # TODO: maybe have this from env variable
+        ),
+    },
 }

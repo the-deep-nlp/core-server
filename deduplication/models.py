@@ -73,7 +73,7 @@ class LSHIndex(BaseModel):
 
     @property
     def index(self):
-        if not self._index_loaded:
+        if not self._index_loaded or (self._index is None and self.index_pickle is not None):
             self.load_index()
         return self._index
 
