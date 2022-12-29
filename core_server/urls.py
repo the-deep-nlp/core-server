@@ -20,6 +20,6 @@ from deduplication.views import deduplication
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/deduplication/', deduplication),
+    path("admin/", admin.site.urls),
+    path("api/v1/deduplication/", deduplication),
 ]

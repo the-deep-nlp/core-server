@@ -19,7 +19,7 @@ DEDUP_SUCCESS_RESP = Response(
 )
 
 
-@api_view(['POST'])
+@api_view(["POST"])
 @transaction.atomic
 def deduplication(request: Request):
     serializer = DeduplicationRequestSerializer(data=request.data)

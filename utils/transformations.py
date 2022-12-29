@@ -6,7 +6,7 @@ def batched(iterable, batch_size=100):
     batches = []
     for i, x in enumerate(iterable):
         batches.append(x)
-        if (i+1) % batch_size == 0:
+        if (i + 1) % batch_size == 0:
             yield batches
             batches = []
     if batches:
@@ -16,8 +16,8 @@ def batched(iterable, batch_size=100):
 
 def preprocess_text(txt: str):
     # Remove punctuations and lowercase
-    lower = ' '.join(txt.split()).lower()
-    return re.sub(r'[^a-z ]', '', lower)
+    lower = " ".join(txt.split()).lower()
+    return re.sub(r"[^a-z ]", "", lower)
 
 
 def serialize_minhash(minhash: LeanMinHash):

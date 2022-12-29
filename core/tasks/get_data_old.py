@@ -49,7 +49,7 @@ def pull_data(cursor, prj_id):
         entries = _get_data(cursor, projects, queries.entries_q, "entries")
     with log_time("af_widgets get_data"):
         af_widgets = _get_data(cursor, projects, queries.af_widget_q, "af_widget")
-    with log_time('exportdata get_data'):
+    with log_time("exportdata get_data"):
         exportdata = _get_data(cursor, projects, queries.exportdata_q, "exportdata")
         print(exportdata)
 

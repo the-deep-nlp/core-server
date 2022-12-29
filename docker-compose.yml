@@ -1,54 +1,77 @@
 version: '3.2'
 
+x-server: &base-server-config
+  build: ./
+  environment: &base-environment
+    POSTGRES_USER: ${POSTGRES_USER:-postgres}
+    POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    POSTGRES_DB: ${POSTGRES_DB:-deep-nlp}
+    POSTGRES_HOSTNAME: ${POSTGRES_HOSTNAME:-db}
+    POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+    REDIS_HOST: ${REDIS_HOST:-redis}
+    # Django
+    DEBUG: ${DEBUG:-false}
+    DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:?Provide django secret key}
+    ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost}
+
+    # Celery
+    CELERY_BROKER_URL: ${CELERY_BROKER_URL:-redis://redis:6379}
+    CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379}
+
+    # Cron
+    CRON_DEEP_FETCH_MINUTE: ${CRON_DEEP_FETCH_MINUTE:-0}
+    CRON_DEEP_FETCH_HOUR: ${CRON_DEEP_FETCH_HOUR:-*}
+    CRON_CREATE_INDICES_MINUTE: ${ON_CREATE_INDICES_MINUTE:-0}
+    CRON_CREATE_INDICES_HOUR: ${ON_CREATE_INDICES_HOUR:-*}
+
+    # DB
+    POSTGRES_NAME: ${POSTGRES_NAME:-deep-nlp}
+    POSTGRES_USER: ${POSTGRES_USER:-postgres}
+    POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    POSTGRES_HOST: ${POSTGRES_HOST:-db}
+    POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+
+    # DEEP
+    DEEP_DB_PASSWORD: ${DEEP_DB_PASSWORD:?DEEP password not set}
+    DEEP_DB_NAME: ${DEEP_DB_NAME:?DEEP db name not set}
+    DEEP_DB_USER: ${DEEP_DB_USER:?DEEP db user not set}
+    DEEP_DB_PORT: ${DEEP_DB_PORT:-5432}
+    DEEP_DB_HOST: ${DEEP_DB_HOST:-host.docker.internal}
+  volumes:
+    - ./:/code/
+  tty: true
+  depends_on:
+    - db
+    - redis
+
 services:
   db:
     image: postgres:14
-    environment: &common-environment
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-deep-nlp}
-      POSTGRES_HOSTNAME: ${POSTGRES_HOSTNAME:-db}
-      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
-      REDIS_HOST: ${REDIS_HOST:-redis}
+    environment:
+      <<: *base-environment
     volumes:
-      - ./postgres-data:/var/lib/postgresql/data
+      - dive-db:/var/lib/postgresql/data
     command: -p 5432
 
   redis:
     image: redis:7-alpine
 
-  server: &server-config
-    build: ./
-    env_file: .env
-    environment:
-      <<: *common-environment
-    volumes:
-      - ./:/code/
+  server:
+    <<: *base-server-config
     ports:
       - "9000:8000"
-    tty: true
-    depends_on:
-      - db
-      - redis
     command: bash -c '/code/scripts/run_dev.sh server'
-
-  celery: &celery-config
-    build: ./
-    env_file: .env
-    environment:
-      <<: *common-environment
-    volumes:
-      - ./:/code/
-    tty: true
-    depends_on:
-      - db
-      - redis
+  celery:
+    <<: *base-server-config
     command: bash -c '/code/scripts/run_dev.sh celery'
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
   celery_beat:
-    <<: *celery-config
+    <<: *base-server-config
     command: bash -c '/code/scripts/run_dev.sh beat'
     extra_hosts:
       - "host.docker.internal:host-gateway"
+
+volumes:
+  dive-db:

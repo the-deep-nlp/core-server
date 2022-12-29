@@ -9,7 +9,7 @@ class DeepDataFetchTracker(BaseModel):
 
     def save(self, *args, **kwargs):
         if self.pk is None and DeepDataFetchTracker.objects.first() is not None:  # noqa
-            raise Exception('Cannot create multiple trackers')
+            raise Exception("Cannot create multiple trackers")
         super().save(*args, **kwargs)
 
 
@@ -17,12 +17,13 @@ class ToFetchProject(BaseModel):
     """This model keeps track of the projects whose data needs to be fetched.
     Also keeps track of last leads and entries fetched
     """
+
     class FetchStatus(models.TextChoices):
-        NOT_FETCHED = 'not_fetched', 'Not Fetched'
-        FETCHING = 'fetching', 'Fetching'
-        FETCHED = 'fetched', 'Fetched'
-        ERRORED = 'errored', 'Errored'
-        NOT_FOUND = 'not_found', 'Not Found'
+        NOT_FETCHED = "not_fetched", "Not Fetched"
+        FETCHING = "fetching", "Fetching"
+        FETCHED = "fetched", "Fetched"
+        ERRORED = "errored", "Errored"
+        NOT_FOUND = "not_found", "Not Found"
 
     original_project_id = models.PositiveIntegerField(unique=True)
     status = models.CharField(
@@ -74,11 +75,7 @@ class AFMapping(BaseModel):
 
 class Project(BaseModel):
     original_project_id = models.PositiveIntegerField(unique=True)
-    af_mapping = models.ForeignKey(
-        AFMapping,
-        null=True,
-        on_delete=models.CASCADE
-    )
+    af_mapping = models.ForeignKey(AFMapping, null=True, on_delete=models.CASCADE)
     to_fetch_project = models.ForeignKey(
         ToFetchProject,
         on_delete=models.CASCADE,
@@ -94,16 +91,16 @@ class Project(BaseModel):
 
 class Lead(BaseModel):
     class Confidentiality(models.TextChoices):
-        UNPROTECTED = 'unprotected', 'Public'
-        RESTRICTED = 'restricted', 'Restricted'
-        CONFIDENTIAL = 'confidential', 'Confidential'
+        UNPROTECTED = "unprotected", "Public"
+        RESTRICTED = "restricted", "Restricted"
+        CONFIDENTIAL = "confidential", "Confidential"
 
     class ExtractionStatus(models.IntegerChoices):
-        PENDING = 0, 'Pending'
-        STARTED = 1, 'Started'
-        RETRYING = 4, 'Retrying'
-        SUCCESS = 2, 'Success'
-        FAILED = 3, 'Failed'
+        PENDING = 0, "Pending"
+        STARTED = 1, "Started"
+        RETRYING = 4, "Retrying"
+        SUCCESS = 2, "Success"
+        FAILED = 3, "Failed"
 
     original_lead_id = models.PositiveIntegerField(unique=True)
     title = models.CharField(max_length=255)
@@ -116,25 +113,24 @@ class Lead(BaseModel):
         Organization,
         null=True,
         on_delete=models.CASCADE,
-        related_name='authored_leads',
+        related_name="authored_leads",
     )
     publishing_org = models.ForeignKey(
         Organization,
         null=True,
         on_delete=models.CASCADE,
-        related_name='published_leads',
+        related_name="published_leads",
     )
     confidentiality = models.CharField(
         max_length=30,
         choices=Confidentiality.choices,
-        default=Confidentiality.UNPROTECTED
+        default=Confidentiality.UNPROTECTED,
     )
     source_url = models.TextField()
     extra = models.JSONField(default=dict)
 
     def __str__(self):
-        return self.text_extract[:50] \
-            if self.text_extract else '-- Not extracted --'
+        return self.text_extract[:50] if self.text_extract else "-- Not extracted --"
 
 
 class Entry(BaseModel):
@@ -152,7 +148,7 @@ class Entry(BaseModel):
     extra = models.JSONField(default=dict)
 
     def __str__(self):
-        return f'Original entry {self.original_entry_id}'
+        return f"Original entry {self.original_entry_id}"
 
 
 class ClassificationModel(BaseModel):

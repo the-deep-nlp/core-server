@@ -20,9 +20,9 @@ def create_lead_and_update_index(dedup_req: DeduplicationRequest, lsh_index: LSH
     lead_object, created = Lead.objects.get_or_create(
         original_lead_id=dedup_req.lead_id,
         defaults={
-            'project': lsh_index.project,
-            'text_extract': dedup_req.text_extract,
-        }
+            "project": lsh_index.project,
+            "text_extract": dedup_req.text_extract,
+        },
     )
     lead_hash = get_minhash(dedup_req.text_extract)
     lead_hash_obj, created = LeadHash.objects.get_or_create(
@@ -30,7 +30,7 @@ def create_lead_and_update_index(dedup_req: DeduplicationRequest, lsh_index: LSH
         lsh_index=lsh_index,
         defaults={
             "lead_hash": serialize_minhash(lead_hash),
-        }
+        },
     )
     # insert to index, if lead is created(which means it has not been indexed)
     if created:
@@ -50,9 +50,7 @@ def process_dedup_request(dedup_pk: int):
         pk=dedup_pk
     ).first()
     if dedup_req is None:
-        logger.warning(
-            f"Could not find deduplication request with pk {dedup_pk}"
-        )
+        logger.warning(f"Could not find deduplication request with pk {dedup_pk}")
         return
     if dedup_req.status != DeduplicationRequest.RequestStatus.PENDING:
         logger.warning("Already processed deduplication request received")
@@ -78,9 +76,11 @@ def process_dedup_request(dedup_pk: int):
         with transaction.atomic():
             create_lead_and_update_index(dedup_req, lsh_index)
     except Exception:
+        msg = "Error creating lead and updating index for dedup request {dedup_req.id}"
+        logger.error(msg, exc_info=True)
         dedup_req.has_errored = True
-        dedup_req.error = f"StackTrace:\n{traceback.format_exc()}"
-        dedup_req.save(update_fields=['has_errored', 'error'])
+        dedup_req.error = f"{msg}:\n{traceback.format_exc()}"
+        dedup_req.save(update_fields=["has_errored", "error"])
 
     # Send to DEEP
     success, err = respond_to_deep(dedup_req)
@@ -90,7 +90,7 @@ def process_dedup_request(dedup_pk: int):
     else:
         dedup_req.status = RequestStatus.RESPONDED
 
-    dedup_req.save(update_fields=['has_errored', 'error', 'status'])
+    dedup_req.save(update_fields=["has_errored", "error", "status"])
 
 
 def respond_to_deep(dedup_req: DeduplicationRequest) -> Tuple[bool, Optional[str]]:
@@ -109,6 +109,7 @@ def respond_to_deep(dedup_req: DeduplicationRequest) -> Tuple[bool, Optional[str
     try:
         resp = requests.post(dedup_req.callback_url, data=data)
     except Exception:
+        logger.error("Could not respond to deep", exc_info=True)
         return False, traceback.format_exc()
 
     if resp.status_code >= 300 or resp.status_code < 200:
