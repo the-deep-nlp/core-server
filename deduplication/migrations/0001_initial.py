@@ -10,65 +10,146 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('core', '0002_tofetchproject_is_added_manually_and_more'),
+        ("core", "0002_tofetchproject_is_added_manually_and_more"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='LSHIndex',
+            name="LSHIndex",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('modified_at', models.DateTimeField(auto_now=True)),
-                ('name', models.CharField(max_length=256)),
-                ('status', models.CharField(choices=[('creating', 'Creating'), ('created', 'Created')], default='creating', max_length=20)),
-                ('pickle_version', models.CharField(max_length=10, null=True)),
-                ('index_pickle', models.BinaryField(null=True)),
-                ('has_errored', models.BooleanField(default=False)),
-                ('error', models.TextField(blank=True, null=True)),
-                ('created_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
-                ('project', models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='core.project')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("modified_at", models.DateTimeField(auto_now=True)),
+                ("name", models.CharField(max_length=256)),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[("creating", "Creating"), ("created", "Created")],
+                        default="creating",
+                        max_length=20,
+                    ),
+                ),
+                ("pickle_version", models.CharField(max_length=10, null=True)),
+                ("index_pickle", models.BinaryField(null=True)),
+                ("has_errored", models.BooleanField(default=False)),
+                ("error", models.TextField(blank=True, null=True)),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "project",
+                    models.OneToOneField(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="core.project",
+                    ),
+                ),
             ],
             options={
-                'verbose_name_plural': 'LSH Indices',
+                "verbose_name_plural": "LSH Indices",
             },
         ),
         migrations.CreateModel(
-            name='LeadHash',
+            name="LeadHash",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('modified_at', models.DateTimeField(auto_now=True)),
-                ('lead_hash', models.BinaryField()),
-                ('created_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
-                ('lead', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='core.lead')),
-                ('lsh_index', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='deduplication.lshindex')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("modified_at", models.DateTimeField(auto_now=True)),
+                ("lead_hash", models.BinaryField()),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "lead",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE, to="core.lead"
+                    ),
+                ),
+                (
+                    "lsh_index",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="deduplication.lshindex",
+                    ),
+                ),
             ],
             options={
-                'verbose_name_plural': 'Lead Hashes',
-                'unique_together': {('lead', 'lsh_index')},
+                "verbose_name_plural": "Lead Hashes",
+                "unique_together": {("lead", "lsh_index")},
             },
         ),
         migrations.CreateModel(
-            name='DeduplicationRequest',
+            name="DeduplicationRequest",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('modified_at', models.DateTimeField(auto_now=True)),
-                ('status', models.CharField(choices=[('pending', 'Pending'), ('calculated', 'Calculated'), ('responded', 'Responded')], default='pending', max_length=15)),
-                ('client_id', models.TextField()),
-                ('project_id', models.IntegerField()),
-                ('lead_id', models.IntegerField()),
-                ('callback_url', models.TextField()),
-                ('text_extract', models.TextField()),
-                ('has_errored', models.BooleanField(default=False)),
-                ('error', models.TextField(blank=True, null=True)),
-                ('result', models.JSONField(default=dict)),
-                ('created_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("modified_at", models.DateTimeField(auto_now=True)),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("pending", "Pending"),
+                            ("calculated", "Calculated"),
+                            ("responded", "Responded"),
+                        ],
+                        default="pending",
+                        max_length=15,
+                    ),
+                ),
+                ("client_id", models.TextField()),
+                ("project_id", models.IntegerField()),
+                ("lead_id", models.IntegerField()),
+                ("callback_url", models.TextField()),
+                ("text_extract", models.TextField()),
+                ("has_errored", models.BooleanField(default=False)),
+                ("error", models.TextField(blank=True, null=True)),
+                ("result", models.JSONField(default=dict)),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('project_id', 'lead_id')},
+                "unique_together": {("project_id", "lead_id")},
             },
         ),
     ]

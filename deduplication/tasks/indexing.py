@@ -38,10 +38,13 @@ def process_and_insert_leads(
             with transaction.atomic():
                 for lead in batch:
                     _process_and_insert_lead(lead, index_obj, index)
-            logger.info('processed batch', i)
+            logger.info("processed batch", i)
     except Exception:
-        logger.warning(f"Error creating index for project {project.original_project_id}")
+        logger.warning(
+            f"Error creating index for project {project.original_project_id}"
+        )
         import traceback
+
         index_obj.has_errored = True
         index_obj.error = traceback.format_exc()
         index_obj.save()

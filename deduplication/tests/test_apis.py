@@ -29,10 +29,10 @@ class TestAPIs(APITestCase):
         # with missing one or two parameters
         invalid_data = [
             select([]),
-            select(['lead_id', 'project_id', 'callback_url', 'text_extract']),
-            select(['text_extract', 'project_id', 'callback_url', 'client_id']),
-            select(['text_extract', 'lead_id', 'callback_url']),
-            select(['text_extract', 'project_id', 'lead_id']),
+            select(["lead_id", "project_id", "callback_url", "text_extract"]),
+            select(["text_extract", "project_id", "callback_url", "client_id"]),
+            select(["text_extract", "lead_id", "callback_url"]),
+            select(["text_extract", "project_id", "lead_id"]),
         ]
         for data in invalid_data:
             response = self.client.post(url, data)
@@ -40,14 +40,16 @@ class TestAPIs(APITestCase):
             resp_data = response.json()
             assert "message" in resp_data
 
-    @patch('deduplication.views.process_dedup_request')
+    @patch("deduplication.views.process_dedup_request")
     def test_post_dedup_request_inexistent_project(self, process_dedup_request):
         """Even if the project does not exist, the request should pass and corresponding
         project and lsh index should be created
         """
         original_prj_id = 100
         original_lead_id = 20
-        assert not ToFetchProject.objects.filter(original_project_id=original_prj_id).exists()
+        assert not ToFetchProject.objects.filter(
+            original_project_id=original_prj_id
+        ).exists()
         data = {
             "lead_id": original_lead_id,
             "client_id": "some_client_id",
@@ -78,8 +80,10 @@ class TestAPIs(APITestCase):
         assert dedup_obj is not None, "Deduplication request should be created"
         process_dedup_request.delay.assert_not_called()
 
-    @patch('deduplication.views.process_dedup_request')
-    def test_post_dedup_request_project_leads_fetched_index_creating(self, process_dedup_request):
+    @patch("deduplication.views.process_dedup_request")
+    def test_post_dedup_request_project_leads_fetched_index_creating(
+        self, process_dedup_request
+    ):
         """
         Although leads have been fetched, if index is being created, do not
         call process_dedup_request.
@@ -102,8 +106,10 @@ class TestAPIs(APITestCase):
         assert dedup_obj is not None, "Deduplication request should be created"
         process_dedup_request.delay.assert_not_called()
 
-    @patch('deduplication.views.process_dedup_request')
-    def test_post_dedup_request_project_leads_fetched_index_created(self, process_dedup_request):
+    @patch("deduplication.views.process_dedup_request")
+    def test_post_dedup_request_project_leads_fetched_index_created(
+        self, process_dedup_request
+    ):
         """
         If index is created, call process_dedup_request right away.
         """
@@ -125,7 +131,7 @@ class TestAPIs(APITestCase):
         assert dedup_obj is not None, "Deduplication request should be created"
         process_dedup_request.delay.assert_called_once_with(dedup_obj.pk)
 
-    @patch('deduplication.views.process_dedup_request')
+    @patch("deduplication.views.process_dedup_request")
     def test_post_dedup_request_project_leads_not_fetched(self, process_dedup_request):
         """
         In this case process_dedup request should not be called as leads have

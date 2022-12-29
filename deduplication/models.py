@@ -31,8 +31,8 @@ class LSHIndex(BaseModel):
     NUM_PERM = 256
 
     class IndexStatus(models.TextChoices):
-        CREATING = 'creating', 'Creating'
-        CREATED = 'created', 'Created'
+        CREATING = "creating", "Creating"
+        CREATED = "created", "Created"
 
     name = models.CharField(max_length=256)
     status = models.CharField(
@@ -57,13 +57,15 @@ class LSHIndex(BaseModel):
     def load_index(self):
         """This sets the attribute index if pickle is present"""
         if (
-            hasattr(self, 'index_pickle') and
-            self.index_pickle is not None and
-            self.pickle_version is not None
+            hasattr(self, "index_pickle")
+            and self.index_pickle is not None
+            and self.pickle_version is not None
         ):
             supported_formats = pickle.compatible_formats
             if self.pickle_version not in supported_formats:
-                logger.warn('Pickle versions not compatible, setting index to None')  # noqa
+                logger.warn(
+                    "Pickle versions not compatible, setting index to None"
+                )  # noqa
                 self._index = None
             else:
                 self._index = pickle.loads(self.index_pickle)
@@ -73,7 +75,9 @@ class LSHIndex(BaseModel):
 
     @property
     def index(self):
-        if not self._index_loaded or (self._index is None and self.index_pickle is not None):
+        if not self._index_loaded or (
+            self._index is None and self.index_pickle is not None
+        ):
             self.load_index()
         return self._index
 
@@ -97,13 +101,14 @@ class LeadHash(BaseModel):
     """
     Object that stores hash of leads
     """
+
     lead = models.OneToOneField(Lead, on_delete=models.CASCADE)
     lsh_index = models.ForeignKey(LSHIndex, on_delete=models.CASCADE)
 
     lead_hash = models.BinaryField()
 
     class Meta:
-        unique_together = ('lead', 'lsh_index')
+        unique_together = ("lead", "lsh_index")
         verbose_name_plural = "Lead Hashes"
 
 
@@ -112,9 +117,6 @@ class DeduplicationRequest(BaseModel):
         PENDING = "pending", "Pending"
         CALCULATED = "calculated", "Calculated"
         RESPONDED = "responded", "Responded"
-
-    class RequestClient(models.TextChoices):
-        DEEP = "deep", "DEEP"
 
     status = models.CharField(
         max_length=15,
@@ -131,7 +133,7 @@ class DeduplicationRequest(BaseModel):
     result = models.JSONField(default=dict)
 
     class Meta:
-        unique_together = ('project_id', 'lead_id')
+        unique_together = ("project_id", "lead_id")
 
     def __str__(self):
-        return f'{self.status}: Project({self.project_id}) Lead({self.lead_id})'
+        return f"{self.status}: Project({self.project_id}) Lead({self.lead_id})"

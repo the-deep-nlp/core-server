@@ -9,7 +9,7 @@ def get_minhash(txt: str):
     items = set(processed.split())
     h = MinHash(num_perm=LSHIndex.NUM_PERM)
     for item in items:
-        h.update(item.encode('utf8'))
+        h.update(item.encode("utf8"))
     return LeanMinHash(h)
 
 

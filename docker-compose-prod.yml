@@ -1,35 +1,62 @@
 version: '3.2'
 
+x-server: &base-server-config
+  image: ghcr.io/the-deep-nlp/core-server:main
+  environment: &base-environment
+    POSTGRES_USER: ${POSTGRES_USER:-postgres}
+    POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    POSTGRES_DB: ${POSTGRES_DB:-deep-nlp}
+    POSTGRES_HOSTNAME: ${POSTGRES_HOSTNAME:-db}
+    POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+    REDIS_HOST: ${REDIS_HOST:-redis}
+    # Django
+    DEBUG: ${DEBUG:-false}
+    DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-django-insecure-k^b3&gm&d7j)+ggtdo7d8y^vh709bd=f$dmv_m06$7*7y-kl_z}
+    ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost}
+
+    # Celery
+    CELERY_BROKER_URL: ${CELERY_BROKER_URL:-redis://redis:6379}
+    CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379}
+
+    # Cron
+    CRON_DEEP_FETCH_MINUTE: ${CRON_DEEP_FETCH_MINUTE:-0}
+    CRON_DEEP_FETCH_HOUR: ${CRON_DEEP_FETCH_HOUR:-*}
+    CRON_CREATE_INDICES_MINUTE: ${ON_CREATE_INDICES_MINUTE:-0}
+    CRON_CREATE_INDICES_HOUR: ${ON_CREATE_INDICES_HOUR:-*}
+
+    # DB
+    POSTGRES_NAME: ${POSTGRES_NAME:-deep-nlp}
+    POSTGRES_USER: ${POSTGRES_USER:-postgres}
+    POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    POSTGRES_HOST: ${POSTGRES_HOST:-db}
+    POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+
+    # DEEP
+    DEEP_DB_PASSWORD: ${DEEP_DB_PASSWORD:?DEEP password not set}
+    DEEP_DB_NAME: ${DEEP_DB_NAME:?DEEP db name not set}
+    DEEP_DB_USER: ${DEEP_DB_USER:?DEEP db user not set}
+    DEEP_DB_PORT: ${DEEP_DB_PORT:-5432}
+    DEEP_DB_HOST: ${DEEP_DB_HOST:-host.docker.internal}
+  tty: true
+  depends_on:
+    - redis
+
 services:
   redis:
     image: redis:7-alpine
 
-  server: &server-config
-    build: ./
-    env_file: .env
-    environment:
-      <<: *common-environment
-    ports:
-      - "9000:8000"
-    tty: true
-    depends_on:
-      - redis
+  server:
+    <<: *base-server-config
     command: bash -c '/code/scripts/run_prod.sh server'
 
-  celery: &celery-config
-    build: ./
-    env_file: .env
-    environment:
-      <<: *common-environment
-    tty: true
-    depends_on:
-      - redis
+  celery:
+    <<: *base-server-config
     command: bash -c '/code/scripts/run_prod.sh celery'
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
   celery_beat:
-    <<: *celery-config
+    <<: *base-server-config
     command: bash -c '/code/scripts/run_prod.sh beat'
     extra_hosts:
       - "host.docker.internal:host-gateway"
