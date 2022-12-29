@@ -15,7 +15,7 @@ DEDUP_SUCCESS_RESP = Response(
     {
         "message": "Deduplication request has been successfully queued",
     },
-    status=status.HTTP_201_CREATED,
+    status=status.HTTP_202_ACCEPTED,
 )
 
 

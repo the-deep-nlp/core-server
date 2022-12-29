@@ -58,7 +58,7 @@ class TestAPIs(APITestCase):
 
         url = "/api/deduplication/"
         response = self.client.post(url, data)
-        assert response.status_code == 201
+        assert response.status_code == 202
         resp_data = response.json()
         assert "message" in resp_data
 
@@ -182,6 +182,6 @@ class TestAPIs(APITestCase):
         }
         url = "/api/deduplication/"
         response = self.client.post(url, data)
-        assert response.status_code == 201
+        assert response.status_code == 202
         resp_data = response.json()
         assert "message" in resp_data
