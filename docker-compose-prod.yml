@@ -1,7 +1,7 @@
 version: '3.2'
 
 x-server: &base-server-config
-  build: ./
+  image: ghcr.io/the-deep-nlp/core-server:main
   environment: &base-environment
     POSTGRES_USER: ${POSTGRES_USER:-postgres}
     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
@@ -11,7 +11,7 @@ x-server: &base-server-config
     REDIS_HOST: ${REDIS_HOST:-redis}
     # Django
     DEBUG: ${DEBUG:-false}
-    DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:?Provide django secret key}
+    DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-django-insecure-k^b3&gm&d7j)+ggtdo7d8y^vh709bd=f$dmv_m06$7*7y-kl_z}
     ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost}
 
     # Celery
@@ -37,41 +37,26 @@ x-server: &base-server-config
     DEEP_DB_USER: ${DEEP_DB_USER:?DEEP db user not set}
     DEEP_DB_PORT: ${DEEP_DB_PORT:-5432}
     DEEP_DB_HOST: ${DEEP_DB_HOST:-host.docker.internal}
-  volumes:
-    - ./:/code/
   tty: true
   depends_on:
-    - db
     - redis
 
 services:
-  db:
-    image: postgres:14
-    environment:
-      <<: *base-environment
-    volumes:
-      - dive-db:/var/lib/postgresql/data
-    command: -p 5432
-
   redis:
     image: redis:7-alpine
 
   server:
     <<: *base-server-config
-    ports:
-      - "9000:8000"
-    command: bash -c '/code/scripts/run_dev.sh server'
+    command: bash -c '/code/scripts/run_prod.sh server'
+
   celery:
     <<: *base-server-config
-    command: bash -c '/code/scripts/run_dev.sh celery'
+    command: bash -c '/code/scripts/run_prod.sh celery'
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
   celery_beat:
     <<: *base-server-config
-    command: bash -c '/code/scripts/run_dev.sh beat'
+    command: bash -c '/code/scripts/run_prod.sh beat'
     extra_hosts:
       - "host.docker.internal:host-gateway"
-
-volumes:
-  dive-db:
