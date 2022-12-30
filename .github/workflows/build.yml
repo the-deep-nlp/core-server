@@ -45,11 +45,34 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     env:
-      DATABASE_NAME: ${{ matrix.database-name }}
-      DATABASE_USER: ${{ matrix.database-user }}
-      DATABASE_PASSWORD: ${{ matrix.database-password }}
-      DATABASE_HOSTNAME: ${{ matrix.database-hostname }}
-      DATABASE_PORT: ${{ matrix.database-port }}
+      POSTGRES_DB: ${{ matrix.database-name }}
+      POSTGRES_USER: ${{ matrix.database-user }}
+      POSTGRES_PASSWORD: ${{ matrix.database-password }}
+      POSTGRES_HOSTNAME: ${{ matrix.database-hostname }}
+      POSTGRES_PORT: ${{ matrix.database-port }}
+
+      REDIS_HOST: redis
+      # Django
+      DEBUG: false
+      DJANGO_SECRET_KEY: insecure-key-just-for-testing
+      ALLOWED_HOSTS: ''
+
+      # Celery
+      CELERY_BROKER_URL: ''
+      CELERY_RESULT_BACKEND: ''
+
+      # Cron
+      CRON_DEEP_FETCH_MINUTE: 0
+      CRON_DEEP_FETCH_HOUR: '*'
+      CRON_CREATE_INDICES_MINUTE: 0
+      CRON_CREATE_INDICES_HOUR: '*'
+
+      # DEEP
+      DEEP_DB_PASSWORD: ''
+      DEEP_DB_NAME: ''
+      DEEP_DB_USER: ''
+      DEEP_DB_PORT: ''
+      DEEP_DB_HOST: ''
 
     steps:
       - name: Checkout
@@ -67,9 +90,6 @@ jobs:
           poetry run python manage.py migrate
           poetry run pytest --cov .
           poetry run coverage xml
-      steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1

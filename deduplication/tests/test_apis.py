@@ -13,7 +13,7 @@ class TestAPIs(APITestCase):
         self.client = APIClient()
 
     def test_post_dedup_request_invalid_params(self):
-        url = "/api/deduplication/"
+        url = "/api/v1/deduplication/"
         full_data = {
             "lead_id": 10,
             "client_id": "client_id",
@@ -58,7 +58,7 @@ class TestAPIs(APITestCase):
             "callback_url": "some url",
         }
 
-        url = "/api/deduplication/"
+        url = "/api/v1/deduplication/"
         response = self.client.post(url, data)
         assert response.status_code == 202
         resp_data = response.json()
@@ -186,7 +186,7 @@ class TestAPIs(APITestCase):
             "text_extract": "some extract",
             "callback_url": "some url",
         }
-        url = "/api/deduplication/"
+        url = "/api/v1/deduplication/"
         response = self.client.post(url, data)
         assert response.status_code == 202
         resp_data = response.json()
