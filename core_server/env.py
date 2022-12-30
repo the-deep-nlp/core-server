@@ -14,10 +14,10 @@ env = environ.Env(
     CRON_CREATE_INDICES_MINUTE=str,
     CRON_CREATE_INDICES_HOUR=str,
     # DB
-    POSTGRES_NAME=str,
+    POSTGRES_DB=str,
     POSTGRES_USER=str,
     POSTGRES_PASSWORD=str,
-    POSTGRES_HOST=str,
+    POSTGRES_HOSTNAME=str,
     POSTGRES_PORT=int,
     DEEP_DB_PASSWORD=str,
     DEEP_DB_NAME=str,
