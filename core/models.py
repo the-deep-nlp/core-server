@@ -8,8 +8,8 @@ class DeepDataFetchTracker(BaseModel):
     last_fetched_af_created_at = models.DateTimeField(null=True)
 
     def save(self, *args, **kwargs):
-        if self.pk is None and DeepDataFetchTracker.objects.first() is not None:
-            raise Exception('Cannot create multiple trackers')
+        if self.pk is None and DeepDataFetchTracker.objects.first() is not None:  # noqa
+            raise Exception("Cannot create multiple trackers")
         super().save(*args, **kwargs)
 
 
@@ -17,12 +17,13 @@ class ToFetchProject(BaseModel):
     """This model keeps track of the projects whose data needs to be fetched.
     Also keeps track of last leads and entries fetched
     """
+
     class FetchStatus(models.TextChoices):
-        NOT_FETCHED = 'not_fetched', 'Not Fetched'
-        FETCHING = 'fetching', 'Fetching'
-        FETCHED = 'fetched', 'Fetched'
-        ERRORED = 'errored', 'Errored'
-        NOT_FOUND = 'not_found', 'Not Found'
+        NOT_FETCHED = "not_fetched", "Not Fetched"
+        FETCHING = "fetching", "Fetching"
+        FETCHED = "fetched", "Fetched"
+        ERRORED = "errored", "Errored"
+        NOT_FOUND = "not_found", "Not Found"
 
     original_project_id = models.PositiveIntegerField(unique=True)
     status = models.CharField(
@@ -32,6 +33,17 @@ class ToFetchProject(BaseModel):
     )
     last_fetched_lead_created_at = models.DateTimeField(null=True, blank=True)
     last_fetched_entry_created_at = models.DateTimeField(null=True, blank=True)
+    """
+    is_added_manually:
+    There are two ways this object is added: one when user manually adds it and the other
+    when some request(for eg: dedup) from DEEP requires the project data to be fetched.
+    For example: User might want to fetch project data(leads, entries, etc) for other nlp tasks.
+    However DEEP might send dedup request for a lead in a project that is not yet in nlp server.
+    In later case too, we need to have ToFetchProject object added as DEEP data is fetched based
+    on this object.
+    is_added_manually just distinguishes how this object was added.
+    """
+    is_added_manually = models.BooleanField(default=True)
     error = models.TextField(blank=True, null=True)
 
     def __str__(self):
@@ -40,9 +52,9 @@ class ToFetchProject(BaseModel):
 
 class Organization(BaseModel):
     original_organization_id = models.PositiveIntegerField(unique=True)
-    name = models.CharField(max_length=200)
-    short_name = models.CharField(max_length=50)
-    long_name = models.CharField(max_length=50)
+    name = models.CharField(max_length=255)
+    short_name = models.CharField(max_length=255)
+    long_name = models.CharField(max_length=255)
     extra = models.JSONField()
 
     def __str__(self):
@@ -63,14 +75,10 @@ class AFMapping(BaseModel):
 
 class Project(BaseModel):
     original_project_id = models.PositiveIntegerField(unique=True)
-    af_mapping = models.ForeignKey(
-        AFMapping,
-        null=True,
-        on_delete=models.CASCADE
-    )
+    af_mapping = models.ForeignKey(AFMapping, null=True, on_delete=models.CASCADE)
     to_fetch_project = models.ForeignKey(
         ToFetchProject,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
     )
     title = models.CharField(max_length=200)
     location = models.CharField(max_length=200)
@@ -83,16 +91,16 @@ class Project(BaseModel):
 
 class Lead(BaseModel):
     class Confidentiality(models.TextChoices):
-        UNPROTECTED = 'unprotected', 'Public'
-        RESTRICTED = 'restricted', 'Restricted'
-        CONFIDENTIAL = 'confidential', 'Confidential'
+        UNPROTECTED = "unprotected", "Public"
+        RESTRICTED = "restricted", "Restricted"
+        CONFIDENTIAL = "confidential", "Confidential"
 
     class ExtractionStatus(models.IntegerChoices):
-        PENDING = 0, 'Pending'
-        STARTED = 1, 'Started'
-        RETRYING = 4, 'Retrying'
-        SUCCESS = 2, 'Success'
-        FAILED = 3, 'Failed'
+        PENDING = 0, "Pending"
+        STARTED = 1, "Started"
+        RETRYING = 4, "Retrying"
+        SUCCESS = 2, "Success"
+        FAILED = 3, "Failed"
 
     original_lead_id = models.PositiveIntegerField(unique=True)
     title = models.CharField(max_length=255)
@@ -105,25 +113,24 @@ class Lead(BaseModel):
         Organization,
         null=True,
         on_delete=models.CASCADE,
-        related_name='authored_leads',
+        related_name="authored_leads",
     )
     publishing_org = models.ForeignKey(
         Organization,
         null=True,
         on_delete=models.CASCADE,
-        related_name='published_leads',
+        related_name="published_leads",
     )
     confidentiality = models.CharField(
         max_length=30,
         choices=Confidentiality.choices,
-        default=Confidentiality.UNPROTECTED
+        default=Confidentiality.UNPROTECTED,
     )
     source_url = models.TextField()
     extra = models.JSONField(default=dict)
 
     def __str__(self):
-        return self.text_extract[:50] \
-            if self.text_extract else '-- Not extracted --'
+        return self.text_extract[:50] if self.text_extract else "-- Not extracted --"
 
 
 class Entry(BaseModel):
@@ -141,7 +148,7 @@ class Entry(BaseModel):
     extra = models.JSONField(default=dict)
 
     def __str__(self):
-        return f'Original entry {self.original_entry_id}'
+        return f"Original entry {self.original_entry_id}"
 
 
 class ClassificationModel(BaseModel):
@@ -170,18 +177,3 @@ class ClassificationPredictions(BaseModel):
 
     def __str__(self):
         return self.entry
-
-
-class LeadVectorsNLP(BaseModel):
-    class EncodingType(models.TextChoices):
-        GLOVE_6B_300 = 'glove_6b_300', 'Glove 6B 300d'
-        GLOVE_840B_300 = 'glove_840b_300', 'Glove 840B 300d'
-        LSH_256_PERMS = 'lsh_256_perms', 'LSH 256 Perms'
-        LSH_128_PERMS = 'lsh_128_perms', 'LSH 128 Perms'
-
-    lead = models.ForeignKey(Lead, on_delete=models.CASCADE)
-    encoding_type = models.CharField(
-        max_length=50,
-        choices=EncodingType.choices
-    )
-    encoding = models.JSONField()

@@ -1,5 +1,6 @@
-import os
 import psycopg2
+
+from core_server.env import env
 
 
 class CursorWrapper:
@@ -14,21 +15,22 @@ class CursorWrapper:
     the attributes are just the attributes of the cursor object. See
     `__getattr__` method below.
     """
+
     def __init__(self, cursor, connection):
         self.connection = connection
         self.cursor = cursor
         # TODO: find ways to close connection
 
     def __getattr__(self, name):
-        if name == 'description':
+        if name == "description":
             return self.cursor.description
-        if name == 'execute':
+        if name == "execute":
             try:
                 self.cursor.close()
-            except Exception as e:
+            except Exception:
                 pass
             else:
-                self.cursor = self.connection.cursor(name='deepl_cursor')
+                self.cursor = self.connection.cursor(name="deepl_cursor")
             finally:
                 return self.cursor.execute
         return getattr(self.cursor, name)
@@ -41,17 +43,17 @@ def connect_db():
     # we can access the db only thourgh an EC2 instances and not directly for
     # security reason.
     params = {
-        "host": os.environ['DEEP_DB_HOST'],
-        "port": os.environ.get('DEEP_DB_PORT', '5432'),
-        "dbname": os.environ['DEEP_DB_NAME'],
-        "user": os.environ['DEEP_DB_USER'],
-        "password": os.environ['DEEP_DB_PASSWORD'],
+        "host": env("DEEP_DB_HOST"),
+        "port": env("DEEP_DB_PORT"),
+        "dbname": env("DEEP_DB_NAME"),
+        "user": env("DEEP_DB_USER"),
+        "password": env("DEEP_DB_PASSWORD"),
         "sslmode": "require",
     }
     connection = psycopg2.connect(**params)
     # Use named cursor to make it server side which allows for controlling the
     # fetch sizes
-    cursor: psycopg2.cursor = connection.cursor(name='deepl_cursor')
+    cursor: psycopg2.cursor = connection.cursor(name="deepl_cursor")
     return CursorWrapper(cursor, connection)
     # return cursor
 

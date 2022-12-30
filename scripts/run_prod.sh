@@ -6,7 +6,8 @@ wait_cmd="/code/scripts/wait-for-it.sh $POSTGRES_HOSTNAME:$POSTGRES_PORT"
 if [[ "$run" == "server" ]]; then
     $wait_cmd && \
         python manage.py migrate && \
-        python manage.py runserver 0.0.0.0:8000
+        python manage.py collectstatic --noinput && \
+        gunicorn -w 4 -b 0.0.0.0:8000 core_server.wsgi:application
 elif [[ "$run" == "celery" ]]; then
     $wait_cmd && celery -A core_server worker -l info
 elif [[ "$run" == "beat" ]]; then
