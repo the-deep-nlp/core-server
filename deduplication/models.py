@@ -15,7 +15,7 @@ class LSHIndex(BaseModel):
     Uses datasketch LSH Index
     """
 
-    THRESHOLD = 0.55  # The value comes from experiments conducted on test CORE dataset
+    THRESHOLD = 0.6  # The value comes from experiments conducted on test deep dataset
     """
     EXPERIMENTS SUMMARY
     ====================
@@ -27,6 +27,10 @@ class LSHIndex(BaseModel):
 
     datasketch_lsh_perm256 0.55           0.7981           52.82732             6.4
     datasketch_lsh_perm128 0.55           0.7816           37.68474             4.81983
+    * datasketch_lsh_deep  0.60           0.6314           14.03                -
+
+    NOTE: when tested on DEEP data and LSH, the best score obtained was 0.6314
+    for threshold 0.6(the last entry on the above list)
     """
     NUM_PERM = 256
 
