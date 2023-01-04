@@ -43,7 +43,7 @@ services:
     environment:
       <<: *base-environment
     volumes:
-      - dive-db:/var/lib/postgresql/data
+      - deepl-db:/var/lib/postgresql/data
     command: -p 5432
 
   redis:
@@ -67,4 +67,4 @@ services:
       - "host.docker.internal:host-gateway"
 
 volumes:
-  dive-db:
+  deepl-db:
