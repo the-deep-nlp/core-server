@@ -12,11 +12,6 @@ from botocore.exceptions import ClientError
 
 from postprocess_cpu_model_outputs import convert_current_dict_to_previous_one, get_predictions_all
 
-
-ENDPOINT_NAME = os.getenv("ENDPOINT_NAME")
-AWS_REGION = os.getenv("AWS_REGION")
-BATCH = 10
-
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -29,13 +24,17 @@ class ClassificationModelOutput:
     """
     def __init__(self,
         dataframe: pd.DataFrame,
+        endpoint_name: str,
+        aws_region: str="us-east-1",
+        batch_size: int=10,
         prediction_required: bool=True,
-        embeddings_required: bool=True
+        embeddings_required: bool=True,
     ):
         self.dataframe = dataframe
-        self.batch = len(self.dataframe)//BATCH
+        self.endpoint_name = endpoint_name
+        self.batch = len(self.dataframe)//batch_size
         self.sg_client = boto3.session.Session().client(
-            "sagemaker-runtime", region_name=AWS_REGION
+            "sagemaker-runtime", region_name=aws_region
         )
         self.prediction_required = prediction_required
         self.embeddings_required = embeddings_required
@@ -64,7 +63,7 @@ class ClassificationModelOutput:
     def invoke_endpoint(self, backbone_inputs_json: dict) -> List:
         try:
             response = self.sg_client.invoke_endpoint(
-                EndpointName=ENDPOINT_NAME,
+                EndpointName=self.endpoint_name,
                 Body=backbone_inputs_json,
                 ContentType="application/json; format=pandas-split"
             )
@@ -162,8 +161,12 @@ if __name__ == "__main__":
     dataset_path = "csvfiles/test_v0.7.1.csv"
     df = pd.read_csv(dataset_path).sample(n=10, random_state=1234).reset_index()
 
+    endpoint_name = ""
     embeddings = ClassificationModelOutput(
         df,
+        endpoint_name="main-model-cpu",
+        aws_region="us-east-1",
+        batch_size=10,
         prediction_required=True,
         embeddings_required=True
     )
