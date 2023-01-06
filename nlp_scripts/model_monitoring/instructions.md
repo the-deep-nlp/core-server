@@ -13,5 +13,5 @@ Once we have the embeddings and predicted tags on each category and grouth truth
 There are several methods/functions that can be called in this script which computes the performance metrics on project basis, tag basis, overall project basis etc.
 
 ## Calculate Feature Drift
-For feature drift, first calculate the Embeddings using the above script `generate_output.py` and calculate the feature drift on the project level.
+For feature drift, first calculate the Embeddings using the above script `generate_output.py` and run the `featuredrift.py` to calculate the feature drift on the project level.
 For this, we need to prepare two dataframes, one dataframe which is a reference one using the embeddings of the excerpts from the training data(this remains fixed) and dataframe consisting of the `project_id` and `embeddings` of the excerpts from the production/new data.
