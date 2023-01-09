@@ -3,12 +3,9 @@
 Core Project for maintaining database, jobs and tasks.
 
 
-## Local setup with local DEEP instance
-- Copy `.env.sample` as `.env` and set variables. More on some of the vars below.
-- Note that, in addition to setting up database config for the core server, we
-  need configurations for deep server as well.
-- For DEEP db configs, use the config of your local deep database.
-    - **NOTE**: you might need to expose ports for database service in your DEEP docker-compose.
+## Local setup (requires running local DEEP instance)
+- Copy `.env.sample` as `.env` and set variables. The file is well commented
+  out so that you can follow the instructions there about setting up env vars.
 - Set the cron job timings for indexing and deep data fetching. The default
   intervals are quite long. So you might want to make them a bit frequent by setting the following:
     ```
@@ -32,8 +29,8 @@ Core Project for maintaining database, jobs and tasks.
     - Add other projects if needed.
 
 
-## Setting up server
-- Copy `.env.sample` as `.env` and set variables
+## Prod setup
+- Copy `.env.sample` as `.env` and set variables accordingly
 - Note that, in addition to setting up database config for the core server, we
   need configurations for deep server as well.
     - There's a chance a proxy is being used to access the DEEP db server.
