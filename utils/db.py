@@ -48,7 +48,7 @@ def connect_db():
         "dbname": env("DEEP_DB_NAME"),
         "user": env("DEEP_DB_USER"),
         "password": env("DEEP_DB_PASSWORD"),
-        "sslmode": "require",
+        "sslmode": "require" if env("DEBUG") is False else "disable",
     }
     connection = psycopg2.connect(**params)
     # Use named cursor to make it server side which allows for controlling the

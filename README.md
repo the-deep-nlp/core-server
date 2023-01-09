@@ -3,8 +3,34 @@
 Core Project for maintaining database, jobs and tasks.
 
 
-## Setting up
-- Copy `.env.sample` as `.env` and set variables
+## Local setup (requires running local DEEP instance)
+- Copy `.env.sample` as `.env` and set variables. The file is well commented
+  out so that you can follow the instructions there about setting up env vars.
+- Set the cron job timings for indexing and deep data fetching. The default
+  intervals are quite long. So you might want to make them a bit frequent by setting the following:
+    ```
+      CRON_DEEP_FETCH_MINUTE=*/2
+      CRON_DEEP_FETCH_HOUR=*
+      CRON_CREATE_INDICES_MINUTE=*/2
+      CRON_CREATE_INDICES_HOUR=*
+    ```
+  This lets us pull deep data and create indices every 2 minutes.
+- Then just do docker-compose up
+- Create a super user:
+    ```
+    $ docker-compose exec server bash
+    # ./manage.py createsuperuser
+    ```
+- Add some projects to fetch data and index leads:
+    - Login to django admin panel: `http://localhost:9000/admin`.
+    - On the side pane, click on `ToFetchProjects`.
+    - Add a `ToFetchProject` instance with the `original project id` value as
+      the project's id you want to pull data for.
+    - Add other projects if needed.
+
+
+## Prod setup
+- Copy `.env.sample` as `.env` and set variables accordingly
 - Note that, in addition to setting up database config for the core server, we
   need configurations for deep server as well.
     - There's a chance a proxy is being used to access the DEEP db server.
