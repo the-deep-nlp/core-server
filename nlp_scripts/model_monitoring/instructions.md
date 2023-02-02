@@ -1,6 +1,6 @@
 ## Generate Embeddings and Predictions
 
-First of all run the script `generate_output.py` script to generate the embeddings and predictions of the excerpts.
+First of all run the script `generate_outputs.py` script to generate the embeddings and predictions of the excerpts.
 This input expects a dataframe with fields `entry_id`, `excerpts` and optional fields `sectors`, `subpillars_1d`, `subpillars_2d`. These optional fields are the ground truths set by the users when creating the entry in Deep.
 
 The outputs returns a dataframe with fields like `entry_id`, `embeddings`, `sectors_pred`, `subpillars_2d_pred`, `subpillars_1d_pred`, `age_pred`, `gender_pred`, `affected_groups_pred`, `specific_needs_groups_pred`, `severity_pred`.

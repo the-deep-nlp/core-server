@@ -191,11 +191,12 @@ def get_endpoint_probas(df, endpoint_name):
 
     return all_outputs
 
+
 def output_all_preds(entry, endpoint_name):
     data = {
         "columns": ["excerpt", "return_type"],
         "index": [0],
-        "data": [[entry, "default_analyis"]]
+        "data": [[entry, "default_analyis"]],
     }
 
     data["columns"].append("analyis_framework_id")
@@ -218,10 +219,7 @@ def output_all_preds(entry, endpoint_name):
     data["data"][0].append("['first_level_tags', 'secondary_tags', 'subpillars']")
     data["data"][0].append("array")
 
-    endpoint_outputs = get_endpoint_probas(
-        df=data,
-        endpoint_name=endpoint_name
-    )
+    endpoint_outputs = get_endpoint_probas(df=data, endpoint_name=endpoint_name)
     if endpoint_outputs:
         eval_batch = literal_eval(endpoint_outputs)
         output_ratios = eval_batch["raw_predictions"]
@@ -238,6 +236,5 @@ def output_all_preds(entry, endpoint_name):
         final_predictions = get_predictions_all(clean_outputs)
 
         return clean_outputs, clean_thresholds, dict(final_predictions), False
-    
-    return [], {}, {}, True
 
+    return [], {}, {}, True
