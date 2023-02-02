@@ -7,6 +7,7 @@ from typing import List
 from evidently.report import Report
 from evidently.metrics import DatasetDriftMetric, DataDriftTable
 
+
 class FeatureDrift:
     """
     Calculates per project feature drift of excerpts
@@ -15,17 +16,13 @@ class FeatureDrift:
             'reference_dataset_len', 'current_dataset_len', 'drift_share', 'number_of_columns',
             'number_of_drifted_columns', 'share_of_drifted_columns', 'dataset_drift'
     """
-    def __init__(self,
-        ref_df: pd.DataFrame,
-        cur_df: pd.DataFrame
-    ):
+
+    def __init__(self, ref_df: pd.DataFrame, cur_df: pd.DataFrame):
         self.reference_df = ref_df
         self.current_df = cur_df
-        
-        self.data_drift_dataset_report = Report(
-            metrics=[DatasetDriftMetric()]
-        )
-    
+
+        self.data_drift_dataset_report = Report(metrics=[DatasetDriftMetric()])
+
     def _process_embeddings(self, embeddings: pd.Series) -> List[float]:
         """
         Reads the embeddings and gets the list
@@ -33,10 +30,9 @@ class FeatureDrift:
         Output: Embedding List
         """
         return embeddings.apply(eval).apply(np.array).to_list()
-    
-    def _project_id_based_mask(self,
-        df: pd.DataFrame,
-        project_id: int=None
+
+    def _project_id_based_mask(
+        self, df: pd.DataFrame, project_id: int = None
     ) -> pd.DataFrame:
         """
         Input: DataFrame with column 'project_id'
@@ -45,13 +41,14 @@ class FeatureDrift:
         if project_id:
             mask = df["project_id"] == project_id
             return df[mask]
-    
+
         return df
 
-    def compute_feature_drift(self,
-        ref_n_samples: int=500,
-        cur_n_samples: int=500,
-        random_state: int=5432
+    def compute_feature_drift(
+        self,
+        ref_n_samples: int = 500,
+        cur_n_samples: int = 500,
+        random_state: int = 5432,
     ) -> pd.DataFrame:
         """
         Computes the feature drift based on feature embeddings
@@ -66,23 +63,40 @@ class FeatureDrift:
 
         for project_id in tqdm(reference_project_ids):
             if project_id in current_project_ids:
-                reference_df = self._project_id_based_mask(self.reference_df, project_id)
+                reference_df = self._project_id_based_mask(
+                    self.reference_df, project_id
+                )
                 current_df = self._project_id_based_mask(self.current_df, project_id)
-                
-                reference_embedding_lst = self._process_embeddings(reference_df["embeddings"])
-                current_embedding_lst = self._process_embeddings(current_df["embeddings"])
+
+                reference_embedding_lst = self._process_embeddings(
+                    reference_df["embeddings"]
+                )
+                current_embedding_lst = self._process_embeddings(
+                    current_df["embeddings"]
+                )
 
                 if len(reference_embedding_lst) and len(current_embedding_lst):
                     # Note that sample size is less by 1 because it should less than population size
-                    ref_n_samples = len(reference_embedding_lst) - 1 if ref_n_samples >= len(reference_embedding_lst) else ref_n_samples
-                    cur_n_samples = len(current_embedding_lst) - 1  if cur_n_samples >= len(current_embedding_lst) else cur_n_samples
-                    
-                    reference_df = pd.DataFrame(reference_embedding_lst).sample(n=ref_n_samples, random_state=random_state)
-                    current_df = pd.DataFrame(current_embedding_lst).sample(n=cur_n_samples, random_state=random_state)
+                    ref_n_samples = (
+                        len(reference_embedding_lst) - 1
+                        if ref_n_samples >= len(reference_embedding_lst)
+                        else ref_n_samples
+                    )
+                    cur_n_samples = (
+                        len(current_embedding_lst) - 1
+                        if cur_n_samples >= len(current_embedding_lst)
+                        else cur_n_samples
+                    )
+
+                    reference_df = pd.DataFrame(reference_embedding_lst).sample(
+                        n=ref_n_samples, random_state=random_state
+                    )
+                    current_df = pd.DataFrame(current_embedding_lst).sample(
+                        n=cur_n_samples, random_state=random_state
+                    )
 
                     self.data_drift_dataset_report.run(
-                        reference_data=reference_df,
-                        current_data=current_df
+                        reference_data=reference_df, current_data=current_df
                     )
 
                     temp_result = {}
@@ -92,26 +106,37 @@ class FeatureDrift:
                     temp_result["current_dataset_len"] = len(current_df)
                     data_drift_report = self.data_drift_dataset_report.as_dict()
                     # Note the keys might change in the future
-                    temp_result["drift_share"] = data_drift_report["metrics"][0]["result"]["drift_share"]
-                    temp_result["number_of_columns"] = data_drift_report["metrics"][0]["result"]["number_of_columns"]
-                    temp_result["number_of_drifted_columns"] = data_drift_report["metrics"][0]["result"]["number_of_drifted_columns"]
-                    temp_result["share_of_drifted_columns"] = temp_result["drift_share"] = data_drift_report["metrics"][0]["result"]["share_of_drifted_columns"]
-                    temp_result["dataset_drift"] = temp_result["drift_share"] = data_drift_report["metrics"][0]["result"]["dataset_drift"]
+                    temp_result["drift_share"] = data_drift_report["metrics"][0][
+                        "result"
+                    ]["drift_share"]
+                    temp_result["number_of_columns"] = data_drift_report["metrics"][0][
+                        "result"
+                    ]["number_of_columns"]
+                    temp_result["number_of_drifted_columns"] = data_drift_report[
+                        "metrics"
+                    ][0]["result"]["number_of_drifted_columns"]
+                    temp_result["share_of_drifted_columns"] = temp_result[
+                        "drift_share"
+                    ] = data_drift_report["metrics"][0]["result"][
+                        "share_of_drifted_columns"
+                    ]
+                    temp_result["dataset_drift"] = temp_result[
+                        "drift_share"
+                    ] = data_drift_report["metrics"][0]["result"]["dataset_drift"]
                     temp_result["generated_at"] = datetime.date.today()
 
                     final_result.append(temp_result)
-        
+
         return pd.DataFrame.from_records(final_result)
-    
+
 
 if __name__ == "__main__":
     reference_data_path = "csvfiles/data_with_embeddings_22000.csv"
     current_data_path = "csvfiles/sampled_data_with_embeddings_testset.csv"
-    
+
     reference_data_df = pd.read_csv(reference_data_path)
     current_data_df = pd.read_csv(current_data_path)
 
     feature_drift = FeatureDrift(reference_data_df, current_data_df)
     df = feature_drift.compute_feature_drift(ref_n_samples=10, cur_n_samples=10)
     print(df)
-
