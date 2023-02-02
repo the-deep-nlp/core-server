@@ -1,4 +1,3 @@
-import os
 import json
 import logging
 import datetime
@@ -7,13 +6,16 @@ import pandas as pd
 import numpy as np
 
 from typing import List
-from tqdm import tqdm
 from botocore.exceptions import ClientError
 
-from postprocess_cpu_model_outputs import convert_current_dict_to_previous_one, get_predictions_all
+from postprocess_cpu_model_outputs import (
+    convert_current_dict_to_previous_one,
+    get_predictions_all,
+)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
 
 class ClassificationModelOutput:
     """
@@ -22,17 +24,19 @@ class ClassificationModelOutput:
        'subpillars_1d_pred', 'age_pred', 'gender_pred', 'affected_groups_pred',
        'specific_needs_groups_pred', 'severity_pred']
     """
-    def __init__(self,
+
+    def __init__(
+        self,
         dataframe: pd.DataFrame,
         endpoint_name: str,
-        aws_region: str="us-east-1",
-        batch_size: int=10,
-        prediction_required: bool=True,
-        embeddings_required: bool=True,
+        aws_region: str = "us-east-1",
+        batch_size: int = 10,
+        prediction_required: bool = True,
+        embeddings_required: bool = True,
     ):
         self.dataframe = dataframe
         self.endpoint_name = endpoint_name
-        self.batch = len(self.dataframe)//batch_size
+        self.batch = len(self.dataframe) // batch_size
         self.sg_client = boto3.session.Session().client(
             "sagemaker-runtime", region_name=aws_region
         )
@@ -42,9 +46,7 @@ class ClassificationModelOutput:
         self.predictions = []
         self.thresholds = {}
 
-    def _create_df(self,
-        entries: str
-    ) -> dict:
+    def _create_df(self, entries: str) -> dict:
         df = pd.DataFrame({"excerpt": entries, "index": range(len(entries))})
         df["return_type"] = "default_analyis"
         df["analyis_framework_id"] = "all"
@@ -65,7 +67,7 @@ class ClassificationModelOutput:
             response = self.sg_client.invoke_endpoint(
                 EndpointName=self.endpoint_name,
                 Body=backbone_inputs_json,
-                ContentType="application/json; format=pandas-split"
+                ContentType="application/json; format=pandas-split",
             )
             return json.loads(response["Body"].read().decode("ascii"))
         except ClientError as err:
@@ -77,17 +79,17 @@ class ClassificationModelOutput:
         if self.embeddings_required and "output_backbone" in outputs:
             self.embeddings = outputs["output_backbone"]
         if self.prediction_required and (
-            "raw_predictions" in outputs and
-            "thresholds" in outputs):
+            "raw_predictions" in outputs and "thresholds" in outputs
+        ):
             self.predictions = outputs["raw_predictions"]
             self.thresholds = outputs["thresholds"]
-    
+
     def column_mapping(self, cols) -> dict:
         return {col: f"{col}_pred" for col in cols}
 
     def generate_embeddings(self) -> pd.DataFrame:
         return self.embeddings
-            
+
     def generate_predictions(self) -> List[dict]:
         output_ratios = self.predictions
 
@@ -101,58 +103,52 @@ class ClassificationModelOutput:
         ]
 
         return get_predictions_all(clean_outputs)
-    
+
     def generate_outputs(self) -> pd.DataFrame:
         """
-        Returns a dataframe with fields ['entry_id', 'embeddings', 'sectors_pred', 'subpillars_2d_pred',
-       'subpillars_1d_pred', 'age_pred', 'gender_pred', 'affected_groups_pred',
-       'specific_needs_groups_pred', 'severity_pred']
+         Returns a dataframe with fields ['entry_id', 'embeddings', 'sectors_pred', 'subpillars_2d_pred',
+        'subpillars_1d_pred', 'age_pred', 'gender_pred', 'affected_groups_pred',
+        'specific_needs_groups_pred', 'severity_pred']
         """
         embedding_series = pd.Series([], dtype=pd.StringDtype())
         prediction_df = pd.DataFrame([], dtype=pd.StringDtype())
         final_df = pd.DataFrame([])
 
-        for entries_batch in tqdm(
-            np.array_split(self.dataframe, self.batch)
-        ):
+        for entries_batch in np.array_split(self.dataframe, self.batch):
             self._get_outputs(entries_batch["excerpt"])
             if self.embeddings_required:
                 embedding_series = pd.concat(
-                    [
-                        embedding_series,
-                        pd.Series(self.embeddings)
-                    ], axis=0, ignore_index=True
+                    [embedding_series, pd.Series(self.embeddings)],
+                    axis=0,
+                    ignore_index=True,
                 )
             if self.prediction_required:
                 prediction_df = pd.concat(
-                    [
-                        prediction_df,
-                        pd.DataFrame(self.generate_predictions())
-                    ], ignore_index=True
+                    [prediction_df, pd.DataFrame(self.generate_predictions())],
+                    ignore_index=True,
                 )
-        
+
         prediction_df.rename(
-            columns=self.column_mapping(prediction_df.columns),
-            inplace=True
+            columns=self.column_mapping(prediction_df.columns), inplace=True
         )
 
         if self.embeddings_required and self.prediction_required:
-            final_df = pd.concat([
-                self.dataframe["entry_id"],
-                embedding_series.to_frame("embeddings"),
-                prediction_df
-            ], axis=1)
+            final_df = pd.concat(
+                [
+                    self.dataframe["entry_id"],
+                    embedding_series.to_frame("embeddings"),
+                    prediction_df,
+                ],
+                axis=1,
+            )
         elif self.embeddings_required:
-            final_df = pd.concat([
-                self.dataframe["entry_id"],
-                embedding_series.to_frame("embeddings")
-            ], axis=1)
+            final_df = pd.concat(
+                [self.dataframe["entry_id"], embedding_series.to_frame("embeddings")],
+                axis=1,
+            )
         elif self.prediction_required:
-            final_df = pd.concat([
-                self.dataframe["entry_id"],
-                prediction_df
-            ], axis=1)
-        
+            final_df = pd.concat([self.dataframe["entry_id"], prediction_df], axis=1)
+
         final_df["generated_at"] = datetime.date.today()
         return final_df
 
@@ -168,10 +164,7 @@ if __name__ == "__main__":
         aws_region="us-east-1",
         batch_size=10,
         prediction_required=True,
-        embeddings_required=True
+        embeddings_required=True,
     )
     df = embeddings.generate_outputs()
-    #print(df)
-
-
-
+    # print(df)

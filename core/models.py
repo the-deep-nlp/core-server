@@ -166,6 +166,20 @@ class ClassificationPredictions(BaseModel):
     entry = models.ForeignKey(Entry, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     model = models.ForeignKey(ClassificationModel, on_delete=models.CASCADE)
+    """
+    NOTE: All predictions will be of the following form.
+    IMPORTANT!! These may change over time. Need to migrate accordingly in the future.
+    {
+        "subpillars_1d": ["XXX"],
+        "sectors": ["XXX"],
+        "subpillars_2d": ["XXX"],
+        "age": ["XXX"],
+        "gender": ["XXX"],
+        "affected_groups": ["XXX"],
+        "specific_needs_groups": ["XXX"]
+        "severity": ["XXX"],
+    }
+    """
     original_en_predictions = models.JSONField(default=dict)
     original_es_predictions = models.JSONField(default=dict)
     original_fr_predictions = models.JSONField(default=dict)
