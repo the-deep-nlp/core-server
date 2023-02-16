@@ -156,16 +156,16 @@ class ClassificationModel(BaseModel):
     version = models.CharField(max_length=20)
     url = models.TextField(null=True, blank=True)
     description = models.TextField()
-    extra_info = models.JSONField(default=dict)
 
     def __str__(self):
         return self.name
 
 
 class ClassificationPredictions(BaseModel):
-    entry = models.ForeignKey(Entry, on_delete=models.CASCADE)
+    entry = models.OneToOneField(Entry, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     model = models.ForeignKey(ClassificationModel, on_delete=models.CASCADE)
+    embeddings = models.JSONField()
     """
     NOTE: All predictions will be of the following form.
     IMPORTANT!! These may change over time. Need to migrate accordingly in the future.
