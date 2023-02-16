@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 class ClassificationModelOutput:
     """
-    Input: DataFrame with fields ['entry_id', 'excerpts'] (at least)
+    Input: DataFrame with fields ['entry_id', 'excerpt'] (at least)
     Output: DataFrame with fields ['entry_id', 'embeddings', 'sectors_pred', 'subpillars_2d_pred',
        'subpillars_1d_pred', 'age_pred', 'gender_pred', 'affected_groups_pred',
        'specific_needs_groups_pred', 'severity_pred']
