@@ -4,8 +4,8 @@ from core_server.base_models import BaseModel
 
 
 class DeepDataFetchTracker(BaseModel):
-    last_fetched_org_created_at = models.DateTimeField(null=True)
-    last_fetched_af_created_at = models.DateTimeField(null=True)
+    last_fetched_org_created_at = models.DateTimeField(null=True, blank=True)
+    last_fetched_af_created_at = models.DateTimeField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if self.pk is None and DeepDataFetchTracker.objects.first() is not None:  # noqa
@@ -141,11 +141,21 @@ class Entry(BaseModel):
     excerpt_es = models.TextField()
     excerpt_fr = models.TextField()
     excerpt_pt = models.TextField()
+    # original_af_tags contains the labels manually tagged by the taggers.
+    # The structure is shown after the fields declaration below
     original_af_tags = models.JSONField(default=dict)
     nlp_af_tags = models.JSONField(default=dict)
     export_data = models.JSONField(default=dict)
     af_exportable_data = models.JSONField(default=dict)
     extra = models.JSONField(default=dict)
+    """
+    NOTE:
+    original_af_tags = {
+        "sectors": ["xXx"],             # might not be present
+        "subpillars_1d": ["xXx"],       # might not be present
+        "subpillars_2d": ["xXx"],       # might not be present
+    }
+    """
 
     def __str__(self):
         return f"Original entry {self.original_entry_id}"
