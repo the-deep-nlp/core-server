@@ -51,7 +51,6 @@ def pull_data(cursor, prj_id):
         af_widgets = _get_data(cursor, projects, queries.af_widget_q, "af_widget")
     with log_time("exportdata get_data"):
         exportdata = _get_data(cursor, projects, queries.exportdata_q, "exportdata")
-        print(exportdata)
 
     return (entries, af_widgets, exportdata)
 
@@ -97,7 +96,6 @@ def _get_id2label(frame):
     d = frame[frame.widget_id.isin(["matrix2dWidget"])]
 
     for c in d.iterrows():
-
         _, a = c
         prop = a.properties
         for p in prop.get("rows", []):
@@ -148,7 +146,7 @@ def _reshape_report(a):
 
 
 # omg = 0
-def _get_values_one_row(c, widget, id2label):
+def _get_values_one_row(ex, widget, id2label, only_sectors_subpillars=False):
     """
     * iterate through individual tags and extract content
     * pulls all the widgets from the AF. note that 1d and 2d matrices have special handling
@@ -159,39 +157,41 @@ def _get_values_one_row(c, widget, id2label):
         for 1d widgets: add subpillars: list
         for all other widgets: values : list
     """
+    key_id = ex["common"]["widget_key"]
+    title = widget[widget.key == key_id].title.tolist()
+    return get_tags_data_for_exportable(ex, id2label, only_sectors_subpillars, title)
 
-    key_title, key_id = "MISSING", ""
 
-    if "common" in c.keys():
-        common = c["common"]
+def get_tags_data_for_exportable(ex, id2label, only_sectors_subpillars=True, title=None):
+    key_title = "MISSING"
+
+    if "common" in ex.keys():
+        common = ex["common"]
         if len(common) > 0:
             tip = common["widget_id"]
             if "widget_key" in common:
-                key_id = c["common"]["widget_key"]
-                title = widget[widget.key == key_id].title.tolist()
                 if title:
                     key_title = _fmt_nm(title[0])
         else:
             tip = "empty"
-
     else:
-        excel = c["excel"]
+        excel = ex["excel"]
         if type(excel) is dict:
             keys = excel.keys()
             if "value" in keys:
                 tip = "no_common_multiselectWidget"
-            elif "values" in keys and "report" in c.keys():
+            elif "values" in keys and "report" in ex.keys():
                 tip = "no_common_matrix2dWidget"
-            elif "values" in keys and "report" not in c.keys():
+            elif "values" in keys and "report" not in ex.keys():
                 tip = "raw"
             else:
-                print("empty tip in no common for proj_id", proj_id_tmp, "value is", c)
+                print("empty tip in no common for project, value is", ex)
                 tip = "empty"
         else:
             tip = "empty"
 
     if tip in ["geoWidget", "dateRangeWidget"]:
-        output = c["common"]["values"]
+        output = ex["common"]["values"]
 
     elif tip in [
         "dateWidget",
@@ -199,7 +199,7 @@ def _get_values_one_row(c, widget, id2label):
         "selectWidget",
         "timeWidget",
     ]:
-        output = c["common"]["value"]
+        output = ex["common"]["value"]
 
     elif tip in [
         "numberWidget",
@@ -207,10 +207,9 @@ def _get_values_one_row(c, widget, id2label):
         "textWidget",
         "no_common_multiselectWidget",
     ]:
-        output = c["excel"]["value"]
+        output = ex["excel"]["value"]
 
     elif tip == "organigramWidget":
-
         """
         must be careful here, the organigram it's a (for unknown reason) a list of list
         sometimes with empty strings values also
@@ -219,21 +218,27 @@ def _get_values_one_row(c, widget, id2label):
         master[key_title] = [a for e in c["excel")["values") for a in e if a]
 
         """
-        output = [c for a in c["excel"]["values"] for c in a if c]
+        output = [c for a in ex["excel"]["values"] for c in a if c]
 
     elif tip == "matrix1dWidget":
-        rep = c["excel"]["values"]
+        rep = ex["excel"]["values"]
         sub_pillars = []
 
         for r in rep:
             sub_pillars.append(f"subpillars_1d->{r[0]}->{r[1]}")
 
         output = sub_pillars
+        if only_sectors_subpillars:
+            return {
+                "sectors": [],
+                "sub_sectors": [],
+                "subpillars_1d": sub_pillars,
+                "subpillars_2d": [],
+            }
 
     elif tip in ["matrix2dWidget", "no_common_matrix2dWidget"]:
-
         sectors, sub_sectors, sub_pillars = [], [], []
-        rep = c["report"]["keys"]
+        rep = ex["report"]["keys"]
 
         m2widget = id2label  # [key)
 
@@ -261,6 +266,13 @@ def _get_values_one_row(c, widget, id2label):
                 sub_pillars.append(f"subpillars_2d->{pill}->{sub_pill}")
 
         output = sectors + sub_sectors + sub_pillars
+        if only_sectors_subpillars:
+            return {
+                "sectors": sectors,
+                "sub_sectors": sub_sectors,
+                "subpillars_2d": sub_pillars,
+                "subpillars_1d": [],
+            }
 
     elif key_title == "MISSING":
         output = ["MISSING"]
@@ -269,11 +281,11 @@ def _get_values_one_row(c, widget, id2label):
         output = []
 
     elif tip == "raw":
-        output = c["excel"]["values"]
+        output = ex["excel"]["values"]
 
     else:
-        print(c)
-        raise (Exception("widget not found!"))
+        print(ex)
+        raise Exception("widget not found!")
 
     if output is None:
         # print("project_id", proj_id_tmp, "not list in", tip, ", value is:", c)
@@ -285,6 +297,13 @@ def _get_values_one_row(c, widget, id2label):
     # output dict if value is not emtpy and empty list if value is empty
     output = {tip: output} if len(output) > 0 else []
 
+    if not only_sectors_subpillars:
+        return {
+            "sectors": [],
+            "sub_sectors": [],
+            "subpillars_1d": [],
+            "subpillars_2d": [],
+        }
     return {"outputs": output}
 
 
