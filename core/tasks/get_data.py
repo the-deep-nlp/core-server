@@ -18,6 +18,7 @@ from core.models import (
     Organization,
     DeepDataFetchTracker,
 )
+from .get_data_old import get_tags_data_for_exportable
 
 from celery.utils.log import get_task_logger
 
@@ -200,37 +201,38 @@ def fetch_project_leads(
     return dict(Lead.objects.values_list("original_lead_id", "id"))
 
 
-def _process_entries_batch(entries_batch, leads_dict, columns) -> dict:
+def _process_entries_batch(entries_batch, leads_dict, columns, widget_id_labels: dict) -> dict:
     entry_extra_fields = [
         "information_date",
         "entry_type",
         "excerpt_modified",
-        "excerpt",
     ]
-    last_entry_dict = {}
+    current_entry_dict = {}
     for row in entries_batch:
-        last_entry_dict = dict(zip(columns, row))
-        lead_id = leads_dict.get(last_entry_dict["lead_id"])
+        current_entry_dict = dict(zip(columns, row))
+        lead_id = leads_dict.get(current_entry_dict["lead_id"])
         if lead_id is None:
-            print("no lead for lead id", last_entry_dict["lead_id"])
+            print("no lead for lead id", current_entry_dict["lead_id"])
             continue
+        exp_data = current_entry_dict["export_data"]
+        manual_tagged_data = get_tags_data_for_exportable(exp_data, widget_id_labels)
         Entry.objects.update_or_create(
-            original_entry_id=last_entry_dict["id"],
+            original_entry_id=current_entry_dict["id"],
             lead_id=lead_id,
             defaults={
                 "original_lang": "",  # TODO: fill this
-                "excerpt_en": "",  # TODO: fill this
+                "excerpt_en": current_entry_dict["excerpt"],
                 "excerpt_es": "",  # TODO: fill this
                 "excerpt_fr": "",  # TODO: fill this
                 "excerpt_pt": "",  # TODO: fill this
-                "original_af_tags": {},  # TODO: fill this
+                "original_af_tags": manual_tagged_data,
                 "nlp_af_tags": {},  # TODO: fill this
-                "export_data": last_entry_dict["export_data"],
-                "af_exportable_data": last_entry_dict["af_exportable_data"],
-                "extra": {k: last_entry_dict[k] for k in entry_extra_fields},
+                "export_data": exp_data,
+                "af_exportable_data": current_entry_dict["export_data"],
+                "extra": {k: current_entry_dict[k] for k in entry_extra_fields},
             },
         )
-    return last_entry_dict
+    return current_entry_dict
 
 
 def fetch_project_entries(
@@ -238,6 +240,10 @@ def fetch_project_entries(
     project: Project,
     leads_dict: Dict[int, int],
 ):
+    af_mapping = project.af_mapping
+    # These are to convert subsectors/subpillars key to corresponding label
+    # which is required by the nlp services
+    widget_id_labels = get_widget_id_to_label_dict(af_mapping)
     pid = project.original_project_id
     try:
         last_fetched = project.to_fetch_project.last_fetched_entry_created_at
@@ -255,7 +261,12 @@ def fetch_project_entries(
         for i, row_batch in enumerate(batched(rows, batch_size)):
             columns = columns if columns else [c.name for c in cursor.description]
             with transaction.atomic():
-                last_entry_dict = _process_entries_batch(row_batch, leads_dict, columns)
+                last_entry_dict = _process_entries_batch(
+                    row_batch,
+                    leads_dict,
+                    columns,
+                    widget_id_labels,
+                )
                 to_fetch = project.to_fetch_project
                 to_fetch.last_fetched_entry_created_at = last_entry_dict["created_at"]
                 to_fetch.save()
@@ -283,6 +294,7 @@ def fetch_afs(
             )  # noqa
             af_dict = dict(zip(columns, row))
             widgets_data = {
+                "widget_keys": af_dict["widget_keys"],
                 "widget_ids": af_dict["widget_ids"],
                 "widget_titles": af_dict["widget_titles"],
                 "widget_properties": af_dict["widget_properties"],
@@ -341,3 +353,28 @@ def fetch_orgs(
                 tracker.last_fetched_org_created_at = org_dict["created_at"]
                 tracker.save()
         return dict(Organization.objects.values_list("original_organization_id", "id"))
+
+
+def get_widget_id_to_label_dict(af: AFMapping) -> dict:
+    widgets_data = af.extra.get("widgets_data")
+    if widgets_data is None:
+        return {}
+    ids = widgets_data["widget_ids"]
+    props = widgets_data["widget_properties"]
+
+    mapping = {}
+    for wid, prop in zip(ids, props):
+        if wid != "matrix2dWidget":
+            continue
+        for p in prop.get("rows", []):
+            mapping[p["key"]] = p["label"]
+            for pp in p.get("subRows", []):
+                mapping[pp["key"]] = pp["label"]
+            for pp in p.get("cells", []):
+                mapping[pp["key"]] = pp["label"]
+
+        for p in prop.get("columns", []):
+            mapping[p["key"]] = p["label"]
+            for pp in p.get("subColumns", []):
+                mapping[pp["key"]] = pp["label"]
+    return mapping

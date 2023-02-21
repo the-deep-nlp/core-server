@@ -131,6 +131,7 @@ select
     af.properties,
     af.description,
     af.created_at,
+    array_agg(w.key) widget_keys,
     array_agg(w.widget_id) widget_ids,
     array_agg(w.title) widget_titles,
     array_agg(w.properties) widget_properties,

@@ -7,6 +7,7 @@ from core.models import (
     AFMapping,
     Organization,
     Project,
+    DeepDataFetchTracker,
 )
 
 
@@ -16,3 +17,4 @@ admin.site.register(Entry)
 admin.site.register(AFMapping)
 admin.site.register(Organization)
 admin.site.register(Project)
+admin.site.register(DeepDataFetchTracker)
