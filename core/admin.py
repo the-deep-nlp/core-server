@@ -8,6 +8,7 @@ from core.models import (
     Organization,
     Project,
     DeepDataFetchTracker,
+    ClassificationPredictions,
 )
 
 
@@ -18,3 +19,4 @@ admin.site.register(AFMapping)
 admin.site.register(Organization)
 admin.site.register(Project)
 admin.site.register(DeepDataFetchTracker)
+admin.site.register(ClassificationPredictions)

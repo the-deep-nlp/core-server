@@ -8,7 +8,7 @@ import numpy as np
 from typing import List
 from botocore.exceptions import ClientError
 
-from postprocess_cpu_model_outputs import (
+from .postprocess_cpu_model_outputs import (
     convert_current_dict_to_previous_one,
     get_predictions_all,
 )

@@ -131,7 +131,6 @@ def _reshape_report(a):
     a = a.split("-")
     real = []
     for i, c in enumerate(a):
-
         if c.isnumeric():
             real.append("-".join([a[i - 1], c]))
         else:
@@ -162,7 +161,9 @@ def _get_values_one_row(ex, widget, id2label, only_sectors_subpillars=False):
     return get_tags_data_for_exportable(ex, id2label, only_sectors_subpillars, title)
 
 
-def get_tags_data_for_exportable(ex, id2label, only_sectors_subpillars=True, title=None):
+def get_tags_data_for_exportable(
+    ex, id2label, only_sectors_subpillars=True, title=None
+):
     key_title = "MISSING"
 
     if "common" in ex.keys():

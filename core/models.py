@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
 
 from core_server.base_models import BaseModel
 
@@ -138,13 +139,9 @@ class Entry(BaseModel):
     lead = models.ForeignKey(Lead, on_delete=models.CASCADE)
     original_lang = models.CharField(max_length=50)
     excerpt_en = models.TextField()
-    excerpt_es = models.TextField()
-    excerpt_fr = models.TextField()
-    excerpt_pt = models.TextField()
     # original_af_tags contains the labels manually tagged by the taggers.
     # The structure is shown after the fields declaration below
     original_af_tags = models.JSONField(default=dict)
-    nlp_af_tags = models.JSONField(default=dict)
     export_data = models.JSONField(default=dict)
     af_exportable_data = models.JSONField(default=dict)
     extra = models.JSONField(default=dict)
@@ -168,36 +165,38 @@ class ClassificationModel(BaseModel):
     description = models.TextField()
 
     def __str__(self):
-        return self.name
+        return str(self.id)
 
 
 class ClassificationPredictions(BaseModel):
     entry = models.OneToOneField(Entry, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     model = models.ForeignKey(ClassificationModel, on_delete=models.CASCADE)
-    embeddings = models.JSONField()
-    """
-    NOTE: All predictions will be of the following form.
-    IMPORTANT!! These may change over time. Need to migrate accordingly in the future.
-    {
-        "subpillars_1d": ["XXX"],
-        "sectors": ["XXX"],
-        "subpillars_2d": ["XXX"],
-        "age": ["XXX"],
-        "gender": ["XXX"],
-        "affected_groups": ["XXX"],
-        "specific_needs_groups": ["XXX"]
-        "severity": ["XXX"],
-    }
-    """
-    original_en_predictions = models.JSONField(default=dict)
-    original_es_predictions = models.JSONField(default=dict)
-    original_fr_predictions = models.JSONField(default=dict)
-    original_pt_predictions = models.JSONField(default=dict)
-    nlp_en_predictions = models.JSONField(default=dict)
-    nlp_es_predictions = models.JSONField(default=dict)
-    nlp_fr_predictions = models.JSONField(default=dict)
-    nlp_pt_predictions = models.JSONField(default=dict)
+    embeddings = ArrayField(models.FloatField(blank=True), blank=True, null=True)
+    subpillars_1d = ArrayField(
+        models.CharField(max_length=100, blank=True), blank=True, null=True
+    )
+    sectors = ArrayField(
+        models.CharField(max_length=100, blank=True), blank=True, null=True
+    )
+    subpillars_2d = ArrayField(
+        models.CharField(max_length=100, blank=True), blank=True, null=True
+    )
+    age = ArrayField(
+        models.CharField(max_length=100, blank=True), blank=True, null=True
+    )
+    gender = ArrayField(
+        models.CharField(max_length=100, blank=True), blank=True, null=True
+    )
+    affected_groups = ArrayField(
+        models.CharField(max_length=100, blank=True), blank=True, null=True
+    )
+    specific_needs_groups = ArrayField(
+        models.CharField(max_length=100, blank=True), blank=True, null=True
+    )
+    severity = ArrayField(
+        models.CharField(max_length=100, blank=True), blank=True, null=True
+    )
 
     def __str__(self):
-        return self.entry
+        return str(self.entry.original_entry_id)
