@@ -5,25 +5,26 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0002_tofetchproject_is_added_manually_and_more'),
+        ("core", "0002_tofetchproject_is_added_manually_and_more"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='classificationmodel',
-            name='extra_info',
+            model_name="classificationmodel",
+            name="extra_info",
         ),
         migrations.AddField(
-            model_name='classificationpredictions',
-            name='embeddings',
+            model_name="classificationpredictions",
+            name="embeddings",
             field=models.JSONField(default=[]),
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name='classificationpredictions',
-            name='entry',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='core.entry'),
+            model_name="classificationpredictions",
+            name="entry",
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.CASCADE, to="core.entry"
+            ),
         ),
     ]
