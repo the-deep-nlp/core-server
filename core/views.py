@@ -52,6 +52,7 @@ def save_classification_prediction(data_frame):
 def prepare_model_performance_df(df):
     modelperf = ModelPerformance(df)
     df1 = modelperf.project_wise_perf_metrics()
+<<<<<<< HEAD
     print(df1.columns)
     print(df1.iloc[0])
     df2 = modelperf.per_tag_perf_metrics()
@@ -62,12 +63,28 @@ def prepare_model_performance_df(df):
     print(df4)
     df5 = modelperf.per_project_calc_ratios()
     print(df5)
+=======
+    # print(df1.columns)
+    # print(df1.iloc[0])
+    df2 = modelperf.per_tag_perf_metrics()
+    # print(df2.columns)
+    df3 = modelperf.all_projects_perf_metrics()
+    # print(df3)
+    df4 = modelperf.calculate_ratios()
+    # print(df4)
+    df5 = modelperf.per_project_calc_ratios()
+    # print(df5)
+>>>>>>> Add a function to run nlp script
 
 
 def set_project_id(row):
     project = Project.objects.get(
         lead=Lead.objects.get(
+<<<<<<< HEAD
             entry=Entry.objects.get(original_entry_id=row['entry_id'])
+=======
+            entry=Entry.objects.get(original_entry_id=row["entry_id"])
+>>>>>>> Add a function to run nlp script
         )
     )
     return project.id
@@ -87,9 +104,15 @@ def test_celery(request):
         )[0:3]
     ).rename(
         columns={"original_entry_id": "entry_id", "excerpt_en": "excerpt"}
+<<<<<<< HEAD
     )  # TODO remove [0:10]
 
     df['project_id'] = df.apply(set_project_id, axis=1)
+=======
+    )  # TODO remove [0:3]
+
+    df["project_id"] = df.apply(set_project_id, axis=1)
+>>>>>>> Add a function to run nlp script
     entry_df = df.drop(columns=["original_af_tags"])
 
     # generate output
@@ -104,15 +127,29 @@ def test_celery(request):
     output_df = embeddings.generate_outputs()
 
     # save the generated output in a model
+<<<<<<< HEAD
     # save_classification_prediction(output_df)
+=======
+    save_classification_prediction(output_df)
+>>>>>>> Add a function to run nlp script
 
     # prepare dataframe for model performance
     original_af_tags = df["original_af_tags"]
     entry_df["sectors"] = [data.get("sectors", []) for data in original_af_tags]
+<<<<<<< HEAD
     entry_df["subpillars_1d"] = [data.get("subpillars_1d", []) for data in original_af_tags]
     entry_df["subpillars_2d"] = [data.get("subpillars_2d", []) for data in original_af_tags]
     combined_df = output_df.merge(entry_df, on='entry_id')
     # print("combined cols", combined_df.columns)
+=======
+    entry_df["subpillars_1d"] = [
+        data.get("subpillars_1d", []) for data in original_af_tags
+    ]
+    entry_df["subpillars_2d"] = [
+        data.get("subpillars_2d", []) for data in original_af_tags
+    ]
+    combined_df = output_df.merge(entry_df, on="entry_id")
+>>>>>>> Add a function to run nlp script
     combined_df = combined_df.drop(
         columns=[
             "embeddings",
@@ -124,7 +161,10 @@ def test_celery(request):
             "generated_at",
         ]
     )
+<<<<<<< HEAD
     # print("Removed Col", combined_df.columns)
+=======
+>>>>>>> Add a function to run nlp script
     mod_perf_df = prepare_model_performance_df(combined_df)
 
     return JsonResponse({"test": "test"})
