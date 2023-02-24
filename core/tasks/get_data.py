@@ -201,7 +201,9 @@ def fetch_project_leads(
     return dict(Lead.objects.values_list("original_lead_id", "id"))
 
 
-def _process_entries_batch(entries_batch, leads_dict, columns, widget_id_labels: dict) -> dict:
+def _process_entries_batch(
+    entries_batch, leads_dict, columns, widget_id_labels: dict
+) -> dict:
     entry_extra_fields = [
         "information_date",
         "entry_type",
@@ -222,11 +224,7 @@ def _process_entries_batch(entries_batch, leads_dict, columns, widget_id_labels:
             defaults={
                 "original_lang": "",  # TODO: fill this
                 "excerpt_en": current_entry_dict["excerpt"],
-                "excerpt_es": "",  # TODO: fill this
-                "excerpt_fr": "",  # TODO: fill this
-                "excerpt_pt": "",  # TODO: fill this
                 "original_af_tags": manual_tagged_data,
-                "nlp_af_tags": {},  # TODO: fill this
                 "export_data": exp_data,
                 "af_exportable_data": current_entry_dict["export_data"],
                 "extra": {k: current_entry_dict[k] for k in entry_extra_fields},
