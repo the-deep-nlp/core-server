@@ -7,7 +7,7 @@ from sklearn.metrics import precision_recall_fscore_support
 
 # from sklearn.metrics import multilabel_confusion_matrix
 
-from constants import SECTORS, SUBPILLARS_1D, SUBPILLARS_2D, CATEGORIES
+from .constants import SECTORS, SUBPILLARS_1D, SUBPILLARS_2D, CATEGORIES
 
 
 class ModelPerformance:
@@ -21,7 +21,7 @@ class ModelPerformance:
         self.dataframe = df
         self.categories = CATEGORIES
 
-        self._preprocess()
+        # self._preprocess()
         self._create_mlb()
         self._label_transform()
 
@@ -34,6 +34,7 @@ class ModelPerformance:
         Preprocess the multi-labels in the dataframe which converts them to be list
         """
         for category in self.categories:
+            print("Type :", type(self.dataframe[category].iloc[0]))
             self.dataframe[category] = self.dataframe[category].apply(literal_eval)
             self.dataframe[f"{category}_pred"] = self.dataframe[
                 f"{category}_pred"
