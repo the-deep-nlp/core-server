@@ -9,6 +9,12 @@ from core.models import (
     Project,
     DeepDataFetchTracker,
     ClassificationPredictions,
+    ProjectWisePerfMatrices,
+    AllProjectPerfMatrics,
+    CategoryWiseMatchRatios,
+    ProjectWiseMatchRatios,
+    TagWisePerfMatrics,
+    ClassificationModel,
 )
 
 
@@ -19,4 +25,12 @@ admin.site.register(AFMapping)
 admin.site.register(Organization)
 admin.site.register(Project)
 admin.site.register(DeepDataFetchTracker)
+
+
 admin.site.register(ClassificationPredictions)
+admin.site.register(ProjectWisePerfMatrices)
+admin.site.register(CategoryWiseMatchRatios)
+admin.site.register(AllProjectPerfMatrics)
+admin.site.register(ProjectWiseMatchRatios)
+admin.site.register(TagWisePerfMatrics)
+admin.site.register(ClassificationModel)
