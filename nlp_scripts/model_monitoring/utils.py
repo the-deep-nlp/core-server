@@ -9,7 +9,8 @@ def get_model_info(endpoint_name: str) -> Tuple[Dict[str, str], Union[str, None]
     Output: Returns a tuple that has Model information and error_msg.
     The model information is a dictionary which has keys: name, description, model_uri, version
     Example: ({'name': 'classification_model', 'description': 'Model for classifying several tags',
-    'model_uri': 's3://deep-mlflow-artifact/30/xxx/artifacts/two_steps_models', 'version': '1.0'}, None)
+    'model_uri': 's3://deep-mlflow-artifact/30/xxx/artifacts/two_steps_models', 'version': '1.0',
+    'reference_train_data': 's3://models-monitoring/drifts/xx/ref_train_xx.csv'}, None)
     In case of an error, error_msg is populated with an error description and model information is an empty dict.
     """
     model_info = {}
