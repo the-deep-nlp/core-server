@@ -54,6 +54,8 @@ services:
     ports:
       - "9000:8000"
     command: bash -c '/code/scripts/run_dev.sh server'
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
   celery:
     <<: *base-server-config
     command: bash -c '/code/scripts/run_dev.sh celery'
