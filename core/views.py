@@ -1,5 +1,6 @@
 from django.http import JsonResponse
 import pandas as pd
+from django.db import transaction
 
 from nlp_scripts.model_monitoring.utils import get_model_info
 from .models import (
@@ -8,9 +9,15 @@ from .models import (
     Project,
     ClassificationPredictions,
     ClassificationModel,
+    ProjectWisePerfMatrices,
+    AllProjectPerfMatrics,
+    CategoryWiseMatchRatios,
+    ProjectWiseMatchRatios,
+    TagWisePerfMatrics,
 )
 from nlp_scripts.model_monitoring.generate_outputs import ClassificationModelOutput
 from nlp_scripts.model_monitoring.model_performance import ModelPerformance
+from nlp_scripts.model_monitoring.featuredrift import FeatureDrift
 
 
 def save_classification_prediction(data_frame):
@@ -49,19 +56,37 @@ def save_classification_prediction(data_frame):
     return predictions
 
 
-def prepare_model_performance_df(df):
+def save_dataframe_to_model(dataframe, model_class):
+    """
+    Saves a pandas DataFrame into a Django model.
+    Args:
+        dataframe (pandas.DataFrame): The DataFrame to save.
+        model_class (django.db.models.Model): The Django model class to save the DataFrame to.
+    """
+    with transaction.atomic():
+        for row in dataframe.itertuples(index=False):
+            model_instance = model_class()
+            for field in dataframe.columns:
+                setattr(model_instance, field, getattr(row, field))
+            model_instance.save()
+
+
+def create_model_performance(df):
     modelperf = ModelPerformance(df)
     df1 = modelperf.project_wise_perf_metrics()
-    # print(df1.columns)
-    # print(df1.iloc[0])
+    save_dataframe_to_model(df1, ProjectWisePerfMatrices)
+
     df2 = modelperf.per_tag_perf_metrics()
-    # print(df2.columns)
+    save_dataframe_to_model(df2, TagWisePerfMatrics)
+
     df3 = modelperf.all_projects_perf_metrics()
-    # print(df3)
+    save_dataframe_to_model(df3, AllProjectPerfMatrics)
+
     df4 = modelperf.calculate_ratios()
-    # print(df4)
+    save_dataframe_to_model(df4, CategoryWiseMatchRatios)
+
     df5 = modelperf.per_project_calc_ratios()
-    # print(df5)
+    save_dataframe_to_model(df5, ProjectWiseMatchRatios)
 
 
 def set_project_id(row):
@@ -70,7 +95,7 @@ def set_project_id(row):
             entry=Entry.objects.get(original_entry_id=row["entry_id"])
         )
     )
-    return project.id
+    return project.original_project_id
 
 
 def test_celery(request):
@@ -84,12 +109,13 @@ def test_celery(request):
             )
             .order_by("-id")
             .values("original_entry_id", "excerpt_en", "original_af_tags")
-        )[0:3]
+        )[0:10]
     ).rename(
         columns={"original_entry_id": "entry_id", "excerpt_en": "excerpt"}
     )  # TODO remove [0:3]
 
     df["project_id"] = df.apply(set_project_id, axis=1)
+    # print("DF project id", df['project_id'].nunique())
     entry_df = df.drop(columns=["original_af_tags"])
 
     # generate output
@@ -102,9 +128,10 @@ def test_celery(request):
         embeddings_required=True,
     )
     output_df = embeddings.generate_outputs()
+    # print("Output df entry id :", output_df["entry_id"])
 
     # save the generated output in a model
-    save_classification_prediction(output_df)
+    # save_classification_prediction(output_df)
 
     # prepare dataframe for model performance
     original_af_tags = df["original_af_tags"]
@@ -115,18 +142,37 @@ def test_celery(request):
     entry_df["subpillars_2d"] = [
         data.get("subpillars_2d", []) for data in original_af_tags
     ]
+    # print("Entry Data entry id:", entry_df["entry_id"])
     combined_df = output_df.merge(entry_df, on="entry_id")
-    combined_df = combined_df.drop(
-        columns=[
-            "embeddings",
-            "age_pred",
-            "gender_pred",
-            "affected_groups_pred",
-            "specific_needs_groups_pred",
-            "severity_pred",
-            "generated_at",
-        ]
-    )
-    mod_perf_df = prepare_model_performance_df(combined_df)
+    # combined_df = combined_df.drop(
+    #     columns=[
+    #         # "embeddings",
+    #         "age_pred",
+    #         "gender_pred",
+    #         "affected_groups_pred",
+    #         "specific_needs_groups_pred",
+    #         "severity_pred",
+    #         "generated_at",
+    #     ]
+    # )
+    # print("combined df :", combined_df.columns)
+    # print("combined df 1st row:", combined_df.iloc[0])
+    # create_model_performance(combined_df)
+
+    current_df = combined_df[['project_id', 'embeddings']]
+    print("Cur emb type:", type(current_df['embeddings'][0]))
+
+    # create feature drift
+    reference_data_path = "core/rup_file.csv"
+    reference_data_df = pd.read_csv(reference_data_path)
+    from ast import literal_eval
+    reference_data_df["embeddings"] = reference_data_df["embeddings"].apply(literal_eval)
+    # print("Entry Data cols:", entry_df.columns)
+    # print("Entry Data 1st row:", entry_df.iloc[0])
+    feature_drift = FeatureDrift(reference_data_df, current_df)
+    df = feature_drift.compute_feature_drift(ref_n_samples=10, cur_n_samples=10)
+    print("Feature Drift: ", df.columns)
+    print("Data types: ", df.dtypes)
+    print("Data: ", df.iloc[0])
 
     return JsonResponse({"test": "test"})

@@ -200,3 +200,82 @@ class ClassificationPredictions(BaseModel):
 
     def __str__(self):
         return str(self.entry.original_entry_id)
+
+
+class ProjectWisePerfMatrices(models.Model):
+    project_id = models.PositiveIntegerField()
+    sectors_f1score = models.FloatField(blank=True, null=True)
+    sectors_precision = models.FloatField(blank=True, null=True)
+    sectors_recall = models.FloatField(blank=True, null=True)
+    sectors_support = models.FloatField(blank=True, null=True)
+    subpillars_1d_f1score = models.FloatField(blank=True, null=True)
+    subpillars_1d_precision = models.FloatField(blank=True, null=True)
+    subpillars_1d_recall = models.FloatField(blank=True, null=True)
+    subpillars_1d_support = models.FloatField(blank=True, null=True)
+    subpillars_2d_f1score = models.FloatField(blank=True, null=True)
+    subpillars_2d_precision = models.FloatField(blank=True, null=True)
+    subpillars_2d_recall = models.FloatField(blank=True, null=True)
+    subpillars_2d_support = models.FloatField(blank=True, null=True)
+    generated_at = models.DateTimeField()
+
+    def __str__(self):
+        return str(self.project_id)
+
+
+class TagWisePerfMatrics(models.Model):
+    tags = models.CharField(max_length=250, blank=True)
+    precision = models.FloatField(blank=True, null=True)
+    recall = models.FloatField(blank=True, null=True)
+    f1score = models.FloatField(blank=True, null=True)
+    support = models.IntegerField(blank=True, null=True)
+    generated_at = models.DateTimeField()
+
+    def __str__(self):
+        return self.tags
+
+
+class AllProjectPerfMatrics(models.Model):
+    categories = models.CharField(max_length=250, blank=True)
+    precision = models.FloatField(blank=True, null=True)
+    recall = models.FloatField(blank=True, null=True)
+    f1score = models.FloatField(blank=True, null=True)
+    support = models.FloatField(blank=True, null=True)
+    generated_at = models.DateTimeField()
+
+    def __str__(self):
+        return self.categories
+
+
+class CategoryWiseMatchRatios(models.Model):
+    sectors_completely_matched = models.FloatField(blank=True, null=True)
+    sectors_missing = models.FloatField(blank=True, null=True)
+    sectors_wrong = models.FloatField(blank=True, null=True)
+    subpillars_1d_completely_matched = models.FloatField(blank=True, null=True)
+    subpillars_1d_missing = models.FloatField(blank=True, null=True)
+    subpillars_1d_wrong = models.FloatField(blank=True, null=True)
+    subpillars_2d_completely_matched = models.FloatField(blank=True, null=True)
+    subpillars_2d_missing = models.FloatField(blank=True, null=True)
+    subpillars_2d_wrong = models.FloatField(blank=True, null=True)
+    entry_id = models.PositiveIntegerField()
+    project_id = models.PositiveIntegerField()
+    generated_at = models.DateTimeField()
+
+    def __str__(self):
+        return str(self.entry_id)
+
+
+class ProjectWiseMatchRatios(models.Model):
+    project_id = models.PositiveIntegerField()
+    sectors_completely_matched_mean = models.FloatField(blank=True, null=True)
+    sectors_missing_mean = models.FloatField(blank=True, null=True)
+    sectors_wrong_mean = models.FloatField(blank=True, null=True)
+    subpillars_1d_completely_matched_mean = models.FloatField(blank=True, null=True)
+    subpillars_1d_missing_mean = models.FloatField(blank=True, null=True)
+    subpillars_1d_wrong_mean = models.FloatField(blank=True, null=True)
+    subpillars_2d_completely_matched_mean = models.FloatField(blank=True, null=True)
+    subpillars_2d_missing_mean = models.FloatField(blank=True, null=True)
+    subpillars_2d_wrong_mean = models.FloatField(blank=True, null=True)
+    generated_at = models.DateTimeField()
+
+    def __str__(self):
+        return str(self.project_id)
