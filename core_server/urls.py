@@ -15,7 +15,6 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from core.views import test_celery
 
 from deduplication.views import deduplication
 
@@ -23,5 +22,4 @@ from deduplication.views import deduplication
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/deduplication/", deduplication),
-    path("test/", test_celery),
 ]
