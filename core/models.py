@@ -161,8 +161,9 @@ class Entry(BaseModel):
 class ClassificationModel(BaseModel):
     name = models.CharField(max_length=200)
     version = models.CharField(max_length=20)
-    url = models.TextField(null=True, blank=True)
+    model_uri = models.TextField(null=True, blank=True)
     description = models.TextField()
+    reference_train_data = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return str(self.id)
@@ -279,3 +280,19 @@ class ProjectWiseMatchRatios(models.Model):
 
     def __str__(self):
         return str(self.project_id)
+
+
+class ComputedFeatureDrift(models.Model):
+    reference_project_id = models.PositiveIntegerField()
+    current_project_id = models.PositiveIntegerField()
+    reference_dataset_len = models.PositiveIntegerField(blank=True, null=True)
+    current_dataset_len = models.PositiveIntegerField(blank=True, null=True)
+    drift_share = models.BooleanField()
+    number_of_columns = models.PositiveIntegerField(blank=True, null=True)
+    number_of_drifted_columns = models.PositiveIntegerField(blank=True, null=True)
+    share_of_drifted_columns = models.FloatField(blank=True, null=True)
+    dataset_drift = models.BooleanField()
+    generated_at = models.DateTimeField()
+
+    def __str__(self):
+        return str(self.reference_project_id)
