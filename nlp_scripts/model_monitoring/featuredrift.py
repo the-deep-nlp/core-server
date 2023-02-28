@@ -1,4 +1,6 @@
 import datetime
+import warnings
+
 import pandas as pd
 import numpy as np
 from ast import literal_eval
@@ -8,6 +10,7 @@ from typing import List
 from evidently.report import Report
 from evidently.metrics import DatasetDriftMetric, DataDriftTable
 
+warnings.filterwarnings("ignore")
 
 class FeatureDrift:
     """
