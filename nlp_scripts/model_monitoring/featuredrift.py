@@ -1,6 +1,7 @@
 import datetime
 import pandas as pd
 import numpy as np
+from ast import literal_eval
 from tqdm import tqdm
 from typing import List
 
@@ -29,7 +30,7 @@ class FeatureDrift:
         Input: Embedding Series
         Output: Embedding List
         """
-        return embeddings.apply(eval).apply(np.array).to_list()
+        return embeddings.apply(literal_eval).apply(np.array).to_list()
 
     def _project_id_based_mask(
         self, df: pd.DataFrame, project_id: int = None
