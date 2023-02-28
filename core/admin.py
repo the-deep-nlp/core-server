@@ -15,6 +15,7 @@ from core.models import (
     ProjectWiseMatchRatios,
     TagWisePerfMatrics,
     ClassificationModel,
+    ComputedFeatureDrift,
 )
 
 
@@ -30,7 +31,14 @@ admin.site.register(DeepDataFetchTracker)
 admin.site.register(ClassificationPredictions)
 admin.site.register(ProjectWisePerfMatrices)
 admin.site.register(CategoryWiseMatchRatios)
-admin.site.register(AllProjectPerfMatrics)
+
 admin.site.register(ProjectWiseMatchRatios)
 admin.site.register(TagWisePerfMatrics)
 admin.site.register(ClassificationModel)
+admin.site.register(ComputedFeatureDrift)
+
+
+class AllProjectMatrics(admin.ModelAdmin):
+    list_display=['categories', 'precision', 'recall', 'support', 'f1score', 'generated_at']
+
+admin.site.register(AllProjectPerfMatrics, AllProjectMatrics)
