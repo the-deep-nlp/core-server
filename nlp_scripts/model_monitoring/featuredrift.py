@@ -30,6 +30,8 @@ class FeatureDrift:
         Input: Embedding Series
         Output: Embedding List
         """
+        if isinstance(embeddings[0], list):
+            return embeddings.apply(np.array).to_list()
         return embeddings.apply(literal_eval).apply(np.array).to_list()
 
     def _project_id_based_mask(
@@ -69,14 +71,13 @@ class FeatureDrift:
                 )
                 current_df = self._project_id_based_mask(self.current_df, project_id)
 
-                reference_embedding_lst = self._process_embeddings(
-                    reference_df["embeddings"]
-                )
-                current_embedding_lst = self._process_embeddings(
-                    current_df["embeddings"]
-                )
-
-                if len(reference_embedding_lst) and len(current_embedding_lst):
+                if len(reference_df["embeddings"]) and len(current_df["embeddings"]):
+                    reference_embedding_lst = self._process_embeddings(
+                        reference_df["embeddings"]
+                    )
+                    current_embedding_lst = self._process_embeddings(
+                        current_df["embeddings"]
+                    )
                     # Note that sample size is less by 1 because it should less than population size
                     ref_n_samples = (
                         len(reference_embedding_lst) - 1
