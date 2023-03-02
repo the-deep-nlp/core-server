@@ -14,6 +14,9 @@ x-server: &base-server-config
     DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:?Provide django secret key}
     ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost}
 
+    AWS_ACESS_KEY: ${AWS_ACESS_KEY:-?Provide aws acess key}
+    AWS_SECRET_KEY: ${AWS_SECRET_KEY:-?Provide aws secret key}
+
     # Celery
     CELERY_BROKER_URL: ${CELERY_BROKER_URL:-redis://redis:6379}
     CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379}

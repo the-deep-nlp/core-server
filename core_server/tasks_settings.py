@@ -25,7 +25,6 @@ CELERY_BEAT_SCHEDULE = {
     },
     "calculate_model_metrics": {
         "task": "core.tasks.model_monitoring.calculate_model_metrics",
-        "schedule": crontab(hour="6", minute="16"),
-        # "schedule": crontab(day_of_week=''),
+        "schedule": crontab(hour="2", minute="46"),
     },
 }
