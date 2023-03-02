@@ -9,11 +9,11 @@ from core.models import (
     Project,
     DeepDataFetchTracker,
     ClassificationPredictions,
-    ProjectWisePerfMatrices,
-    AllProjectPerfMatrics,
+    ProjectWisePerfMetrics,
+    AllProjectPerfMetrics,
     CategoryWiseMatchRatios,
     ProjectWiseMatchRatios,
-    TagWisePerfMatrics,
+    TagWisePerfMetrics,
     ClassificationModel,
     ComputedFeatureDrift,
 )
@@ -28,7 +28,7 @@ admin.site.register(Project)
 admin.site.register(DeepDataFetchTracker)
 
 
-class AllProjectMatricsAdmin(admin.ModelAdmin):
+class AllProjectMetricsAdmin(admin.ModelAdmin):
     list_display = [
         "id",
         "categories",
@@ -41,6 +41,7 @@ class AllProjectMatricsAdmin(admin.ModelAdmin):
 
 
 class ClassificationPredictionsAdmin(admin.ModelAdmin):
+
     list_display = [
         "id",
         "entry",
@@ -54,7 +55,7 @@ class ClassificationPredictionsAdmin(admin.ModelAdmin):
     ]
 
 
-class ProjectWisePerfMatricesAdmin(admin.ModelAdmin):
+class ProjectWisePerfMetricsAdmin(admin.ModelAdmin):
     list_display = [
         "id",
         "project_id",
@@ -86,7 +87,7 @@ class CategoryWiseMatchRatiosAdmin(admin.ModelAdmin):
     ]
 
 
-class TagWisePerfMatricsAdmin(admin.ModelAdmin):
+class TagWisePerfMetricsAdmin(admin.ModelAdmin):
     list_display = [
         "id",
         "tags",
@@ -121,8 +122,6 @@ class ClassificationModelAdmin(admin.ModelAdmin):
         "name",
         "version",
         "model_uri",
-        "description",
-        "reference_train_data",
     ]
 
 
@@ -143,10 +142,10 @@ class ComputedFeatureDriftAdmin(admin.ModelAdmin):
 
 
 admin.site.register(ClassificationPredictions, ClassificationPredictionsAdmin)
-admin.site.register(AllProjectPerfMatrics, AllProjectMatricsAdmin)
-admin.site.register(ProjectWisePerfMatrices, ProjectWisePerfMatricesAdmin)
+admin.site.register(AllProjectPerfMetrics, AllProjectMetricsAdmin)
+admin.site.register(ProjectWisePerfMetrics, ProjectWisePerfMetricsAdmin)
 admin.site.register(CategoryWiseMatchRatios, CategoryWiseMatchRatiosAdmin)
-admin.site.register(TagWisePerfMatrics, TagWisePerfMatricsAdmin)
+admin.site.register(TagWisePerfMetrics, TagWisePerfMetricsAdmin)
 admin.site.register(ProjectWiseMatchRatios, ProjectWiseMatchRatiosAdmin)
 admin.site.register(ClassificationModel, ClassificationModelAdmin)
 admin.site.register(ComputedFeatureDrift, ComputedFeatureDriftAdmin)

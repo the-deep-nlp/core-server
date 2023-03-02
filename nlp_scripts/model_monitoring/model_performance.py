@@ -34,7 +34,6 @@ class ModelPerformance:
         Preprocess the multi-labels in the dataframe which converts them to be list
         """
         for category in self.categories:
-            print("Type :", type(self.dataframe[category].iloc[0]))
             self.dataframe[category] = self.dataframe[category].apply(literal_eval)
             self.dataframe[f"{category}_pred"] = self.dataframe[
                 f"{category}_pred"

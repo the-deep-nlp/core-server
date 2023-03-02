@@ -162,8 +162,10 @@ class ClassificationModel(BaseModel):
     name = models.CharField(max_length=200)
     version = models.CharField(max_length=20)
     model_uri = models.TextField(null=True, blank=True)
-    description = models.TextField()
-    reference_train_data = models.TextField(null=True, blank=True)
+    defaults = models.JSONField(default=dict)
+
+    class Meta:
+        unique_together = ['name', 'version', 'model_uri']
 
     def __str__(self):
         return str(self.id)
@@ -175,7 +177,9 @@ class ClassificationPredictions(BaseModel):
     model = models.ForeignKey(ClassificationModel, on_delete=models.CASCADE)
     embeddings = ArrayField(models.FloatField(blank=True), blank=True, null=True)
     subpillars_1d = ArrayField(
-        models.CharField(max_length=100, blank=True), blank=True, null=True
+        models.CharField(max_length=100, blank=True),
+        blank=True,
+        null=True
     )
     sectors = ArrayField(
         models.CharField(max_length=100, blank=True), blank=True, null=True
@@ -203,7 +207,7 @@ class ClassificationPredictions(BaseModel):
         return str(self.entry.original_entry_id)
 
 
-class ProjectWisePerfMatrices(models.Model):
+class ProjectWisePerfMetrics(models.Model):
     project_id = models.PositiveIntegerField()
     sectors_f1score = models.FloatField(blank=True, null=True)
     sectors_precision = models.FloatField(blank=True, null=True)
@@ -223,7 +227,7 @@ class ProjectWisePerfMatrices(models.Model):
         return str(self.project_id)
 
 
-class TagWisePerfMatrics(models.Model):
+class TagWisePerfMetrics(models.Model):
     tags = models.CharField(max_length=250, blank=True)
     precision = models.FloatField(blank=True, null=True)
     recall = models.FloatField(blank=True, null=True)
@@ -235,7 +239,7 @@ class TagWisePerfMatrics(models.Model):
         return self.tags
 
 
-class AllProjectPerfMatrics(models.Model):
+class AllProjectPerfMetrics(models.Model):
     categories = models.CharField(max_length=250, blank=True)
     precision = models.FloatField(blank=True, null=True)
     recall = models.FloatField(blank=True, null=True)
