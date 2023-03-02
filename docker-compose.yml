@@ -18,6 +18,9 @@ x-server: &base-server-config
     AWS_ACESS_KEY: ${AWS_ACESS_KEY:-?Provide aws acess key}
     AWS_SECRET_KEY: ${AWS_SECRET_KEY:-?Provide aws secret key}
 
+    AWS_ACESS_KEY: ${AWS_ACESS_KEY:-?Provide aws acess key}
+    AWS_SECRET_KEY: ${AWS_SECRET_KEY:-?Provide aws secret key}
+
     # Celery
     CELERY_BROKER_URL: ${CELERY_BROKER_URL:-redis://redis:6379}
     CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379}
