@@ -1,6 +1,8 @@
 import boto3
 from botocore.exceptions import ClientError
 from typing import Dict, Tuple, Union
+from django.conf import settings
+
 
 def get_model_info(endpoint_name: str) -> Tuple[Dict[str, str], Union[str, None]]:
     """
@@ -15,8 +17,13 @@ def get_model_info(endpoint_name: str) -> Tuple[Dict[str, str], Union[str, None]
     """
     model_info = {}
     err_msg = None
-    
-    sg_client = boto3.client("sagemaker")
+
+    sg_client = boto3.client(
+        "sagemaker",
+        aws_access_key_id=settings.AWS_ACESS_KEY,
+        aws_secret_access_key=settings.AWS_SECRET_KEY,
+        region_name="us-east-1"
+    )
 
     try:
         response = sg_client.describe_endpoint(EndpointName=endpoint_name)
@@ -32,5 +39,5 @@ def get_model_info(endpoint_name: str) -> Tuple[Dict[str, str], Union[str, None]
     except ClientError as err:
         err_msg = err.response["Error"]["Message"]
 
-    print("Model info",model_info)
     return model_info, err_msg
+
