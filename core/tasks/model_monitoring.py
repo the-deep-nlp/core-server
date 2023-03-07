@@ -30,19 +30,16 @@ def save_classification_prediction(df):
         version=model_info["version"],
         model_uri=model_info["model_uri"]
     ).first()
-    print("Model : ", model)
     if not model:
-        print("INside :***************")
         model = ClassificationModel.objects.create(
             name=model_info["name"],
             version=model_info["version"],
             model_uri=model_info["model_uri"],
             defaults={
-                "test_description": model_info["description"],
+                "description": model_info["description"],
                 "train_data_uri": model_info["reference_train_data"]
             }
         )
-    # print("MOdel:", model.objects.first().__dict__)
     entry_ids = [record['entry_id'] for record in classification_rows]
     entries = Entry.objects.filter(
         original_entry_id__in=entry_ids
@@ -69,28 +66,6 @@ def save_classification_prediction(df):
         )
         for entry in entries
     ]
-
-    # model_instances = [
-    #     ClassificationPredictions(
-    #         entry=Entry.objects.get(original_entry_id=int(record["entry_id"])),
-    #         project=Project.objects.get(
-    #             lead=Lead.objects.get(
-    #                 entry=Entry.objects.get(original_entry_id=int(record["entry_id"]))
-    #             )
-    #         ),
-    #         model=model,
-    #         embeddings=record["embeddings"],
-    #         subpillars_1d=record["subpillars_1d_pred"],
-    #         sectors=record["sectors_pred"],
-    #         subpillars_2d=record["subpillars_2d_pred"],
-    #         age=record["age_pred"],
-    #         gender=record["gender_pred"],
-    #         affected_groups=record["affected_groups_pred"],
-    #         specific_needs_groups=record["specific_needs_groups_pred"],
-    #         severity=record["severity_pred"],
-    #     )
-    #     for record in df
-    # ]
 
     predictions = ClassificationPredictions.objects.bulk_create(model_instances)
     return predictions
@@ -142,7 +117,7 @@ def calculate_model_metrics():
             )
             .order_by("-id")
             .values("original_entry_id", "excerpt_en", "original_af_tags")
-        )[0:10]
+        )
         # create a data frame
         df = pd.DataFrame(newly_added_entries).rename(
             columns={"original_entry_id": "entry_id", "excerpt_en": "excerpt"}
@@ -179,7 +154,6 @@ def calculate_model_metrics():
         current_df = combined_df[["project_id", "embeddings"]]
 
         # create feature drift
-        # reference_data_path = "core/rup_file.csv"
         reference_data_path = (
             ClassificationModel.objects.order_by("-id").first().defaults['train_data_uri']
         )
