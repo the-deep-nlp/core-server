@@ -162,13 +162,14 @@ class ClassificationModel(BaseModel):
     name = models.CharField(max_length=200)
     version = models.CharField(max_length=20)
     model_uri = models.TextField(null=True, blank=True)
-    defaults = models.JSONField(default=dict)
+    description = models.TextField(null=True, blank=True)
+    train_data_uri = models.TextField(null=True, blank=True)
 
     class Meta:
         unique_together = ['name', 'version', 'model_uri']
 
     def __str__(self):
-        return str(self.id)
+        return f"{self.name}-{self.id}"
 
 
 class ClassificationPredictions(BaseModel):
@@ -208,7 +209,7 @@ class ClassificationPredictions(BaseModel):
 
 
 class ProjectWisePerfMetrics(models.Model):
-    project_id = models.PositiveIntegerField()
+    project_id = models.PositiveIntegerField()  # project_id from deep
     sectors_f1score = models.FloatField(blank=True, null=True)
     sectors_precision = models.FloatField(blank=True, null=True)
     sectors_recall = models.FloatField(blank=True, null=True)
@@ -261,8 +262,8 @@ class CategoryWiseMatchRatios(models.Model):
     subpillars_2d_completely_matched = models.FloatField(blank=True, null=True)
     subpillars_2d_missing = models.FloatField(blank=True, null=True)
     subpillars_2d_wrong = models.FloatField(blank=True, null=True)
-    entry_id = models.PositiveIntegerField()
-    project_id = models.PositiveIntegerField()
+    entry_id = models.PositiveIntegerField()  # entry id from deep
+    project_id = models.PositiveIntegerField()  # project id from deep
     generated_at = models.DateTimeField()
 
     def __str__(self):
@@ -270,7 +271,7 @@ class CategoryWiseMatchRatios(models.Model):
 
 
 class ProjectWiseMatchRatios(models.Model):
-    project_id = models.PositiveIntegerField()
+    project_id = models.PositiveIntegerField()  # project id from deep
     sectors_completely_matched_mean = models.FloatField(blank=True, null=True)
     sectors_missing_mean = models.FloatField(blank=True, null=True)
     sectors_wrong_mean = models.FloatField(blank=True, null=True)

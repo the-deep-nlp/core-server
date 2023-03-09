@@ -19,13 +19,86 @@ from core.models import (
 )
 
 
-admin.site.register(ToFetchProject)
-admin.site.register(Lead)
-admin.site.register(Entry)
-admin.site.register(AFMapping)
-admin.site.register(Organization)
-admin.site.register(Project)
-admin.site.register(DeepDataFetchTracker)
+class ToFetchProjectAdmin(admin.ModelAdmin):
+    list_display = [
+        "id",
+        "original_project_id",
+        "status",
+        "is_added_manually",
+    ]
+
+
+class AfmappingAdmin(admin.ModelAdmin):
+    list_display = [
+        "id",
+        "af_name",
+        "original_af_id",
+        "original_af_tags",
+        "nlp_tags",
+        "is_mapped_manually",
+    ]
+
+
+class OrganizationAdmin(admin.ModelAdmin):
+    search_fields = ['original_organization_id']
+    list_display = [
+        "id",
+        "original_organization_id",
+        "name",
+        "short_name",
+        "long_name",
+        "extra",
+    ]
+
+
+class LeadAdmin(admin.ModelAdmin):
+    autocomplete_fields = ["project", "authoring_org", "publishing_org"]
+    search_fields = ["id"]
+    list_display = [
+        "id",
+        "original_lead_id",
+        "title",
+        "extraction_status",
+        "project",
+        "authoring_org",
+        "publishing_org",
+        "confidentiality",
+    ]
+
+
+class ClassificationModelAdmin(admin.ModelAdmin):
+    search_fields = ['id']
+    list_display = [
+        "name",
+        "version",
+        "model_uri",
+        "description",
+        "train_data_uri",
+    ]
+
+
+class ProjectAdmin(admin.ModelAdmin):
+    search_fields = ['original_entry_id']
+    list_display = [
+        "id",
+        "original_project_id",
+        "af_mapping",
+        "title",
+        "location",
+        "description",
+    ]
+
+
+class EntryAdmin(admin.ModelAdmin):
+    search_fields = ['original_entry_id']
+    autocomplete_fields = ["lead"]
+    list_display = [
+        "id",
+        "original_entry_id",
+        "lead",
+        "original_lang",
+        "excerpt_en",
+    ]
 
 
 class AllProjectMetricsAdmin(admin.ModelAdmin):
@@ -41,7 +114,7 @@ class AllProjectMetricsAdmin(admin.ModelAdmin):
 
 
 class ClassificationPredictionsAdmin(admin.ModelAdmin):
-
+    autocomplete_fields = ['entry', 'project', 'model']
     list_display = [
         "id",
         "entry",
@@ -116,15 +189,6 @@ class ProjectWiseMatchRatiosAdmin(admin.ModelAdmin):
     ]
 
 
-class ClassificationModelAdmin(admin.ModelAdmin):
-    list_display = [
-        "id",
-        "name",
-        "version",
-        "model_uri",
-    ]
-
-
 class ComputedFeatureDriftAdmin(admin.ModelAdmin):
     list_display = [
         "id",
@@ -141,6 +205,13 @@ class ComputedFeatureDriftAdmin(admin.ModelAdmin):
     ]
 
 
+admin.site.register(ToFetchProject, ToFetchProjectAdmin)
+admin.site.register(AFMapping, AfmappingAdmin)
+admin.site.register(DeepDataFetchTracker)
+admin.site.register(Project, ProjectAdmin)
+admin.site.register(Entry, EntryAdmin)
+admin.site.register(Lead, LeadAdmin)
+admin.site.register(Organization, OrganizationAdmin)
 admin.site.register(ClassificationPredictions, ClassificationPredictionsAdmin)
 admin.site.register(AllProjectPerfMetrics, AllProjectMetricsAdmin)
 admin.site.register(ProjectWisePerfMetrics, ProjectWisePerfMetricsAdmin)

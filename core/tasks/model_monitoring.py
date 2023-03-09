@@ -25,21 +25,15 @@ from nlp_scripts.model_monitoring.featuredrift import FeatureDrift
 def save_classification_prediction(df):
     classification_rows = df.to_dict("records")
     model_info = get_model_info("main-model-cpu")[0]
-    model = ClassificationModel.objects.filter(
+    model, created = ClassificationModel.objects.get_or_create(
         name=model_info["name"],
         version=model_info["version"],
-        model_uri=model_info["model_uri"]
-    ).first()
-    if not model:
-        model = ClassificationModel.objects.create(
-            name=model_info["name"],
-            version=model_info["version"],
-            model_uri=model_info["model_uri"],
-            defaults={
-                "description": model_info["description"],
-                "train_data_uri": model_info["reference_train_data"]
-            }
-        )
+        model_uri=model_info["model_uri"],
+        defaults={
+            "description": model_info["description"],
+            "train_data_uri": model_info["reference_train_data"]
+        }
+    )
     entry_ids = [record['entry_id'] for record in classification_rows]
     entries = Entry.objects.filter(
         original_entry_id__in=entry_ids
@@ -127,7 +121,7 @@ def calculate_model_metrics():
         entry_df = df.drop(columns=["original_af_tags"])
 
         # generate output
-        embeddings = ClassificationModelOutput(
+        model_output = ClassificationModelOutput(
             entry_df,
             endpoint_name="main-model-cpu",
             aws_region="us-east-1",
@@ -135,7 +129,7 @@ def calculate_model_metrics():
             prediction_required=True,
             embeddings_required=True,
         )
-        output_df = embeddings.generate_outputs()
+        output_df = model_output.generate_outputs()
 
         # save the generated output in a model
         save_classification_prediction(output_df)
@@ -155,7 +149,7 @@ def calculate_model_metrics():
 
         # create feature drift
         reference_data_path = (
-            ClassificationModel.objects.order_by("-id").first().defaults['train_data_uri']
+            ClassificationModel.objects.order_by("-id").first().train_data_uri
         )
         reference_data_df = pd.read_csv(reference_data_path)
         feature_drift = FeatureDrift(reference_data_df, current_df)
