@@ -5,6 +5,7 @@ env = environ.Env(
     DEBUG=(bool, False),
     DJANGO_SECRET_KEY=str,
     ALLOWED_HOSTS=list,
+    CSRF_TRUSTED_ORIGINS=list,
     # Celery
     CELERY_BROKER_URL=str,
     CELERY_RESULT_BACKEND=str,
