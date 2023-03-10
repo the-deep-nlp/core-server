@@ -209,7 +209,11 @@ class Migration(migrations.Migration):
             name='description',
             field=models.TextField(blank=True, null=True),
         ),
-        migrations.AlterField(
+        migrations.RemoveField(
+            model_name='classificationpredictions',
+            name='embeddings',
+        ),
+        migrations.AddField(
             model_name='classificationpredictions',
             name='embeddings',
             field=django.contrib.postgres.fields.ArrayField(base_field=models.FloatField(blank=True), blank=True, null=True, size=None),
