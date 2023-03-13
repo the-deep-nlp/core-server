@@ -178,4 +178,5 @@ def calculate_model_metrics():
         feature_drift_df = feature_drift.compute_feature_drift(
             ref_n_samples=10, cur_n_samples=10
         )
+        feature_drift_df['entry_count'] = len(newly_added_entries)
         save_dataframe_to_model(feature_drift_df, ComputedFeatureDrift)

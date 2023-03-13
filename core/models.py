@@ -298,6 +298,7 @@ class ComputedFeatureDrift(models.Model):
     share_of_drifted_columns = models.FloatField(blank=True, null=True)
     dataset_drift = models.BooleanField()
     generated_at = models.DateTimeField()
+    entry_count = models.PositiveIntegerField(blank=True, null=True)
 
     def __str__(self):
         return str(self.reference_project_id)
