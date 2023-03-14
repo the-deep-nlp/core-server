@@ -25,7 +25,7 @@ from nlp_scripts.model_monitoring.featuredrift import FeatureDrift
 def save_classification_prediction(df):
     classification_rows = df.to_dict("records")
     model_info = get_model_info("main-model-cpu")[0]
-    model = ClassificationModel.objects.filter(
+    model, created = ClassificationModel.objects.get_or_create(
         name=model_info["name"],
         version=model_info["version"],
         model_uri=model_info["model_uri"],
@@ -60,28 +60,6 @@ def save_classification_prediction(df):
         )
         for entry in entries
     ]
-
-    # model_instances = [
-    #     ClassificationPredictions(
-    #         entry=Entry.objects.get(original_entry_id=int(record["entry_id"])),
-    #         project=Project.objects.get(
-    #             lead=Lead.objects.get(
-    #                 entry=Entry.objects.get(original_entry_id=int(record["entry_id"]))
-    #             )
-    #         ),
-    #         model=model,
-    #         embeddings=record["embeddings"],
-    #         subpillars_1d=record["subpillars_1d_pred"],
-    #         sectors=record["sectors_pred"],
-    #         subpillars_2d=record["subpillars_2d_pred"],
-    #         age=record["age_pred"],
-    #         gender=record["gender_pred"],
-    #         affected_groups=record["affected_groups_pred"],
-    #         specific_needs_groups=record["specific_needs_groups_pred"],
-    #         severity=record["severity_pred"],
-    #     )
-    #     for record in df
-    # ]
 
     predictions = ClassificationPredictions.objects.bulk_create(model_instances)
     return predictions
