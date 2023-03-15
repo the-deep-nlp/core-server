@@ -87,6 +87,19 @@ WHERE
   and pp.is_private=false
 """
 
+new_projects_q = """
+select pp.id, pp.status from project_project pp
+    left join lead_lead ll
+    on ll.project_id=pp.id
+where pp.is_private=false
+    and pp.is_deleted=false
+group by pp.id
+having count(ll.id) > 10
+"""
+# NOTE: having count(ll.id) > 10. 10 is experimental here. There are a lot of
+# garbage projects with less than 10 leads. So this filter significantly
+# reduces the number or projects to fetch.
+
 lead_q = """SELECT
   ll.*,
   lp.text_extract text_extract,

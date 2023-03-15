@@ -31,6 +31,30 @@ OptDictIntObj = Optional[Dict[int, T]]
 VERY_PAST_DATE = datetime(1990, 10, 10)  # Before creation of deep platform
 
 
+@shared_task(name="core.tasks.get_data.fetch_new_projects")
+def fetch_new_projects():
+    """
+    This fetches projects not added to db and which have at least 10 leads in
+    them and also updates the active_status of project if already exists.
+    """
+    cursor = connect_db()
+    try:
+        cursor.execute(queries.new_projects_q)
+        projects_raw = cursor.fetchall()
+    except psycopg2.ProgrammingError:
+        return
+    with transaction.atomic():
+        columns = [c.name for c in cursor.description]
+        projects_rows = [dict(zip(columns, row)) for row in projects_raw]
+        for row in projects_rows:
+            ToFetchProject.objects.update_or_create(
+                original_project_id=row["id"],
+                defaults={
+                    "active_status": row["status"],
+                }
+            )
+
+
 @shared_task(name="core.tasks.get_data.fetch_deep_data")
 @log_time(log_function=logger.info)
 def fetch_deep_data():
@@ -51,7 +75,6 @@ def fetch_deep_data():
         for prj in ToFetchProject.objects.filter(
             status=ToFetchProject.FetchStatus.NOT_FETCHED,
         ):
-            print(f"Fetching deep project with id {prj.original_project_id}")  # noqa
             logger.info(
                 f"Fetching deep project with id {prj.original_project_id}"
             )  # noqa
@@ -79,7 +102,7 @@ def fetch_project_data(
         cursor.execute(queries.projects_q.format(pid))
         data = cursor.fetchall()
         if not data:
-            print("no project", pid)
+            logger.warning("no project", pid)
             to_fetch.status = ToFetchProject.FetchStatus.NOT_FOUND
             to_fetch.save(update_fields=["status"])
             return
@@ -97,15 +120,11 @@ def fetch_project_data(
             logger.warning(
                 f"Could not find DEEP af with id {afid} and project id {pid}. Skipping."
             )  # noqa
-            print(
-                f"Could not find DEEP af with id {afid} and project id {pid}. Skipping."
-            )  # noqa
             return
         if len(data) == 0:
             logger.warning(
                 f"Could not find DEEP project with id {pid}. Skipping."
             )  # noqa
-            print(f"Could not find DEEP project with id {pid}. Skipping.")  # noqa
             to_fetch.status = ToFetchProject.FetchStatus.NOT_FOUND
             to_fetch.save(update_fields=["status"])
             return
@@ -121,16 +140,17 @@ def fetch_project_data(
             },
         )
         logger.info(f"Fetched project data for deep project {pid}")
-        print(f"Fetched project data for deep project {pid}")
 
         leads_dict = fetch_project_leads(cursor, project, orgs_dict)
         if leads_dict:
             fetch_project_entries(cursor, project, leads_dict)
 
         logger.info(f"Fetched all data for deep project {pid}")
-        print(f"Fetched all data for deep project {pid}")
-        to_fetch.status = ToFetchProject.FetchStatus.FETCHED
-        to_fetch.save(update_fields=["status"])
+
+        # Marked as FETCHED if not active, else leave it as FETCHING
+        if to_fetch.active_status == ToFetchProject.ActiveStatus.INACTIVE:
+            to_fetch.status = ToFetchProject.FetchStatus.FETCHED
+            to_fetch.save(update_fields=["status"])
 
 
 def _process_lead_batch(lead_batch, project, orgs_dict, columns) -> dict:
@@ -169,7 +189,6 @@ def fetch_project_leads(
     orgs_dict: Dict[int, int],
 ) -> OptDictIntObj[int]:
     pid = project.original_project_id
-    print(f"Fetching lead data for deep project {pid}")
     try:
         last_fetched = project.to_fetch_project.last_fetched_lead_created_at
         cursor.execute(
@@ -178,7 +197,6 @@ def fetch_project_leads(
         rows = cursor_fetch_iterator(cursor, 3000)
     except psycopg2.ProgrammingError as e:
         logger.warning(f"Error fetching leads for deep project {pid}: {e}")
-        print(f"Error fetching leads for deep project {pid}: {e}")
         return
     else:
         columns = []
@@ -196,8 +214,6 @@ def fetch_project_leads(
                     "created_at"
                 ]  # noqa
                 project.to_fetch_project.save()
-            print(f"fetched {i+1} batch({batch_size}) of leads")
-    print(f"Fetched lead data for deep project {pid}")
     return dict(Lead.objects.values_list("original_lead_id", "id"))
 
 
@@ -214,7 +230,7 @@ def _process_entries_batch(
         current_entry_dict = dict(zip(columns, row))
         lead_id = leads_dict.get(current_entry_dict["lead_id"])
         if lead_id is None:
-            print("no lead for lead id", current_entry_dict["lead_id"])
+            logger.warning("no lead for lead id", current_entry_dict["lead_id"])
             continue
         exp_data = current_entry_dict["export_data"]
         manual_tagged_data = get_tags_data_for_exportable(exp_data, widget_id_labels)
