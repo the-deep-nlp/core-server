@@ -5,8 +5,6 @@ import django
 
 from core.models import (
     Entry,
-    Lead,
-    Project,
     ClassificationPredictions,
     ClassificationModel,
     ProjectWisePerfMetrics,
@@ -73,7 +71,7 @@ def save_dataframe_to_model(dataframe: pd.DataFrame, model_class: django.db.mode
         model_instance.save()
 
 
-def create_model_performance(df):
+def save_model_performance(df):
     modelperf = ModelPerformance(df)
     df1 = modelperf.project_wise_perf_metrics()
     save_dataframe_to_model(df1, ProjectWisePerfMetrics)
@@ -91,36 +89,54 @@ def create_model_performance(df):
     save_dataframe_to_model(df5, ProjectWiseMatchRatios)
 
 
-def set_project_id(row):
-    project = Project.objects.get(
-        lead=Lead.objects.get(
-            entry=Entry.objects.get(original_entry_id=row["entry_id"])
-        )
+def set_project_id(row, dict):
+    return dict[row["entry_id"]]
+
+
+@shared_task
+def create_model_performance(combined_df):
+    save_model_performance(pd.DataFrame.from_dict(combined_df))
+
+
+@shared_task
+def create_feature_drift(current_df, entry_len):
+    current_df = pd.DataFrame.from_dict(current_df)
+    reference_data_path = (
+        ClassificationModel.objects.order_by("-id").first().train_data_uri
     )
-    return project.original_project_id
+    reference_data_df = pd.read_csv(reference_data_path)
+    feature_drift = FeatureDrift(reference_data_df, current_df)
+    feature_drift_df = feature_drift.compute_feature_drift(
+        len(reference_data_df), len(current_df)
+    )
+    feature_drift_df['entry_count'] = entry_len
+    save_dataframe_to_model(feature_drift_df, ComputedFeatureDrift)
 
 
 @shared_task
 def calculate_model_metrics():
     with transaction.atomic():
         newly_added_entries = list(
-            Entry.objects.exclude(
-                original_entry_id__in=ClassificationPredictions.objects.values_list(
-                    "entry__original_entry_id", flat=True
-                )
-            )
+            Entry.objects.filter(classificationpredictions__isnull=True)
             .order_by("-id")
-            .values("original_entry_id", "excerpt_en", "original_af_tags")
+            .values("original_entry_id", "excerpt_en", "original_af_tags", "lead__project__original_project_id")
         )
+        if not newly_added_entries:
+            return
         # create a data frame
         df = pd.DataFrame(newly_added_entries).rename(
             columns={"original_entry_id": "entry_id", "excerpt_en": "excerpt"}
         )
 
-        df["project_id"] = df.apply(set_project_id, axis=1)
-        entry_df = df.drop(columns=["original_af_tags"])
+        # save project id
+        entry_project_id_dict = {
+            entry["original_entry_id"]: entry["lead__project__original_project_id"]
+            for entry in newly_added_entries
+        }
+        df["project_id"] = df.apply(set_project_id, axis=1, args=(entry_project_id_dict,))
 
-        # generate output
+        # save into classification prediction
+        entry_df = df.drop(columns=["original_af_tags"])
         model_output = ClassificationModelOutput(
             entry_df,
             endpoint_name="main-model-cpu",
@@ -130,8 +146,6 @@ def calculate_model_metrics():
             embeddings_required=True,
         )
         output_df = model_output.generate_outputs()
-
-        # save the generated output in a model
         save_classification_prediction(output_df)
 
         # prepare dataframe for model performance
@@ -144,17 +158,10 @@ def calculate_model_metrics():
             data.get("subpillars_2d", []) for data in original_af_tags
         ]
         combined_df = output_df.merge(entry_df, on="entry_id")
-        create_model_performance(combined_df)
         current_df = combined_df[["project_id", "embeddings"]]
 
-        # create feature drift
-        reference_data_path = (
-            ClassificationModel.objects.order_by("-id").first().train_data_uri
-        )
-        reference_data_df = pd.read_csv(reference_data_path)
-        feature_drift = FeatureDrift(reference_data_df, current_df)
-        feature_drift_df = feature_drift.compute_feature_drift(
-            ref_n_samples=10, cur_n_samples=10
-        )
-        feature_drift_df['entry_count'] = len(newly_added_entries)
-        save_dataframe_to_model(feature_drift_df, ComputedFeatureDrift)
+        # save model performance data
+        create_model_performance.delay(combined_df.to_dict("records"))
+
+        # save feature drift data
+        create_feature_drift.delay(current_df.to_dict("records"), len(newly_added_entries))

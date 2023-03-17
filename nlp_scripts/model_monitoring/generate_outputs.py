@@ -130,11 +130,9 @@ class ClassificationModelOutput:
                     [prediction_df, pd.DataFrame(self.generate_predictions())],
                     ignore_index=True,
                 )
-
         prediction_df.rename(
             columns=self.column_mapping(prediction_df.columns), inplace=True
         )
-
         if self.embeddings_required and self.prediction_required:
             final_df = pd.concat(
                 [
