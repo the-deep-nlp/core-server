@@ -20,6 +20,3 @@ Core Project for maintaining database, jobs and tasks.
 
 ### Core
 This consists of core entities like Leads, Entries, Analysis Frameworks, etc and the worker scripts used to populate them.
-
-### Deduplication
-This consists of entities like Index, Hashes, etc used for deduplication of DEEP leads and corresponding scripts.

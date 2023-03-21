@@ -26,7 +26,16 @@ class ToFetchProject(BaseModel):
         ERRORED = "errored", "Errored"
         NOT_FOUND = "not_found", "Not Found"
 
+    class ActiveStatus(models.TextChoices):
+        ACTIVE = 'active'
+        INACTIVE = 'inactive'
+
     original_project_id = models.PositiveIntegerField(unique=True)
+    active_status = models.CharField(
+        max_length=20,
+        choices=ActiveStatus.choices,
+        default=ActiveStatus.ACTIVE,
+    )
     status = models.CharField(
         max_length=20,
         choices=FetchStatus.choices,

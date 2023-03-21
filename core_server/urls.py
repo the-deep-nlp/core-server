@@ -15,11 +15,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
 
-from deduplication.views import deduplication
+from core.views import token_auth_dummy_view
 
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/v1/deduplication/", deduplication),
-]
+    path("api/v1/test-auth/", token_auth_dummy_view),
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
