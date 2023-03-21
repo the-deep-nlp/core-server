@@ -24,9 +24,9 @@ from analysis_module.views import topic_modeling, summarization, ngrams, status
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/v1/test-auth/", token_auth_dummy_view),
     path("api/v1/topicmodel/", topic_modeling),
     path("api/v1/summarization/", summarization),
     path("api/v1/ngrams/", ngrams),
-    path("api/v1/analysismodule/status/", status)
+    path("api/v1/analysismodule/status/", status),
+    path("api/v1/test-auth/", token_auth_dummy_view),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

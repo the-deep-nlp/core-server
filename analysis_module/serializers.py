@@ -6,16 +6,14 @@ class BaseEntry(serializers.Serializer):
     entry_id = serializers.CharField()
     excerpt = serializers.CharField()
 
-
 class BaseAnalysisSerializer(serializers.Serializer):
 
     client_id = serializers.CharField()
-
+    mock = serializers.BooleanField(default=False)
 
 class GeneralUserSerializer(BaseAnalysisSerializer):
     # not used for now
     entries_url = BaseEntry(many=True)
-
 
 class DeepEntriesSerializer(BaseAnalysisSerializer):
 
@@ -23,7 +21,6 @@ class DeepEntriesSerializer(BaseAnalysisSerializer):
     callback_url = serializers.CharField(
         allow_null = True
     )
-
 
 class TopicModelDeepRequest(DeepEntriesSerializer):
     

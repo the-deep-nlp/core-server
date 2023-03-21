@@ -1,5 +1,6 @@
-import boto3
+import requests
 import uuid
+import json
 
 from rest_framework import status
 from rest_framework.response import Response
@@ -16,10 +17,58 @@ from .utils import spin_ecs_container
 from .models import AnalysisModuleStatus
 
 
+def process_mock_request(request, type):
+
+    MOCK_ENDPOINTS = {
+        "topicmodel": "/mock/topicmodeling",
+        "summarization": "/mock/summarization",
+        "ngrams": "/mock/ngrams"
+    }
+
+    if not request.get("callback_url"):
+        return Response({
+            "message": "A callback URL must be provided"
+            },
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    req, code = request.get(
+        "http://localhost:8081"+MOCK_ENDPOINTS.get(type), json=request
+    )
+
+    if code == 200:
+
+        resp = {
+            "client_id": request.get("client_id"),
+            "type": type,
+            "message": "Request has been successfully processed"
+        }
+
+        return Response(
+            resp,
+            status=status.HTTP_202_ACCEPTED,
+        )
+    
+    else:
+        return Response(
+            {
+                "message": req.json().get("status")
+            },
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+
 def process_request(serializer_model, request, type):
 
     serializer = serializer_model(data=request.data)
     serializer.is_valid(raise_exception=True)
+
+    if serializer.data.get("mock"):
+        return process_mock_request(
+            request=serializer.data,
+            type=type
+        )
+
     unique_id = uuid.uuid4() #if not serializer.validated_data['callback_url'] else None
 
     _ = spin_ecs_container(
