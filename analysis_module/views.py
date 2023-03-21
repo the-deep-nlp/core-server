@@ -40,7 +40,6 @@ def process_mock_request(request, type):
             resp,
             status=status.HTTP_202_ACCEPTED,
         )
-    
     else:
         return Response(
             {
