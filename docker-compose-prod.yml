@@ -30,6 +30,10 @@ x-server: &base-server-config
     DEEP_DB_USER: ${DEEP_DB_USER:?DEEP db user not set}
     DEEP_DB_PORT: ${DEEP_DB_PORT:-5432}
     DEEP_DB_HOST: ${DEEP_DB_HOST:-host.docker.internal}
+
+    #MOCKSERVER
+    MOCKSERVER_PORT: ${MOCKSERVER_PORT:-8081}
+  
   tty: true
   depends_on:
     - redis

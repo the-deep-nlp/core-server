@@ -1,6 +1,7 @@
 import requests
 import uuid
 import json
+import os
 
 from rest_framework import status
 from rest_framework.response import Response
@@ -33,7 +34,7 @@ def process_mock_request(request, type):
         )
 
     req, code = request.get(
-        "http://localhost:8081"+MOCK_ENDPOINTS.get(type), json=request
+        f"{os.getenv('CSRF_TRUSTED_ORIGINS')}:{os.getenv('MOCKSERVER_PORT')}{MOCK_ENDPOINTS.get(type)}", json=request
     )
 
     if code == 200:
