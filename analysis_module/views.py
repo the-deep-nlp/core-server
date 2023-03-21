@@ -14,7 +14,7 @@ from .serializers import (
     )
 
 from .utils import spin_ecs_container
-from .models import AnalysisModuleStatus
+from .models import AnalysisModuleRequest
 
 
 def process_mock_request(request, type):
@@ -124,7 +124,7 @@ def status(request: Request):
     serializer.is_valid(raise_exception=True)
     
     unique_id = serializer.validated_data["unique_id"]
-    status = AnalysisModuleStatus.objects.filter(
+    status = AnalysisModuleRequest.objects.filter(
         unique_id=unique_id
     )
 
