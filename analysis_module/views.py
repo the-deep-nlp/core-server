@@ -16,26 +16,17 @@ from .serializers import (
 
 from .utils import spin_ecs_container
 from .models import AnalysisModuleRequest
+from .mockserver import topicmodelingmodel, ngramsmodel, summarizationmodel
 
 
 def process_mock_request(request, type):
 
-    MOCK_ENDPOINTS = {
-        "topicmodel": "/mock/topicmodeling",
-        "summarization": "/mock/summarization",
-        "ngrams": "/mock/ngrams"
-    }
-
-    if not request.get("callback_url"):
-        return Response({
-            "message": "A callback URL must be provided"
-            },
-            status=status.HTTP_400_BAD_REQUEST
-        )
-
-    req, code = request.get(
-        f"{os.getenv('CSRF_TRUSTED_ORIGINS')}:{os.getenv('MOCKSERVER_PORT')}{MOCK_ENDPOINTS.get(type)}", json=request
-    )
+    if type=="topicmodel":
+        response, code = topicmodelingmodel(request)
+    elif type=="summarization":
+        response, code = summarizationmodel(request)
+    elif type=="ngrams":
+        response, code = ngramsmodel(request)
 
     if code == 200:
 
@@ -53,7 +44,7 @@ def process_mock_request(request, type):
     else:
         return Response(
             {
-                "message": req.json().get("status")
+                "message": response["status"]
             },
             status=status.HTTP_400_BAD_REQUEST
         )
@@ -131,7 +122,7 @@ def status(request: Request):
 
     if not status:
         return Response({
-            "message": "Unrecored process"
+            "message": "Unrecorded process"
         },
         status=status.HTTP_404_NOT_FOUND)
     else:
