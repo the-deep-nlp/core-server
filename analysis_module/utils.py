@@ -1,7 +1,13 @@
 import os
 import boto3
 import uuid
+<<<<<<< HEAD
 from typing import Dict, Literal
+=======
+from typing import Dict, Literal, List, Any
+import boto3
+
+>>>>>>> 3a0b633 (get status and typing)
 
 
 TASK_MAPPINGS: Dict = {
@@ -31,7 +37,7 @@ TASK_MAPPINGS: Dict = {
 
 
 
-def create_params(params, mapping, _id: uuid.uuid4 = None):
+def create_params(params: Dict, mapping: Dict, _id: uuid.uuid4 = None) -> List[Dict[str, str]]:
     
     _params = []
     for k, v in params.items():
@@ -60,7 +66,7 @@ def create_params(params, mapping, _id: uuid.uuid4 = None):
     return _params
 
 
-def spin_ecs_container(task: Literal['ngrams', 'topicmodel', 'summarization'], params, _id: uuid.uuid4 = None):
+def spin_ecs_container(task: Literal['ngrams', 'topicmodel', 'summarization'], params, _id: uuid.uuid4 = None) -> Any:
 
     ecs_client = boto3.client('ecs', region_name=os.getenv('AWS_REGION'))
     mapping = TASK_MAPPINGS.get(task)

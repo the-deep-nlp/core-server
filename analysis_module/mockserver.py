@@ -22,14 +22,28 @@ def save_data_local(dir_name, client_id, data):
     parent_dirpath = f"/tmp/{dir_name}"
     if not os.path.exists(parent_dirpath):
         os.makedirs(parent_dirpath)
+<<<<<<< HEAD
     filepath = parent_dirpath + f"/{client_id}.json"
     
     with open(filepath, "w") as f:
+=======
+    filepath = os.path.join(parent_dirpath, f"{client_id}.json")
+
+    with open(filepath, "w", encoding='utf-8') as f:
+>>>>>>> 3a0b633 (get status and typing)
         f.write(json.dumps(data))
     return filepath
 
 
+<<<<<<< HEAD
 def send_callback_url_request(callback_url, client_id, filepath):
+=======
+
+def send_callback_url_request(callback_url: str, client_id: str, filepath: str) -> Any:
+
+    """ send callback url """
+
+>>>>>>> 3a0b633 (get status and typing)
     if callback_url:
         response_callback_url = requests.post(
             callback_url,

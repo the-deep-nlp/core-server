@@ -109,15 +109,10 @@ def ngrams(request: Request):
 
 
 @api_view(["GET"])
-def status(request: Request):
-
-    serializer = StatusRequest(data=request.data)
-    serializer.is_valid(raise_exception=True)
+def processing_status(request: Request, unique_id: str):
     
-    unique_id = serializer.validated_data["unique_id"]
-    status = AnalysisModuleRequest.objects.filter(
-        unique_id=unique_id
-    )
+    unique_id = request.query_params.get("unique_id")
+    status = AnalysisModuleRequest.objects.filter(unique_id=unique_id).first()
 
     if not status:
         return Response({
