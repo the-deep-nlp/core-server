@@ -1,41 +1,34 @@
 from rest_framework import serializers
 
+from .models import AnalysisModuleRequest
+
 
 class BaseEntry(serializers.Serializer):
-
     entry_id = serializers.CharField()
     excerpt = serializers.CharField()
 
-class BaseAnalysisSerializer(serializers.Serializer):
 
+class BaseAnalysisSerializer(serializers.Serializer):
     client_id = serializers.CharField()
     mock = serializers.BooleanField(default=False)
+
 
 class GeneralUserSerializer(BaseAnalysisSerializer):
     # not used for now
     entries_url = BaseEntry(many=True)
 
-class DeepEntriesSerializer(BaseAnalysisSerializer):
 
+class DeepEntriesSerializer(BaseAnalysisSerializer):
     entries_url = serializers.URLField()
-    callback_url = serializers.CharField(
-        allow_null = True
-    )
+    callback_url = serializers.CharField(allow_null=True)
+
 
 class TopicModelDeepRequest(DeepEntriesSerializer):
-    
-    cluster_size = serializers.IntegerField(
-        min_value = 1,
-        allow_null = True
-    )
-    max_clusters_num = serializers.IntegerField(
-        min_value = 1,
-        allow_null = True
-    )
+    cluster_size = serializers.IntegerField(min_value=1, allow_null=True)
+    max_clusters_num = serializers.IntegerField(min_value=1, allow_null=True)
 
 
 class NgramsParameters(serializers.Serializer):
-    
     generate_unigrams = serializers.BooleanField(default=True)
     generate_bigrams = serializers.BooleanField(default=True)
     generate_trigrams = serializers.BooleanField(default=True)
@@ -46,9 +39,15 @@ class NgramsParameters(serializers.Serializer):
 
 
 class NgramsDeepRequest(DeepEntriesSerializer):
-
     ngrams_config = NgramsParameters()
 
 
 class StatusRequest(serializers.Serializer):
     unique_id = serializers.UUIDField()
+
+
+class AnalysisModuleRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AnalysisModuleRequest
+        fields = ["status", "unique_id", "result_s3_link", "type"]
+        read_only_fields = ["status", "unique_id", "result_s3_link", "type"]
