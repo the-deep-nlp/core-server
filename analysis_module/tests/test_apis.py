@@ -143,9 +143,16 @@ class TestAnalysisModuleMockAPIs(BaseTestCase):
     TOPICMODELING_URL = '/api/v1/topicmodel/'
     NGRAMS_URL = '/api/v1/ngrams/'
     SUMMARIZATION_URL = '/api/v1/summarization/'
+    GET_ENTRIES_DATA = [
+        {"entry_id": 1, "excerpt": "Of resolve to gravity thought my prepare chamber so."},
+        {"entry_id": 1, "excerpt": "Of resolve to gravity thought my prepare chamber so."},
+        {"entry_id": 1, "excerpt": "Of resolve to gravity thought my prepare chamber so."},
+        {"entry_id": 1, "excerpt": "Of resolve to gravity thought my prepare chamber so."},
+    ]
 
-    @patch('analysis_module.views.spin_ecs_container')
-    def test_topicmodel_valid_request(self, spin_ecs_mock):
+    @patch('analysis_module.mockserver.send_callback_url_request')
+    @patch('analysis_module.mockserver.get_entries_data')
+    def test_topicmodel_valid_request(self, get_entries_mock, callback_mock):
         """
         This tests for a topicmodel api with valid data
         """
@@ -158,17 +165,18 @@ class TestAnalysisModuleMockAPIs(BaseTestCase):
             "max_clusters_num": 5,
             "mock": True,
         }
+        get_entries_mock.return_value = self.GET_ENTRIES_DATA
         resp = self.client.post(self.TOPICMODELING_URL, valid_data)
-        spin_ecs_mock.assert_called_once()
+        callback_mock.assert_called_once()
         assert resp.status_code == 202
         new_requests_count = AnalysisModuleRequest.objects.count()
         assert \
-            new_requests_count == requests_count + 1, \
-            "One more AnalysisModuleRequest object should be created"
-        assert AnalysisModuleRequest.objects.filter(type="topicmodel").exists()
+            new_requests_count == requests_count, \
+            "No more AnalysisModuleRequest object should be created"
 
-    @patch('analysis_module.views.spin_ecs_container')
-    def test_ngrams_valid_request(self, spin_ecs_mock):
+    @patch('analysis_module.mockserver.send_callback_url_request')
+    @patch('analysis_module.mockserver.get_entries_data')
+    def test_ngrams_valid_request(self, get_entries_mock, callback_mock):
         requests_count = AnalysisModuleRequest.objects.count()
         valid_data = {
             "client_id": "client_id",
@@ -185,17 +193,18 @@ class TestAnalysisModuleMockAPIs(BaseTestCase):
             },
             "mock": True,
         }
+        get_entries_mock.return_value = self.GET_ENTRIES_DATA
         resp = self.client.post(self.NGRAMS_URL, valid_data, format="json")
-        spin_ecs_mock.assert_called_once()
+        callback_mock.assert_called_once()
         assert resp.status_code == 202
         new_requests_count = AnalysisModuleRequest.objects.count()
         assert \
-            new_requests_count == requests_count + 1, \
-            "One more AnalysisModuleRequest object should be created"
-        assert AnalysisModuleRequest.objects.filter(type="ngrams").exists()
+            new_requests_count == requests_count, \
+            "No more AnalysisModuleRequest object should be created"
 
-    @patch('analysis_module.views.spin_ecs_container')
-    def test_summarization_valid_request(self, spin_ecs_mock):
+    @patch('analysis_module.mockserver.send_callback_url_request')
+    @patch('analysis_module.mockserver.get_entries_data')
+    def test_summarization_valid_request(self, get_entries_mock, callback_mock):
         requests_count = AnalysisModuleRequest.objects.count()
         valid_data = {
             "client_id": "client_id",
@@ -203,11 +212,11 @@ class TestAnalysisModuleMockAPIs(BaseTestCase):
             "callback_url": "http://someurl.com/callback",
             "mock": True,
         }
+        get_entries_mock.return_value = self.GET_ENTRIES_DATA
         resp = self.client.post(self.SUMMARIZATION_URL, valid_data)
-        spin_ecs_mock.assert_called_once()
         assert resp.status_code == 202
+        callback_mock.assert_called_once()
         new_requests_count = AnalysisModuleRequest.objects.count()
         assert \
-            new_requests_count == requests_count + 1, \
-            "One more AnalysisModuleRequest object should be created"
-        assert AnalysisModuleRequest.objects.filter(type="summarization").exists()
+            new_requests_count == requests_count, \
+            "No more AnalysisModuleRequest object should be created"

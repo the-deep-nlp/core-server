@@ -20,8 +20,9 @@ def get_entries_data(url: str) -> Any:
         raise e
 
 
-def save_data_local(dir_name, client_id, data):
-    parent_dirpath = f"/tmp/{dir_name}"
+def save_data_local_and_get_url(dir_name: str, client_id: str, data: Any) -> str:
+    """save"""
+    parent_dirpath = f"/tmp/mock_responses/{dir_name}"
     if not os.path.exists(parent_dirpath):
         os.makedirs(parent_dirpath)
 
@@ -74,8 +75,8 @@ def get_ngrams(
         stop_words="english",
     ).fit(entries)
     bag_of_words = vec.transform(entries)
-    sum_words = bag_of_words.sum(axis=0)
-    words_freq = [(word, sum_words[0, i]) for word, i in vec.vocabulary_.items()]
+    sum_words = bag_of_words.sum(axis=0).tolist()
+    words_freq = [(word, sum_words[0][i]) for word, i in vec.vocabulary_.items()]
     words_freq = sorted(words_freq, key=lambda x: x[1], reverse=True)
     return words_freq[:n]
 
@@ -108,7 +109,9 @@ def ngramsmodel(body: dict) -> Any:
             {"trigrams": {k: v for k, v in get_ngrams(excerpts, 3, 3, max_items)}}
         )
 
-    filepath = save_data_local(dir_name="ngrams", client_id=client_id, data=data)
+    filepath = save_data_local_and_get_url(
+        dir_name="ngrams", client_id=client_id, data=data
+    )
 
     send_callback_url_request(
         callback_url=callback_url, client_id=client_id, filepath=filepath
@@ -127,7 +130,9 @@ def summarizationmodel(body: dict) -> Any:
     excerpts = [x["excerpt"] for x in get_entries_data(entries_url)]
 
     data = " ".join(["This is a fake response.\n"] + excerpts)
-    filepath = save_data_local(dir_name="summarization", client_id=client_id, data=data)
+    filepath = save_data_local_and_get_url(
+        dir_name="summarization", client_id=client_id, data=data
+    )
 
     send_callback_url_request(
         callback_url=callback_url, client_id=client_id, filepath=filepath
@@ -156,7 +161,9 @@ def topicmodelingmodel(body: dict) -> Any:
 
     data = {key: val for key, val in enumerate(data)}
 
-    filepath = save_data_local(dir_name="topicmodel", client_id=client_id, data=data)
+    filepath = save_data_local_and_get_url(
+        dir_name="topicmodel", client_id=client_id, data=data
+    )
 
     send_callback_url_request(
         callback_url=callback_url, client_id=client_id, filepath=filepath

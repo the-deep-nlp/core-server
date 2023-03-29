@@ -37,7 +37,7 @@ x-server: &base-server-config
 
     #MOCKSERVER
     MOCKSERVER_PORT: ${MOCKSERVER_PORT:-8081}
-    
+
   volumes:
     - ./:/code/
   tty: true
@@ -64,17 +64,24 @@ services:
     command: bash -c '/code/scripts/run_dev.sh server'
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    volumes:
+      - "./mock_responses:/tmp/mock_responses"
+
   celery:
     <<: *base-server-config
     command: bash -c '/code/scripts/run_dev.sh celery'
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    volumes:
+      - "./mock_responses:/tmp/mock_responses"
 
   celery_beat:
     <<: *base-server-config
     command: bash -c '/code/scripts/run_dev.sh beat'
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    volumes:
+      - "./mock_responses:/tmp/mock_responses"
 
 volumes:
   deepl-db:
