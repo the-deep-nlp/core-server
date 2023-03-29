@@ -12,7 +12,9 @@ x-server: &base-server-config
     # Django
     DEBUG: ${DEBUG:-false}
     DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-django-insecure-k^b3&gm&d7j)+ggtdo7d8y^vh709bd=f$dmv_m06$7*7y-kl_z}
-    ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost}
+    ALLOWED_HOSTS: ${ALLOWED_HOSTS:?Set allowed hosts}
+    CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS:?Set trusted origins}
+    ENDPOINT_NAME: ${ENDPOINT_NAME:?Set endpoint name}
 
     # Celery
     CELERY_BROKER_URL: ${CELERY_BROKER_URL:-redis://redis:6379}
@@ -33,7 +35,7 @@ x-server: &base-server-config
 
     #MOCKSERVER
     MOCKSERVER_PORT: ${MOCKSERVER_PORT:-8081}
-  
+
   tty: true
   depends_on:
     - redis
@@ -45,15 +47,21 @@ services:
   server:
     <<: *base-server-config
     command: bash -c '/code/scripts/run_prod.sh server'
+    volumes:
+      - "./mock_responses:/tmp/mock_responses"
 
   celery:
     <<: *base-server-config
     command: bash -c '/code/scripts/run_prod.sh celery'
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    volumes:
+      - "./mock_responses:/tmp/mock_responses"
 
   celery_beat:
     <<: *base-server-config
     command: bash -c '/code/scripts/run_prod.sh beat'
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    volumes:
+      - "./mock_responses:/tmp/mock_responses"

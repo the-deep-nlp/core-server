@@ -7,6 +7,8 @@ from random import shuffle
 from math import ceil
 from sklearn.feature_extraction.text import CountVectorizer
 
+from core_server.settings import ENDPOINT_NAME
+
 logging.getLogger().setLevel(logging.INFO)
 
 
@@ -22,15 +24,16 @@ def get_entries_data(url: str) -> Any:
 
 def save_data_local_and_get_url(dir_name: str, client_id: str, data: Any) -> str:
     """save"""
-    parent_dirpath = f"/tmp/mock_responses/{dir_name}"
+    parent_dirpath = f"mock_responses/{dir_name}"
     if not os.path.exists(parent_dirpath):
         os.makedirs(parent_dirpath)
 
     filepath = os.path.join(parent_dirpath, f"{client_id}.json")
+    filepath_local = os.path.join('/tmp', filepath)
 
-    with open(filepath, "w", encoding='utf-8') as f:
+    with open(filepath_local, "w", encoding='utf-8') as f:
         f.write(json.dumps(data))
-    return filepath
+    return os.path.join(ENDPOINT_NAME, filepath)
 
 
 def send_callback_url_request(callback_url: str, client_id: str, filepath: str) -> Any:
