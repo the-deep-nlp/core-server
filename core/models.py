@@ -154,6 +154,7 @@ class Entry(BaseModel):
     export_data = models.JSONField(default=dict)
     af_exportable_data = models.JSONField(default=dict)
     extra = models.JSONField(default=dict)
+    deep_entry_created_at = models.DateTimeField()
     """
     NOTE:
     original_af_tags = {
