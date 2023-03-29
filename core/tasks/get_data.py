@@ -244,6 +244,7 @@ def _process_entries_batch(
                 "export_data": exp_data,
                 "af_exportable_data": current_entry_dict["export_data"],
                 "extra": {k: current_entry_dict[k] for k in entry_extra_fields},
+                "deep_entry_created_at": current_entry_dict["created_at"],
             },
         )
     return current_entry_dict

@@ -1,3 +1,4 @@
+import datetime
 from celery import shared_task
 import pandas as pd
 from django.db import transaction
@@ -107,7 +108,7 @@ def create_feature_drift(current_df, entry_len):
     reference_data_df = pd.read_csv(reference_data_path)
     feature_drift = FeatureDrift(reference_data_df, current_df)
     feature_drift_df = feature_drift.compute_feature_drift(
-        len(reference_data_df), len(current_df)
+        ref_n_samples=len(reference_data_df), cur_n_samples=len(current_df)
     )
     feature_drift_df['entry_count'] = entry_len
     save_dataframe_to_model(feature_drift_df, ComputedFeatureDrift)
@@ -116,8 +117,13 @@ def create_feature_drift(current_df, entry_len):
 @shared_task
 def calculate_model_metrics():
     with transaction.atomic():
+        yesterday = datetime.date.today() - datetime.timedelta(days=1)
         newly_added_entries = list(
-            Entry.objects.filter(classificationpredictions__isnull=True)
+            Entry.objects.filter(
+                classificationpredictions__isnull=True,
+                deep_entry_created_at__gte=yesterday,
+                deep_entry_created_at__lt=datetime.date.today()
+            )
             .order_by("-id")
             .values("original_entry_id", "excerpt_en", "original_af_tags", "lead__project__original_project_id")
         )
