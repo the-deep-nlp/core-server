@@ -24,7 +24,7 @@ def get_entries_data(url: str) -> Any:
 
 def save_data_local_and_get_url(dir_name: str, client_id: str, data: Any) -> str:
     """save"""
-    parent_dirpath = f"mock_responses/{dir_name}"
+    parent_dirpath = f"media/mock_responses/{dir_name}"
     if not os.path.exists(parent_dirpath):
         os.makedirs(parent_dirpath)
 
@@ -33,7 +33,7 @@ def save_data_local_and_get_url(dir_name: str, client_id: str, data: Any) -> str
 
     with open(filepath_local, "w", encoding='utf-8') as f:
         f.write(json.dumps(data))
-    return os.path.join(ENDPOINT_NAME, filepath)
+    return os.path.join(ENDPOINT_NAME, filepath)  # NOTE: this should be handled from external proxy server
 
 
 def send_callback_url_request(callback_url: str, client_id: str, filepath: str) -> Any:

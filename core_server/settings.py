@@ -63,8 +63,8 @@ MIDDLEWARE = [
 
 REST_FRAMEWORK = {
     "EXCEPTION_HANDLER": "core_server.exception_handler.custom_exception_handler",  # noqa
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.TokenAuthentication",
     ],
 }
 
