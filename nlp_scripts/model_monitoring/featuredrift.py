@@ -33,7 +33,7 @@ class FeatureDrift:
         Input: Embedding Series
         Output: Embedding List
         """
-        if isinstance(embeddings[0], list):
+        if isinstance(embeddings.iloc[0], list):
             return embeddings.apply(np.array).to_list()
         return embeddings.apply(literal_eval).apply(np.array).to_list()
 
