@@ -20,8 +20,13 @@ from nlp_scripts.model_monitoring.generate_outputs import ClassificationModelOut
 from nlp_scripts.model_monitoring.model_performance import ModelPerformance
 from nlp_scripts.model_monitoring.featuredrift import FeatureDrift
 
+from celery.utils.log import get_task_logger
+
+logger = get_task_logger(__name__)
+
 
 def save_classification_prediction(df):
+    logger.info("Saving classification predictions")
     classification_rows = df.to_dict("records")
     model_info = get_model_info("main-model-cpu")[0]
     model, created = ClassificationModel.objects.get_or_create(
@@ -61,6 +66,7 @@ def save_classification_prediction(df):
     ]
 
     predictions = ClassificationPredictions.objects.bulk_create(model_instances)
+    logger.info("Saving classification predictions Done")
     return predictions
 
 
@@ -73,6 +79,7 @@ def save_dataframe_to_model(dataframe: pd.DataFrame, model_class: django.db.mode
 
 
 def save_model_performance(df):
+    logger.info("Saving Model Performance")
     modelperf = ModelPerformance(df)
     df1 = modelperf.project_wise_perf_metrics()
     save_dataframe_to_model(df1, ProjectWisePerfMetrics)
@@ -88,6 +95,7 @@ def save_model_performance(df):
 
     df5 = modelperf.per_project_calc_ratios()
     save_dataframe_to_model(df5, ProjectWiseMatchRatios)
+    logger.info("Saving Model Performance Done")
 
 
 def set_project_id(row, dict):
@@ -101,6 +109,7 @@ def create_model_performance(combined_df):
 
 @shared_task
 def create_feature_drift(current_df, entry_len):
+    logger.info("Saving Feature Drift")
     current_df = pd.DataFrame.from_dict(current_df)
     reference_data_path = (
         ClassificationModel.objects.order_by("-id").first().train_data_uri
@@ -112,6 +121,7 @@ def create_feature_drift(current_df, entry_len):
     )
     feature_drift_df['entry_count'] = entry_len
     save_dataframe_to_model(feature_drift_df, ComputedFeatureDrift)
+    logger.info("Saving Feature Drift Done")
 
 
 @shared_task
