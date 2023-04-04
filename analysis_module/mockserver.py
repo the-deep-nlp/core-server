@@ -1,10 +1,12 @@
 from typing import Any, List, Tuple
 import os
 import json
+import time
 import requests
 import logging
 from random import shuffle
 from math import ceil
+from celery import shared_task
 from sklearn.feature_extraction.text import CountVectorizer
 
 from core_server.settings import ENDPOINT_NAME
@@ -14,12 +16,9 @@ logging.getLogger().setLevel(logging.INFO)
 
 def get_entries_data(url: str) -> Any:
     """get data"""
-    try:
-        response = requests.get(url)
-        entries_data = json.loads(response.text)
-        return entries_data
-    except Exception as e:
-        raise e
+    response = requests.get(url)
+    entries_data = json.loads(response.text)
+    return entries_data
 
 
 def save_data_local_and_get_url(dir_name: str, client_id: str, data: Any) -> str:
@@ -36,9 +35,11 @@ def save_data_local_and_get_url(dir_name: str, client_id: str, data: Any) -> str
     return os.path.join(ENDPOINT_NAME, filepath)  # NOTE: this should be handled from external proxy server
 
 
+@shared_task
 def send_callback_url_request(callback_url: str, client_id: str, filepath: str) -> Any:
     """send callback url"""
 
+    time.sleep(3)
     if callback_url:
         response_callback_url = requests.post(
             callback_url,
@@ -113,11 +114,11 @@ def ngramsmodel(body: dict) -> Any:
         )
 
     filepath = save_data_local_and_get_url(
-        dir_name="ngrams", client_id=client_id, data=data
+        dir_name="ngrams", client_id=client_id, data=data,
     )
 
-    send_callback_url_request(
-        callback_url=callback_url, client_id=client_id, filepath=filepath
+    send_callback_url_request.delay(
+        callback_url=callback_url, client_id=client_id, filepath=filepath,
     )
 
     return json.dumps({"status": "Successfully received the request."}), 200
@@ -137,8 +138,8 @@ def summarizationmodel(body: dict) -> Any:
         dir_name="summarization", client_id=client_id, data=data
     )
 
-    send_callback_url_request(
-        callback_url=callback_url, client_id=client_id, filepath=filepath
+    send_callback_url_request.delay(
+        callback_url=callback_url, client_id=client_id, filepath=filepath,
     )
 
     return json.dumps({"status": "Successfully received the request."}), 200
@@ -158,7 +159,7 @@ def topicmodelingmodel(body: dict) -> Any:
     shuffle(excerpt_ids)
 
     data = [
-        excerpt_ids[x : x + ceil(len(excerpt_ids) / clusters)]
+        excerpt_ids[x: x + ceil(len(excerpt_ids) / clusters)]
         for x in range(0, len(excerpt_ids), ceil(len(excerpt_ids) / clusters))
     ]
 
@@ -168,8 +169,8 @@ def topicmodelingmodel(body: dict) -> Any:
         dir_name="topicmodel", client_id=client_id, data=data
     )
 
-    send_callback_url_request(
-        callback_url=callback_url, client_id=client_id, filepath=filepath
+    send_callback_url_request.delay(
+        callback_url=callback_url, client_id=client_id, filepath=filepath,
     )
 
     return json.dumps({"status": "Successfully received the request."}), 200
