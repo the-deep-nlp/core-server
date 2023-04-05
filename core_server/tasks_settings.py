@@ -12,9 +12,9 @@ CELERY_BEAT_SCHEDULE = {
     "calculate_model_metrics": {
         "task": "core.tasks.model_monitoring.calculate_model_metrics",
         "schedule": crontab(
-            hour="0",
+            hour="*/12",  # Do it every 12 hours
             minute="0",
-        ),  # do it every day at 12 am
+        ),
     },
     "fetch_new_projects": {
         "task": "core.tasks.get_data.fetch_new_projects",
