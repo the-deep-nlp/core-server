@@ -1,7 +1,14 @@
 import os
 import boto3
 import uuid
+from celery import shared_task
 from typing import Dict, Literal, List, Any
+
+from analysis_module.models import AnalysisModuleRequest
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 TASK_MAPPINGS: Dict = {
@@ -55,35 +62,44 @@ def create_params(
     return _params
 
 
+@shared_task
 def spin_ecs_container(
     task: Literal["ngrams", "topicmodel", "summarization"],
     params,
-    _id: uuid.uuid4 = None,
+    _id=None,
 ) -> Any:
-    ecs_client = boto3.client("ecs", region_name=os.getenv("AWS_REGION"))
-    mapping = TASK_MAPPINGS.get(task)
+    am_request = AnalysisModuleRequest.objects.get(unique_id=_id)
 
-    response = ecs_client.run_task(
-        cluster=mapping.get("ecs_cluster_id"),
-        launchType="FARGATE",
-        taskDefinition=mapping.get("ecs_task_definition_arn"),
-        count=1,
-        platformVersion="LATEST",
-        networkConfiguration={
-            "awsvpcConfiguration": {
-                "subnets": [mapping.get("vpc_private_subnet")],
-                "assignPublicIp": "DISABLED",
-            }
-        },
-        overrides={
-            "containerOverrides": [
-                {
-                    "name": f"{mapping.get('ecs_container_name')}-{os.getenv('ENVIRONMENT')}",
-                    "command": ["python", "app.py"],
-                    "environment": create_params(params, mapping, _id),
-                },
-            ],
-        },
-    )
+    try:
+        ecs_client = boto3.client("ecs", region_name=os.getenv("AWS_REGION"))
+        mapping = TASK_MAPPINGS.get(task)
 
-    return response
+        response = ecs_client.run_task(
+            cluster=mapping.get("ecs_cluster_id"),
+            launchType="FARGATE",
+            taskDefinition=mapping.get("ecs_task_definition_arn"),
+            count=1,
+            platformVersion="LATEST",
+            networkConfiguration={
+                "awsvpcConfiguration": {
+                    "subnets": [mapping.get("vpc_private_subnet")],
+                    "assignPublicIp": "DISABLED",
+                }
+            },
+            overrides={
+                "containerOverrides": [
+                    {
+                        "name": f"{mapping.get('ecs_container_name')}-{os.getenv('ENVIRONMENT')}",
+                        "command": ["python", "app.py"],
+                        "environment": create_params(params, mapping, _id),
+                    },
+                ],
+            },
+        )
+        return response
+    except Exception:
+        import traceback
+        logger.error("Error spinning ecs_container", exc_info=True)
+        am_request.status = AnalysisModuleRequest.RequestStatus.FAILED
+        am_request.error = traceback.format_exc()
+        am_request.save(update_fields=['status', 'error'])

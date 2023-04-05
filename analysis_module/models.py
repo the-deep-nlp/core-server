@@ -21,6 +21,7 @@ class AnalysisModuleRequest(models.Model):
     result_s3_link = models.URLField(null=True, blank=True)
     type = models.CharField(choices=FeaturesType.choices, max_length=20)
     request_params = models.JSONField(null=True, blank=True)  # To capture the original request params
+    error = models.TextField(blank=True, null=True)
 
     class Meta:
         db_table = "event_status_tracker"

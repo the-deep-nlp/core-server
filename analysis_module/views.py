@@ -1,6 +1,7 @@
 import requests
 from typing import Literal
 
+from django.db import transaction
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.request import Request
@@ -61,11 +62,11 @@ def process_request(
         request_params=serializer.validated_data,
     )
     # TODO: capture error inside spin_ecs_container and set error status accordingly
-    _ = spin_ecs_container(
+    transaction.on_commit(lambda: spin_ecs_container.delay(
         task=request_type,
         params=serializer.data,
         _id=am_request.unique_id,
-    )
+    ))
 
     resp = {
         "client_id": serializer.data.get("client_id"),

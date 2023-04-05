@@ -43,8 +43,9 @@ class TestAnalysisModuleAPIs(BaseTestCase):
             "callback_url": "https://someurl.com/callback",
             "max_clusters_num": 5,
         }
-        resp = self.client.post(self.TOPICMODELING_URL, valid_data)
-        spin_ecs_mock.assert_called_once()
+        with self.captureOnCommitCallbacks(execute=True):
+            resp = self.client.post(self.TOPICMODELING_URL, valid_data)
+        spin_ecs_mock.delay.assert_called_once()
         assert resp.status_code == 202
         new_requests_count = AnalysisModuleRequest.objects.count()
         assert \
@@ -97,8 +98,9 @@ class TestAnalysisModuleAPIs(BaseTestCase):
                 "max_ngrams_items": 10,
             },
         }
-        resp = self.client.post(self.NGRAMS_URL, valid_data, format="json")
-        spin_ecs_mock.assert_called_once()
+        with self.captureOnCommitCallbacks(execute=True):
+            resp = self.client.post(self.NGRAMS_URL, valid_data, format="json")
+        spin_ecs_mock.delay.assert_called_once()
         assert resp.status_code == 202
         new_requests_count = AnalysisModuleRequest.objects.count()
         assert \
@@ -129,8 +131,9 @@ class TestAnalysisModuleAPIs(BaseTestCase):
             "entries_url": "http://someurl.com/entries",
             "callback_url": "http://someurl.com/callback",
         }
-        resp = self.client.post(self.SUMMARIZATION_URL, valid_data)
-        spin_ecs_mock.assert_called_once()
+        with self.captureOnCommitCallbacks(execute=True):
+            resp = self.client.post(self.SUMMARIZATION_URL, valid_data)
+        spin_ecs_mock.delay.assert_called_once()
         assert resp.status_code == 202
         new_requests_count = AnalysisModuleRequest.objects.count()
         assert \
