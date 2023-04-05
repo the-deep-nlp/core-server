@@ -9,6 +9,7 @@ from math import ceil
 from celery import shared_task
 from sklearn.feature_extraction.text import CountVectorizer
 
+from analysis_module.models import AnalysisModuleRequest
 from core_server.settings import ENDPOINT_NAME
 
 logging.getLogger().setLevel(logging.INFO)
@@ -36,7 +37,7 @@ def save_data_local_and_get_url(dir_name: str, client_id: str, data: Any) -> str
 
 
 @shared_task
-def send_callback_url_request(callback_url: str, client_id: str, filepath: str) -> Any:
+def send_callback_url_request(callback_url: str, client_id: str, filepath: str, status: int) -> Any:
     """send callback url"""
 
     time.sleep(3)
@@ -45,7 +46,8 @@ def send_callback_url_request(callback_url: str, client_id: str, filepath: str) 
             callback_url,
             json={
                 "client_id": client_id,
-                "presigned_s3_url": filepath
+                "presigned_s3_url": filepath,
+                "status": status,
             },
             timeout=60,
         )
@@ -85,7 +87,8 @@ def get_ngrams(
     return words_freq[:n]
 
 
-def ngramsmodel(body: dict) -> Any:
+@shared_task
+def process_ngrams(body):
     request_body = body if isinstance(body, dict) else json.loads(body)
 
     client_id = request_body.get("client_id")
@@ -97,7 +100,16 @@ def ngramsmodel(body: dict) -> Any:
     trigrams = request_body.get("ngrams_config").get("generate_trigrams")
     max_items = request_body.get("ngrams_config").get("max_ngrams_items")
 
-    excerpts = [x["excerpt"] for x in get_entries_data(entries_url)]
+    try:
+        excerpts = [x["excerpt"] for x in get_entries_data(entries_url)]
+    except Exception:
+        send_callback_url_request(
+            callback_url=callback_url,
+            client_id=client_id,
+            filepath="",
+            status=AnalysisModuleRequest.RequestStatus.PROCESS_INPUT_URL_FAILED,
+        )
+        return
 
     data = {}
     if unigrams:
@@ -117,14 +129,21 @@ def ngramsmodel(body: dict) -> Any:
         dir_name="ngrams", client_id=client_id, data=data,
     )
 
-    send_callback_url_request.delay(
-        callback_url=callback_url, client_id=client_id, filepath=filepath,
+    send_callback_url_request(
+        callback_url=callback_url,
+        client_id=client_id,
+        filepath=filepath,
+        status=AnalysisModuleRequest.RequestStatus.SUCCESS,
     )
 
+
+def ngramsmodel(body) -> Any:
+    process_ngrams.delay(body)
     return json.dumps({"status": "Successfully received the request."}), 200
 
 
-def summarizationmodel(body: dict) -> Any:
+@shared_task
+def process_summarization(body: dict) -> Any:
     request_body = body if isinstance(body, dict) else json.loads(body)
 
     client_id = request_body.get("client_id")
@@ -132,20 +151,37 @@ def summarizationmodel(body: dict) -> Any:
     callback_url = request_body.get("callback_url")
 
     excerpts = [x["excerpt"] for x in get_entries_data(entries_url)]
+    try:
+        excerpts = [x["excerpt"] for x in get_entries_data(entries_url)]
+    except Exception:
+        send_callback_url_request(
+            callback_url=callback_url,
+            client_id=client_id,
+            filepath="",
+            status=AnalysisModuleRequest.RequestStatus.PROCESS_INPUT_URL_FAILED,
+        )
+        return
 
     data = " ".join(["This is a fake response.\n"] + excerpts)
     filepath = save_data_local_and_get_url(
         dir_name="summarization", client_id=client_id, data=data
     )
 
-    send_callback_url_request.delay(
-        callback_url=callback_url, client_id=client_id, filepath=filepath,
+    send_callback_url_request(
+        callback_url=callback_url,
+        client_id=client_id,
+        filepath=filepath,
+        status=AnalysisModuleRequest.RequestStatus.SUCCESS,
     )
 
+
+def summarizationmodel(body) -> Any:
+    process_summarization.delay(body)
     return json.dumps({"status": "Successfully received the request."}), 200
 
 
-def topicmodelingmodel(body: dict) -> Any:
+@shared_task
+def process_topicmodeling(body) -> Any:
     """topic modeling"""
     clusters = 5
     request_body = body if isinstance(body, dict) else json.loads(body)
@@ -154,7 +190,16 @@ def topicmodelingmodel(body: dict) -> Any:
     entries_url = request_body.get("entries_url")
     callback_url = request_body.get("callback_url")
 
-    excerpt_ids = [x["entry_id"] for x in get_entries_data(entries_url)]
+    try:
+        excerpt_ids = [x["entry_id"] for x in get_entries_data(entries_url)]
+    except Exception:
+        send_callback_url_request(
+            callback_url=callback_url,
+            client_id=client_id,
+            filepath="",
+            status=AnalysisModuleRequest.RequestStatus.PROCESS_INPUT_URL_FAILED,
+        )
+        return
 
     shuffle(excerpt_ids)
 
@@ -169,8 +214,14 @@ def topicmodelingmodel(body: dict) -> Any:
         dir_name="topicmodel", client_id=client_id, data=data
     )
 
-    send_callback_url_request.delay(
-        callback_url=callback_url, client_id=client_id, filepath=filepath,
+    send_callback_url_request(
+        callback_url=callback_url,
+        client_id=client_id,
+        filepath=filepath,
+        status=AnalysisModuleRequest.RequestStatus.SUCCESS,
     )
 
+
+def topicmodelingmodel(body) -> Any:
+    process_topicmodeling.delay(body)
     return json.dumps({"status": "Successfully received the request."}), 200

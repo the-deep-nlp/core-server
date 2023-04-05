@@ -8,6 +8,7 @@ class AnalysisModuleRequest(models.Model):
         INITIATED = 1
         SUCCESS = 2
         FAILED = 3
+        PROCESS_INPUT_URL_FAILED = 4
 
     class FeaturesType(models.TextChoices):
         NGRAMS = "ngrams", "Ngrams"

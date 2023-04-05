@@ -150,9 +150,9 @@ class TestAnalysisModuleMockAPIs(BaseTestCase):
         {"entry_id": 1, "excerpt": "Of resolve to gravity thought my prepare chamber so."},
     ]
 
-    @patch('analysis_module.mockserver.send_callback_url_request')
+    @patch('analysis_module.mockserver.process_topicmodeling')
     @patch('analysis_module.mockserver.get_entries_data')
-    def test_topicmodel_valid_request(self, get_entries_mock, callback_mock):
+    def test_topicmodel_valid_request(self, get_entries_mock, process_mock):
         """
         This tests for a topicmodel api with valid data
         """
@@ -167,16 +167,16 @@ class TestAnalysisModuleMockAPIs(BaseTestCase):
         }
         get_entries_mock.return_value = self.GET_ENTRIES_DATA
         resp = self.client.post(self.TOPICMODELING_URL, valid_data)
-        callback_mock.assert_called_once()
+        process_mock.delay.assert_called_once()
         assert resp.status_code == 202
         new_requests_count = AnalysisModuleRequest.objects.count()
         assert \
             new_requests_count == requests_count, \
             "No more AnalysisModuleRequest object should be created"
 
-    @patch('analysis_module.mockserver.send_callback_url_request')
+    @patch('analysis_module.mockserver.process_ngrams')
     @patch('analysis_module.mockserver.get_entries_data')
-    def test_ngrams_valid_request(self, get_entries_mock, callback_mock):
+    def test_ngrams_valid_request(self, get_entries_mock, process_mock):
         requests_count = AnalysisModuleRequest.objects.count()
         valid_data = {
             "client_id": "client_id",
@@ -195,16 +195,16 @@ class TestAnalysisModuleMockAPIs(BaseTestCase):
         }
         get_entries_mock.return_value = self.GET_ENTRIES_DATA
         resp = self.client.post(self.NGRAMS_URL, valid_data, format="json")
-        callback_mock.assert_called_once()
+        process_mock.delay.assert_called_once()
         assert resp.status_code == 202
         new_requests_count = AnalysisModuleRequest.objects.count()
         assert \
             new_requests_count == requests_count, \
             "No more AnalysisModuleRequest object should be created"
 
-    @patch('analysis_module.mockserver.send_callback_url_request')
+    @patch('analysis_module.mockserver.process_summarization')
     @patch('analysis_module.mockserver.get_entries_data')
-    def test_summarization_valid_request(self, get_entries_mock, callback_mock):
+    def test_summarization_valid_request(self, get_entries_mock, process_mock):
         requests_count = AnalysisModuleRequest.objects.count()
         valid_data = {
             "client_id": "client_id",
@@ -215,7 +215,7 @@ class TestAnalysisModuleMockAPIs(BaseTestCase):
         get_entries_mock.return_value = self.GET_ENTRIES_DATA
         resp = self.client.post(self.SUMMARIZATION_URL, valid_data)
         assert resp.status_code == 202
-        callback_mock.assert_called_once()
+        process_mock.delay.assert_called_once()
         new_requests_count = AnalysisModuleRequest.objects.count()
         assert \
             new_requests_count == requests_count, \
