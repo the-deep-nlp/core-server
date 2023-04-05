@@ -17,14 +17,14 @@ TASK_MAPPINGS: Dict = {
         "ecs_task_definition_arn": "NGRAMS_ECS_TASK_DEFN_ARN",
         "ecs_container_name": "NGRAMS_ECS_CONTAINER_NAME",
         "vpc_private_subnet": "NGRAMS_VPC_PRIVATE_SUBNET",
-        "no_callback_id": "NGRAMS_ID",
+        "unique_id": "NGRAMS_ID",
     },
     "topicmodel": {
         "ecs_cluster_id": "TOPICMODEL_ECS_CLUSTER_ID",
         "ecs_task_definition_arn": "TOPICMODEL_ECS_TASK_DEFN_ARN",
         "ecs_container_name": "TOPICMODEL_ECS_CONTAINER_NAME",
         "vpc_private_subnet": "TOPICMODEL_VPC_PRIVATE_SUBNET",
-        "no_callback_id": "TOPICMODEL_ID",
+        "unique_id": "TOPICMODEL_ID",
     },
     "summarization": {
         "ecs_cluster_id": "SUMMARIZATION_ECS_CLUSTER_ID",
