@@ -12,6 +12,7 @@ from evidently.metrics import DatasetDriftMetric, DataDriftTable
 
 warnings.filterwarnings("ignore")
 
+
 class FeatureDrift:
     """
     Calculates per project feature drift of excerpts

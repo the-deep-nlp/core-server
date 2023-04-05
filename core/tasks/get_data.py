@@ -72,8 +72,10 @@ def fetch_deep_data():
         if afs_dict is None:
             logger.warning("Could not fetch analysis frameowrks. Exiting.")
             return
-        for prj in ToFetchProject.objects.filter(
-            status=ToFetchProject.FetchStatus.NOT_FETCHED,
+        for prj in (
+            ToFetchProject.objects.filter(
+                status__in=[ToFetchProject.FetchStatus.NOT_FETCHED, ToFetchProject.FetchStatus.FETCHING]
+            )
         ):
             logger.info(
                 f"Fetching deep project with id {prj.original_project_id}"
@@ -142,15 +144,13 @@ def fetch_project_data(
         logger.info(f"Fetched project data for deep project {pid}")
 
         leads_dict = fetch_project_leads(cursor, project, orgs_dict)
+        if not project.af_mapping:
+            logger.warning(f"Project with id:{project.original_project_id} doesnot have analysisframework")
+            return
         if leads_dict:
             fetch_project_entries(cursor, project, leads_dict)
 
         logger.info(f"Fetched all data for deep project {pid}")
-
-        # Marked as FETCHED if not active, else leave it as FETCHING
-        if to_fetch.active_status == ToFetchProject.ActiveStatus.INACTIVE:
-            to_fetch.status = ToFetchProject.FetchStatus.FETCHED
-            to_fetch.save(update_fields=["status"])
 
 
 def _process_lead_batch(lead_batch, project, orgs_dict, columns) -> dict:
@@ -221,7 +221,6 @@ def _process_entries_batch(
     entries_batch, leads_dict, columns, widget_id_labels: dict
 ) -> dict:
     entry_extra_fields = [
-        "information_date",
         "entry_type",
         "excerpt_modified",
     ]
