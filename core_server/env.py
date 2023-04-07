@@ -26,4 +26,8 @@ env = environ.Env(
     DEEP_DB_USER=str,
     DEEP_DB_PORT=int,
     DEEP_DB_HOST=str,
+
+    # AWS
+    AWS_ACCESS_KEY=(str, None),
+    AWS_SECRET_KEY=(str, None),
 )
