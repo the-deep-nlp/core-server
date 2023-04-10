@@ -98,8 +98,6 @@ def spin_ecs_container(
         )
         return response
     except Exception:
-        import traceback
         logger.error("Error spinning ecs_container", exc_info=True)
         am_request.status = AnalysisModuleRequest.RequestStatus.FAILED
-        am_request.error = traceback.format_exc()
-        am_request.save(update_fields=['status', 'error'])
+        am_request.save(update_fields=['status'])

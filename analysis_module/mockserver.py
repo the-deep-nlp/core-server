@@ -49,7 +49,7 @@ def send_callback_url_request(callback_url: str, client_id: str, filepath: str, 
                 "presigned_s3_url": filepath,
                 "status": status,
             },
-            timeout=60,
+            timeout=30,
         )
         if response_callback_url.status_code == 200:
             logging.info("Request sent successfully.")

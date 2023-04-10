@@ -17,8 +17,11 @@ x-server: &base-server-config
     CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS:-http://localhost}
     ENDPOINT_NAME: ${ENDPOINT_NAME:-http://localhost}
 
-    AWS_ACCESS_KEY: ${AWS_ACCCESS_KEY:-}
+    # AWS
+    AWS_ACCESS_KEY: ${AWS_ACCESS_KEY:-}
     AWS_SECRET_KEY: ${AWS_SECRET_KEY:-}
+    AWS_S3_BUCKET_NAME: ${AWS_S3_BUCKET_NAME}
+    AWS_S3_REGION_NAME: ${AWS_S3_REGION_NAME}
 
     # Celery
     CELERY_BROKER_URL: ${CELERY_BROKER_URL:-redis://redis:6379}

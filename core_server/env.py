@@ -8,6 +8,7 @@ env = environ.Env(
     ALLOWED_HOSTS=list,
     ENDPOINT_NAME=(str, "http://localhost"),
     CSRF_TRUSTED_ORIGINS=list,
+    USE_S3=(bool, True),
     # Celery
     CELERY_BROKER_URL=str,
     CELERY_RESULT_BACKEND=str,
@@ -34,4 +35,6 @@ env = environ.Env(
     # AWS
     AWS_ACCESS_KEY=(str, None),
     AWS_SECRET_KEY=(str, None),
+    AWS_S3_BUCKET_NAME=(str, None),
+    AWS_S3_REGION_NAME=(str, None),
 )

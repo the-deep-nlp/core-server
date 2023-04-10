@@ -40,9 +40,12 @@ CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS")
 
 AWS_ACCESS_KEY = env("AWS_ACCESS_KEY")
 AWS_SECRET_KEY = env("AWS_SECRET_KEY")
+AWS_S3_BUCKET_NAME = env("AWS_S3_BUCKET_NAME")
+AWS_S3_REGION_NAME = env("AWS_S3_REGION_NAME")
 ENDPOINT_NAME = env("ENDPOINT_NAME")
 SENTRY_DSN = env("SENTRY_DSN")
 ENVIRONMENT = env("ENVIRONMENT")
+USE_S3 = env("USE_S3")
 
 
 # Application definition
@@ -53,6 +56,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "storages",
     "rest_framework",
     "rest_framework.authtoken",
     "core",
@@ -146,8 +150,20 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_ROOT = "static/"
-STATIC_URL = "static/"
+if USE_S3:
+    AWS_S3_ACCESS_KEY_ID = AWS_ACCESS_KEY
+    AWS_S3_SECRET_ACCESS_KEY = AWS_SECRET_KEY
+    AWS_STORAGE_BUCKET_NAME = AWS_S3_BUCKET_NAME
+    AWS_DEFAULT_ACL = "public-read"
+    AWS_S3_CUSTOM_DOMAIN = f"{AWS_S3_BUCKET_NAME}.s3.amazonaws.com"
+    AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
+    # s3 static settings
+    STATIC_LOCATION = "static"
+    STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/{STATIC_LOCATION}/"
+    STATICFILES_STORAGE = "core_server.storage_backends.StaticStorage"
+else:
+    STATIC_ROOT = "static/"
+    STATIC_URL = "static/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
