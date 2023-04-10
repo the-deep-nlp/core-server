@@ -3,6 +3,7 @@ import environ
 
 env = environ.Env(
     DEBUG=(bool, False),
+    ENVIRONMENT=str,
     DJANGO_SECRET_KEY=str,
     ALLOWED_HOSTS=list,
     ENDPOINT_NAME=(str, "http://localhost"),
@@ -26,6 +27,9 @@ env = environ.Env(
     DEEP_DB_USER=str,
     DEEP_DB_PORT=int,
     DEEP_DB_HOST=str,
+
+    # SENTRY
+    SENTRY_DSN=str,
 
     # AWS
     AWS_ACCESS_KEY=(str, None),

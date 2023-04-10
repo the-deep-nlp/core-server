@@ -11,6 +11,12 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
+
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.celery import CeleryIntegration
+from sentry_sdk.integrations.redis import RedisIntegration
+
 from core_server.tasks_settings import CELERY_BEAT_SCHEDULE
 from core_server.env import env
 
@@ -35,6 +41,8 @@ CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS")
 AWS_ACCESS_KEY = env("AWS_ACCESS_KEY")
 AWS_SECRET_KEY = env("AWS_SECRET_KEY")
 ENDPOINT_NAME = env("ENDPOINT_NAME")
+SENTRY_DSN = env("SENTRY_DSN")
+ENVIRONMENT = env("ENVIRONMENT")
 
 
 # Application definition
@@ -145,3 +153,23 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+sentry_sdk.init(
+    dsn=SENTRY_DSN,
+    environment=ENVIRONMENT,
+    integrations=[
+        DjangoIntegration(),
+        CeleryIntegration(),
+        RedisIntegration(),
+    ],
+
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    # We recommend adjusting this value in production.
+    traces_sample_rate=1.0,
+
+    # If you wish to associate users to errors (assuming you are using
+    # django.contrib.auth) you may enable sending PII data.
+    send_default_pii=True
+)
