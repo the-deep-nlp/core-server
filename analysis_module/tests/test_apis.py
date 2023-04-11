@@ -25,6 +25,7 @@ class TestAnalysisModuleAPIs(BaseTestCase):
         for param in params:
             data = dict(valid_data)  # copy original valid data
             data.pop(param)  # This makes it invalid
+            self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
             resp = self.client.post(self.TOPICMODELING_URL, data=data)
             assert resp.status_code == 400
             errors = resp.json()["field_errors"]
@@ -44,9 +45,10 @@ class TestAnalysisModuleAPIs(BaseTestCase):
             "max_clusters_num": 5,
         }
         with self.captureOnCommitCallbacks(execute=True):
+            self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
             resp = self.client.post(self.TOPICMODELING_URL, valid_data)
-        spin_ecs_mock.delay.assert_called_once()
         assert resp.status_code == 202
+        spin_ecs_mock.delay.assert_called_once()
         new_requests_count = AnalysisModuleRequest.objects.count()
         assert \
             new_requests_count == requests_count + 1, \
@@ -76,6 +78,7 @@ class TestAnalysisModuleAPIs(BaseTestCase):
         for param in params:
             data = dict(valid_data)  # copy original valid data
             data.pop(param)  # This makes it invalid
+            self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
             resp = self.client.post(self.NGRAMS_URL, data=data, format="json")
             assert resp.status_code == 400
             errors = resp.json()["field_errors"]
@@ -99,9 +102,10 @@ class TestAnalysisModuleAPIs(BaseTestCase):
             },
         }
         with self.captureOnCommitCallbacks(execute=True):
+            self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
             resp = self.client.post(self.NGRAMS_URL, valid_data, format="json")
-        spin_ecs_mock.delay.assert_called_once()
         assert resp.status_code == 202
+        spin_ecs_mock.delay.assert_called_once()
         new_requests_count = AnalysisModuleRequest.objects.count()
         assert \
             new_requests_count == requests_count + 1, \
@@ -118,6 +122,7 @@ class TestAnalysisModuleAPIs(BaseTestCase):
         for param in params:
             data = dict(valid_data)  # copy original valid data
             data.pop(param)  # This makes it invalid
+            self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
             resp = self.client.post(self.SUMMARIZATION_URL, data)
             assert resp.status_code == 400
             errors = resp.json()["field_errors"]
@@ -132,9 +137,10 @@ class TestAnalysisModuleAPIs(BaseTestCase):
             "callback_url": "http://someurl.com/callback",
         }
         with self.captureOnCommitCallbacks(execute=True):
+            self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
             resp = self.client.post(self.SUMMARIZATION_URL, valid_data)
-        spin_ecs_mock.delay.assert_called_once()
         assert resp.status_code == 202
+        spin_ecs_mock.delay.assert_called_once()
         new_requests_count = AnalysisModuleRequest.objects.count()
         assert \
             new_requests_count == requests_count + 1, \
@@ -169,9 +175,10 @@ class TestAnalysisModuleMockAPIs(BaseTestCase):
             "mock": True,
         }
         get_entries_mock.return_value = self.GET_ENTRIES_DATA
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
         resp = self.client.post(self.TOPICMODELING_URL, valid_data)
-        process_mock.delay.assert_called_once()
         assert resp.status_code == 202
+        process_mock.delay.assert_called_once()
         new_requests_count = AnalysisModuleRequest.objects.count()
         assert \
             new_requests_count == requests_count, \
@@ -197,6 +204,7 @@ class TestAnalysisModuleMockAPIs(BaseTestCase):
             "mock": True,
         }
         get_entries_mock.return_value = self.GET_ENTRIES_DATA
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
         resp = self.client.post(self.NGRAMS_URL, valid_data, format="json")
         process_mock.delay.assert_called_once()
         assert resp.status_code == 202
@@ -216,6 +224,7 @@ class TestAnalysisModuleMockAPIs(BaseTestCase):
             "mock": True,
         }
         get_entries_mock.return_value = self.GET_ENTRIES_DATA
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
         resp = self.client.post(self.SUMMARIZATION_URL, valid_data)
         assert resp.status_code == 202
         process_mock.delay.assert_called_once()

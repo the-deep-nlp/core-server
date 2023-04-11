@@ -5,7 +5,8 @@ from django.db import transaction
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.request import Request
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from .serializers import (
     TopicModelDeepRequest,
     DeepEntriesSerializer,
@@ -84,21 +85,25 @@ def process_request(
 
 
 @api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def topic_modeling(request: Request):
     return process_request(TopicModelDeepRequest, request, "topicmodel")
 
 
 @api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def summarization(request: Request):
     return process_request(DeepEntriesSerializer, request, "summarization")
 
 
 @api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def ngrams(request: Request):
     return process_request(NgramsDeepRequest, request, "ngrams")
 
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def request_status(request: Request, unique_id: str):
     unique_id = request.query_params.get("unique_id")
     status = AnalysisModuleRequest.objects.filter(unique_id=unique_id).first()

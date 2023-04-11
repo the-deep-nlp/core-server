@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework.test import APITestCase, APIClient  # type: ignore
+from rest_framework.authtoken.models import Token
 
 
 class BaseTestCase(APITestCase):
@@ -14,3 +15,4 @@ class BaseTestCase(APITestCase):
             last_name="User",
             email="testuser@deepl.org",
         )
+        self.token = Token.objects.create(user=self.user)
