@@ -76,26 +76,31 @@ def spin_ecs_container(
     try:
         ecs_client = boto3.client("ecs", region_name=os.getenv("AWS_REGION"))
         mapping = TASK_MAPPINGS.get(task)
+
+        def _mapping_value(val):
+            if not mapping:
+                return ""
+            env_var = mapping.get(val)
+            return os.environ.get(env_var or "")
+
         overrides_params = {
             "containerOverrides": [
                 {
-                    "name": f"{mapping.get('ecs_container_name')}-{os.getenv('ENVIRONMENT')}",
+                    "name": f"{_mapping_value('ecs_container_name')}-{os.getenv('ENVIRONMENT')}",
                     "command": ["python", "app.py"],
                     "environment": create_params(params, mapping, _id),
                 },
             ],
         }
-        logger.info("Override Params:", overrides_params)
-
         response = ecs_client.run_task(
-            cluster=mapping.get("ecs_cluster_id"),
+            cluster=_mapping_value("ecs_cluster_id"),
             launchType="FARGATE",
-            taskDefinition=mapping.get("ecs_task_definition_arn"),
+            taskDefinition=_mapping_value("ecs_task_definition_arn"),
             count=1,
             platformVersion="LATEST",
             networkConfiguration={
                 "awsvpcConfiguration": {
-                    "subnets": [mapping.get("vpc_private_subnet")],
+                    "subnets": [_mapping_value("vpc_private_subnet")],
                     "assignPublicIp": "DISABLED",
                 }
             },
