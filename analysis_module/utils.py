@@ -36,7 +36,15 @@ TASK_MAPPINGS: Dict = {
         "vpc_private_subnet": "SUMMARIZATION_VPC_PRIVATE_SUBNET",
         "unique_id": "SUMMARIZATION_ID",
     },
+    "geolocation": {
+        "ecs_cluster_id": "GEOLOCATION_ECS_CLUSTER_ID",
+        "ecs_task_definition_arn": "GEOLOCATTION_ECS_TASK_DEFN_ARN",
+        "ecs_container_name": "GEOLOCATION_ECS_CONTAINER_NAME",
+        "vpc_private_subnet": "GEOLOCATION_VPC_PRIVATE_SUBNET",
+        "unique_id": "GEOLOCATION_ID",        
+    }
 }
+
 
 
 def create_params(

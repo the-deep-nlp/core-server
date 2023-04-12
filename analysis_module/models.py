@@ -14,6 +14,7 @@ class AnalysisModuleRequest(models.Model):
         NGRAMS = "ngrams", "Ngrams"
         TOPICMODEL = "topicmodel", "Topicmodel"
         SUMMARIZATION = "summarization", "Summarization"
+        GEOLOCATION = "geolocation", "Geolocation"
 
     client_id = models.CharField(max_length=50)
     status = models.IntegerField(choices=RequestStatus.choices, default=RequestStatus.INITIATED)

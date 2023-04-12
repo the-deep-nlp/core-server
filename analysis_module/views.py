@@ -68,7 +68,7 @@ def process_request(
     # TODO: capture error inside spin_ecs_container and set error status accordingly
     transaction.on_commit(lambda: spin_ecs_container.delay(
         task=request_type,
-        params=serializer.data,
+        params=serializer.data, # there
         _id=am_request.unique_id,
     ))
 
@@ -103,6 +103,12 @@ def summarization(request: Request):
 @permission_classes([IsAuthenticated])
 def ngrams(request: Request):
     return process_request(NgramsDeepRequest, request, "ngrams")
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def geolocation(request: Request):
+    return process_request(DeepEntriesSerializer, request, "geolocation")
 
 
 @api_view(["GET"])

@@ -3,6 +3,8 @@ import os
 import json
 import requests
 import logging
+import random
+import numpy as np
 from random import shuffle
 from math import ceil
 from celery import shared_task
@@ -13,6 +15,46 @@ from core_server.settings import ENDPOINT_NAME
 from .utils import send_callback_url_request
 
 logging.getLogger().setLevel(logging.INFO)
+
+MOCK_GEOLOCATION: List = [
+
+    {'ent': 'Cauca',
+    'offset_start': 0,
+    'offset_end': 0,
+    'geoids': [{'match': 'Departamento del Cauca',
+        'geonameid': 3687029,
+        'latitude': 2.5,
+        'longitude': -76.83333,
+        'featurecode': 'ADM1',
+        'contrycode': 'CO'}]},
+    {'ent': 'Amazonas',
+    'offset_start': 0,
+    'offset_end': 0,
+    'geoids': [{'match': 'Amazonas',
+        'geonameid': 3689982,
+        'latitude': -1.16667,
+        'longitude': -71.5,
+        'featurecode': 'ADM1',
+        'contrycode': 'CO'}]},
+    {'ent': 'Huila',
+    'offset_start': 0,
+    'offset_end': 0,
+    'geoids': [{'match': 'Departamento del Huila',
+        'geonameid': 3680692,
+        'latitude': 2.5,
+        'longitude': -75.58333,
+        'featurecode': 'ADM1',
+        'contrycode': 'CO'}]},
+    {'ent': 'Putumayo',
+    'offset_start': 0,
+    'offset_end': 0,
+    'geoids': [{'match': 'Departamento del Putumayo',
+        'geonameid': 3671178,
+        'latitude': 0.5,
+        'longitude': -76.0,
+        'featurecode': 'ADM1',
+        'contrycode': 'CO'}]}
+]
 
 
 def get_entries_data(url: str) -> Any:
@@ -118,7 +160,7 @@ def process_summarization(body: dict) -> Any:
     entries_url = request_body.get("entries_url")
     callback_url = request_body.get("callback_url")
 
-    excerpts = [x["excerpt"] for x in get_entries_data(entries_url)]
+    # excerpts = [x["excerpt"] for x in get_entries_data(entries_url)]
     try:
         excerpts = [x["excerpt"] for x in get_entries_data(entries_url)]
     except Exception:
@@ -190,6 +232,74 @@ def process_topicmodeling(body) -> Any:
     )
 
 
+@shared_task
+def process_geolocation(body) -> Any:
+    """geolocation extraction"""
+    
+    request_body = body if isinstance(body, dict) else json.loads(body)
+
+    client_id = request_body.get("client_id")
+    entries_url = request_body.get("entries_url")
+    callback_url = request_body.get("callback_url")
+
+
 def topicmodelingmodel(body) -> Any:
     process_topicmodeling.delay(body)
+    return json.dumps({"status": "Successfully received the request."}), 200
+
+
+@shared_task
+def process_geolocation(body) -> Any:
+    """geolocation extraction"""
+
+    def shape_geo_entities(entity: dict, excerpt: str):
+
+        ent = entity.copy()
+        start = random.randint(0, len(excerpt)-len(ent["ent"]))
+        ent.update({
+            "offset_start": start,
+            "offset_end": start + len(ent["ent"])
+            })
+        return ent
+    
+    request_body = body if isinstance(body, dict) else json.loads(body)
+
+    client_id = request_body.get("client_id")
+    entries_url = request_body.get("entries_url")
+    callback_url = request_body.get("callback_url")
+
+    try:
+        excerpts = [(x["entry_id"], x["excerpt"]) for x in get_entries_data(entries_url)]
+    except Exception:
+        send_callback_url_request(
+            callback_url=callback_url,
+            client_id=client_id,
+            filepath="",
+            status=AnalysisModuleRequest.RequestStatus.PROCESS_INPUT_URL_FAILED,
+        )
+        return
+    
+    data = []
+    for entry_id, excerpt in excerpts:
+        entities = list(np.random.choice(MOCK_GEOLOCATION, size=random.randint(0, len(MOCK_GEOLOCATION))))
+        entities = [shape_geo_entities(x, excerpt) for x in entities]
+        data.append({
+            "entry_id": int(entry_id),
+            "entities": entities
+        })
+
+    filepath = save_data_local_and_get_url(
+        dir_name="geolocation", client_id=client_id, data=data
+    )
+
+    send_callback_url_request(
+        callback_url=callback_url,
+        client_id=client_id,
+        filepath=filepath,
+        status=AnalysisModuleRequest.RequestStatus.SUCCESS,
+    )
+
+
+def geolocationmodel(body) -> Any:
+    process_geolocation.delay(body)
     return json.dumps({"status": "Successfully received the request."}), 200
