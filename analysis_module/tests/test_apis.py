@@ -15,10 +15,9 @@ class TestAnalysisModuleAPIs(BaseTestCase):
         argument should give 400 response.
         """
         valid_data = {
-            "client_id": "some client_id",
             "entries_url": "https://someurl.com/entries",
             "cluster_size": 2,
-            "callback_url": "https://someurl.com/callback",
+            "client_id": "clientid",
             "max_clusters_num": 5,
         }
         params = valid_data.keys()
@@ -38,10 +37,9 @@ class TestAnalysisModuleAPIs(BaseTestCase):
         """
         requests_count = AnalysisModuleRequest.objects.count()
         valid_data = {
-            "client_id": "some client_id",
             "entries_url": "https://someurl.com/entries",
             "cluster_size": 2,
-            "callback_url": "https://someurl.com/callback",
+            "client_id": "someclientid",
             "max_clusters_num": 5,
         }
         with self.captureOnCommitCallbacks(execute=True):
@@ -63,7 +61,6 @@ class TestAnalysisModuleAPIs(BaseTestCase):
         valid_data = {
             "client_id": "client_id",
             "entries_url": "http://someurl.com/entries",
-            "callback_url": "http://someurl.com/callback",
             "ngrams_config": {
                 "generate_unigrams": True,
                 "generate_bigrams": True,
@@ -90,13 +87,8 @@ class TestAnalysisModuleAPIs(BaseTestCase):
         valid_data = {
             "client_id": "client_id",
             "entries_url": "http://someurl.com/entries",
-            "callback_url": "http://someurl.com/callback",
             "ngrams_config": {
                 "generate_unigrams": True,
-                "generate_bigrams": True,
-                "generate_trigrams": True,
-                "enable_stopwords": True,
-                "enable_stemming": True,
                 "enable_case_sensitive": True,
                 "max_ngrams_items": 10,
             },
@@ -116,7 +108,6 @@ class TestAnalysisModuleAPIs(BaseTestCase):
         valid_data = {
             "client_id": "client_id",
             "entries_url": "http://someurl.com/entries",
-            "callback_url": "http://someurl.com/callback",
         }
         params = valid_data.keys()
         for param in params:
@@ -134,7 +125,6 @@ class TestAnalysisModuleAPIs(BaseTestCase):
         valid_data = {
             "client_id": "client_id",
             "entries_url": "http://someurl.com/entries",
-            "callback_url": "http://someurl.com/callback",
         }
         with self.captureOnCommitCallbacks(execute=True):
             self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
@@ -170,7 +160,6 @@ class TestAnalysisModuleMockAPIs(BaseTestCase):
             "client_id": "some client_id",
             "entries_url": "https://someurl.com/entries",
             "cluster_size": 2,
-            "callback_url": "https://someurl.com/callback",
             "max_clusters_num": 5,
             "mock": True,
         }

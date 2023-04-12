@@ -3,6 +3,7 @@ from typing import Literal
 
 from django.db import transaction
 from rest_framework import status
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.decorators import api_view, permission_classes
@@ -25,6 +26,8 @@ def process_mock_request(request: dict, type: str):
         response, code = summarizationmodel(request)
     elif type == "ngrams":
         response, code = ngramsmodel(request)
+    else:
+        raise ValidationError("Invalid request type")
 
     if code == 200:
         resp = {
@@ -55,7 +58,7 @@ def process_request(
     serializer.is_valid(raise_exception=True)
 
     if serializer.validated_data.get("mock"):
-        return process_mock_request(request=serializer.data, type=request_type)
+        return process_mock_request(request=serializer.validated_data, type=request_type)
 
     am_request = AnalysisModuleRequest.objects.create(
         client_id=serializer.validated_data["client_id"],

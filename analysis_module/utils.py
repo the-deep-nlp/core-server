@@ -1,4 +1,7 @@
 import os
+import json
+import time
+import requests
 import boto3
 import uuid
 from celery import shared_task
@@ -46,12 +49,12 @@ def create_params(
                 _params.append(
                     {
                         "name": k1.upper(),
-                        "value": str(v1) if isinstance(v, bool) else v1,
+                        "value": str(v1),
                     }
                 )
         else:
             _params.append(
-                {"name": k.upper(), "value": str(v) if isinstance(v, bool) else v}
+                {"name": k.upper(), "value": str(v)}
             )
 
     # if not params.get('callback_url'):
@@ -73,6 +76,16 @@ def spin_ecs_container(
     try:
         ecs_client = boto3.client("ecs", region_name=os.getenv("AWS_REGION"))
         mapping = TASK_MAPPINGS.get(task)
+        overrides_params = {
+            "containerOverrides": [
+                {
+                    "name": f"{mapping.get('ecs_container_name')}-{os.getenv('ENVIRONMENT')}",
+                    "command": ["python", "app.py"],
+                    "environment": create_params(params, mapping, _id),
+                },
+            ],
+        }
+        logger.info("Override Params:", overrides_params)
 
         response = ecs_client.run_task(
             cluster=mapping.get("ecs_cluster_id"),
@@ -86,18 +99,42 @@ def spin_ecs_container(
                     "assignPublicIp": "DISABLED",
                 }
             },
-            overrides={
-                "containerOverrides": [
-                    {
-                        "name": f"{mapping.get('ecs_container_name')}-{os.getenv('ENVIRONMENT')}",
-                        "command": ["python", "app.py"],
-                        "environment": create_params(params, mapping, _id),
-                    },
-                ],
-            },
+            overrides=overrides_params,
         )
         return response
     except Exception:
         logger.error("Error spinning ecs_container", exc_info=True)
         am_request.status = AnalysisModuleRequest.RequestStatus.FAILED
         am_request.save(update_fields=['status'])
+
+
+@shared_task
+def send_callback_url_request(callback_url: str, client_id: str, filepath: str, status: int) -> Any:
+    """send callback url"""
+
+    time.sleep(1)
+    if callback_url:
+        response_callback_url = requests.post(
+            callback_url,
+            json={
+                "client_id": client_id,
+                "presigned_s3_url": filepath,
+                "status": status,
+            },
+            timeout=30,
+        )
+        if response_callback_url.status_code == 200:
+            logging.info("Request sent successfully.")
+            return json.dumps({"status": "Request sent successfully."})
+        else:
+            logging.info(
+                f"Some errors occurred. StatusCode: {response_callback_url.status_code}"
+            )
+            return json.dumps(
+                {
+                    "status": f"Error occurred with statuscode: {response_callback_url.status_code}"
+                }
+            )
+
+    logging.error("No callback url found.")
+    return json.dumps({"status": "No callback url found."}), 400

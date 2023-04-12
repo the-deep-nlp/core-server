@@ -20,7 +20,7 @@ class GeneralUserSerializer(BaseAnalysisSerializer):
 
 class DeepEntriesSerializer(BaseAnalysisSerializer):
     entries_url = serializers.URLField()
-    callback_url = serializers.CharField(allow_null=True)
+    callback_url = serializers.CharField(allow_null=True, required=False)
 
 
 class TopicModelDeepRequest(DeepEntriesSerializer):
@@ -29,13 +29,13 @@ class TopicModelDeepRequest(DeepEntriesSerializer):
 
 
 class NgramsParameters(serializers.Serializer):
-    generate_unigrams = serializers.BooleanField(default=True)
-    generate_bigrams = serializers.BooleanField(default=True)
-    generate_trigrams = serializers.BooleanField(default=True)
-    enable_stopwords = serializers.BooleanField(default=True)
-    enable_stemming = serializers.BooleanField(default=True)
-    enable_case_sensitive = serializers.BooleanField(default=False)
-    max_ngrams_items = serializers.IntegerField(default=10)
+    generate_unigrams = serializers.BooleanField(default=True, required=False)
+    generate_bigrams = serializers.BooleanField(default=True, required=False)
+    generate_trigrams = serializers.BooleanField(default=True, required=False)
+    enable_stopwords = serializers.BooleanField(default=True, required=False)
+    enable_stemming = serializers.BooleanField(default=True, required=False)
+    enable_case_sensitive = serializers.BooleanField(default=False, required=False)
+    max_ngrams_items = serializers.IntegerField(default=10, required=False)
 
 
 class NgramsDeepRequest(DeepEntriesSerializer):

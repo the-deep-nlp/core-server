@@ -168,7 +168,7 @@ def get_tags_data_for_exportable(
 
     if "common" in ex.keys():
         common = ex["common"]
-        if len(common) > 0:
+        if len(common) > 0 and "widget_id" in common:
             tip = common["widget_id"]
             if "widget_key" in common:
                 if title:

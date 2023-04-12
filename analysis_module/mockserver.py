@@ -1,7 +1,6 @@
 from typing import Any, List, Tuple
 import os
 import json
-import time
 import requests
 import logging
 from random import shuffle
@@ -11,6 +10,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 
 from analysis_module.models import AnalysisModuleRequest
 from core_server.settings import ENDPOINT_NAME
+from .utils import send_callback_url_request
 
 logging.getLogger().setLevel(logging.INFO)
 
@@ -34,38 +34,6 @@ def save_data_local_and_get_url(dir_name: str, client_id: str, data: Any) -> str
     with open(filepath_local, "w", encoding='utf-8') as f:
         f.write(json.dumps(data))
     return os.path.join(ENDPOINT_NAME, filepath)  # NOTE: this should be handled from external proxy server
-
-
-@shared_task
-def send_callback_url_request(callback_url: str, client_id: str, filepath: str, status: int) -> Any:
-    """send callback url"""
-
-    time.sleep(3)
-    if callback_url:
-        response_callback_url = requests.post(
-            callback_url,
-            json={
-                "client_id": client_id,
-                "presigned_s3_url": filepath,
-                "status": status,
-            },
-            timeout=30,
-        )
-        if response_callback_url.status_code == 200:
-            logging.info("Request sent successfully.")
-            return json.dumps({"status": "Request sent successfully."})
-        else:
-            logging.info(
-                f"Some errors occurred. StatusCode: {response_callback_url.status_code}"
-            )
-            return json.dumps(
-                {
-                    "status": f"Error occurred with statuscode: {response_callback_url.status_code}"
-                }
-            )
-
-    logging.error("No callback url found.")
-    return json.dumps({"status": "No callback url found."}), 400
 
 
 def get_ngrams(
