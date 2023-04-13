@@ -8,6 +8,7 @@ class TestAnalysisModuleAPIs(BaseTestCase):
     TOPICMODELING_URL = '/api/v1/topicmodel/'
     NGRAMS_URL = '/api/v1/ngrams/'
     SUMMARIZATION_URL = '/api/v1/summarization/'
+    GEOLOCATION_URL = '/api/v1/geolocation/'
 
     def test_topicmodel_incomplete_data(self):
         """
@@ -137,11 +138,45 @@ class TestAnalysisModuleAPIs(BaseTestCase):
             "One more AnalysisModuleRequest object should be created"
         assert AnalysisModuleRequest.objects.filter(type="summarization").exists()
 
+    def test_geolocation_incomplete_data(self):
+        valid_data = {
+            "client_id": "client_id",
+            "entries_url": "http://someurl.com/entries",
+        }
+        params = valid_data.keys()
+        for param in params:
+            data = dict(valid_data)  # copy original valid data
+            data.pop(param)  # This makes it invalid
+            self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+            resp = self.client.post(self.GEOLOCATION_URL, data)
+            assert resp.status_code == 400
+            errors = resp.json()["field_errors"]
+            assert param in errors
+
+    @patch('analysis_module.views.spin_ecs_container')
+    def test_geolocation_valid_request(self, spin_ecs_mock):
+        requests_count = AnalysisModuleRequest.objects.count()
+        valid_data = {
+            "client_id": "client_id",
+            "entries_url": "http://someurl.com/entries",
+        }
+        with self.captureOnCommitCallbacks(execute=True):
+            self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+            resp = self.client.post(self.GEOLOCATION_URL, valid_data)
+        assert resp.status_code == 202
+        spin_ecs_mock.delay.assert_called_once()
+        new_requests_count = AnalysisModuleRequest.objects.count()
+        assert \
+            new_requests_count == requests_count + 1, \
+            "One more AnalysisModuleRequest object should be created"
+        assert AnalysisModuleRequest.objects.filter(type="geolocation").exists()
+
 
 class TestAnalysisModuleMockAPIs(BaseTestCase):
     TOPICMODELING_URL = '/api/v1/topicmodel/'
     NGRAMS_URL = '/api/v1/ngrams/'
     SUMMARIZATION_URL = '/api/v1/summarization/'
+    GEOLOCATION_URL = '/api/v1/geolocation/'
     GET_ENTRIES_DATA = [
         {"entry_id": 1, "excerpt": "Of resolve to gravity thought my prepare chamber so."},
         {"entry_id": 1, "excerpt": "Of resolve to gravity thought my prepare chamber so."},
@@ -215,6 +250,27 @@ class TestAnalysisModuleMockAPIs(BaseTestCase):
         get_entries_mock.return_value = self.GET_ENTRIES_DATA
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
         resp = self.client.post(self.SUMMARIZATION_URL, valid_data)
+        assert resp.status_code == 202
+        process_mock.delay.assert_called_once()
+        new_requests_count = AnalysisModuleRequest.objects.count()
+        assert \
+            new_requests_count == requests_count, \
+            "No more AnalysisModuleRequest object should be created"
+
+    @patch('analysis_module.mockserver.process_geolocation')
+    @patch('analysis_module.mockserver.get_entries_data')
+    def test_geolocation_valid_request(self, get_entries_mock, process_mock):
+        requests_count = AnalysisModuleRequest.objects.count()
+        valid_data = {
+            "client_id": "client_id",
+            "entries_url": "http://someurl.com/entries",
+            "callback_url": "http://someurl.com/callback",
+            "mock": True,
+        }
+        get_entries_mock.return_value = self.GET_ENTRIES_DATA
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+        resp = self.client.post(self.GEOLOCATION_URL, valid_data)
+        print(resp.json())
         assert resp.status_code == 202
         process_mock.delay.assert_called_once()
         new_requests_count = AnalysisModuleRequest.objects.count()

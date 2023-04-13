@@ -38,13 +38,12 @@ TASK_MAPPINGS: Dict = {
     },
     "geolocation": {
         "ecs_cluster_id": "GEOLOCATION_ECS_CLUSTER_ID",
-        "ecs_task_definition_arn": "GEOLOCATTION_ECS_TASK_DEFN_ARN",
+        "ecs_task_definition_arn": "GEOLOCATION_ECS_TASK_DEFN_ARN",
         "ecs_container_name": "GEOLOCATION_ECS_CONTAINER_NAME",
         "vpc_private_subnet": "GEOLOCATION_VPC_PRIVATE_SUBNET",
-        "unique_id": "GEOLOCATION_ID",        
-    }
+        "unique_id": "GEOLOCATION_ID",
+    },
 }
-
 
 
 def create_params(
@@ -75,7 +74,7 @@ def create_params(
 
 @shared_task
 def spin_ecs_container(
-    task: Literal["ngrams", "topicmodel", "summarization"],
+    task: Literal["ngrams", "topicmodel", "summarization", "geolocation"],
     params,
     _id=None,
 ) -> Any:

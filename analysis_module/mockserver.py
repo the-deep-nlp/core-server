@@ -17,43 +17,66 @@ from .utils import send_callback_url_request
 logging.getLogger().setLevel(logging.INFO)
 
 MOCK_GEOLOCATION: List = [
-
-    {'ent': 'Cauca',
-    'offset_start': 0,
-    'offset_end': 0,
-    'geoids': [{'match': 'Departamento del Cauca',
-        'geonameid': 3687029,
-        'latitude': 2.5,
-        'longitude': -76.83333,
-        'featurecode': 'ADM1',
-        'contrycode': 'CO'}]},
-    {'ent': 'Amazonas',
-    'offset_start': 0,
-    'offset_end': 0,
-    'geoids': [{'match': 'Amazonas',
-        'geonameid': 3689982,
-        'latitude': -1.16667,
-        'longitude': -71.5,
-        'featurecode': 'ADM1',
-        'contrycode': 'CO'}]},
-    {'ent': 'Huila',
-    'offset_start': 0,
-    'offset_end': 0,
-    'geoids': [{'match': 'Departamento del Huila',
-        'geonameid': 3680692,
-        'latitude': 2.5,
-        'longitude': -75.58333,
-        'featurecode': 'ADM1',
-        'contrycode': 'CO'}]},
-    {'ent': 'Putumayo',
-    'offset_start': 0,
-    'offset_end': 0,
-    'geoids': [{'match': 'Departamento del Putumayo',
-        'geonameid': 3671178,
-        'latitude': 0.5,
-        'longitude': -76.0,
-        'featurecode': 'ADM1',
-        'contrycode': 'CO'}]}
+    {
+        "ent": "Cauca",
+        "offset_start": 0,
+        "offset_end": 0,
+        "geoids": [
+            {
+                "match": "Departamento del Cauca",
+                "geonameid": 3687029,
+                "latitude": 2.5,
+                "longitude": -76.83333,
+                "featurecode": "ADM1",
+                "contrycode": "CO",
+            }
+        ],
+    },
+    {
+        "ent": "Amazonas",
+        "offset_start": 0,
+        "offset_end": 0,
+        "geoids": [
+            {
+                "match": "Amazonas",
+                "geonameid": 3689982,
+                "latitude": -1.16667,
+                "longitude": -71.5,
+                "featurecode": "ADM1",
+                "contrycode": "CO",
+            }
+        ],
+    },
+    {
+        "ent": "Huila",
+        "offset_start": 0,
+        "offset_end": 0,
+        "geoids": [
+            {
+                "match": "Departamento del Huila",
+                "geonameid": 3680692,
+                "latitude": 2.5,
+                "longitude": -75.58333,
+                "featurecode": "ADM1",
+                "contrycode": "CO",
+            }
+        ],
+    },
+    {
+        "ent": "Putumayo",
+        "offset_start": 0,
+        "offset_end": 0,
+        "geoids": [
+            {
+                "match": "Departamento del Putumayo",
+                "geonameid": 3671178,
+                "latitude": 0.5,
+                "longitude": -76.0,
+                "featurecode": "ADM1",
+                "contrycode": "CO",
+            }
+        ],
+    },
 ]
 
 
@@ -71,11 +94,13 @@ def save_data_local_and_get_url(dir_name: str, client_id: str, data: Any) -> str
         os.makedirs(parent_dirpath)
 
     filepath = os.path.join(parent_dirpath, f"{client_id}.json")
-    filepath_local = os.path.join('/tmp', filepath)
+    filepath_local = os.path.join("/tmp", filepath)
 
-    with open(filepath_local, "w", encoding='utf-8') as f:
+    with open(filepath_local, "w", encoding="utf-8") as f:
         f.write(json.dumps(data))
-    return os.path.join(ENDPOINT_NAME, filepath)  # NOTE: this should be handled from external proxy server
+    return os.path.join(
+        ENDPOINT_NAME, filepath
+    )  # NOTE: this should be handled from external proxy server
 
 
 def get_ngrams(
@@ -136,7 +161,9 @@ def process_ngrams(body):
         )
 
     filepath = save_data_local_and_get_url(
-        dir_name="ngrams", client_id=client_id, data=data,
+        dir_name="ngrams",
+        client_id=client_id,
+        data=data,
     )
 
     send_callback_url_request(
@@ -214,7 +241,7 @@ def process_topicmodeling(body) -> Any:
     shuffle(excerpt_ids)
 
     data = [
-        excerpt_ids[x: x + ceil(len(excerpt_ids) / clusters)]
+        excerpt_ids[x : x + ceil(len(excerpt_ids) / clusters)]
         for x in range(0, len(excerpt_ids), ceil(len(excerpt_ids) / clusters))
     ]
 
@@ -232,17 +259,6 @@ def process_topicmodeling(body) -> Any:
     )
 
 
-@shared_task
-def process_geolocation(body) -> Any:
-    """geolocation extraction"""
-    
-    request_body = body if isinstance(body, dict) else json.loads(body)
-
-    client_id = request_body.get("client_id")
-    entries_url = request_body.get("entries_url")
-    callback_url = request_body.get("callback_url")
-
-
 def topicmodelingmodel(body) -> Any:
     process_topicmodeling.delay(body)
     return json.dumps({"status": "Successfully received the request."}), 200
@@ -253,15 +269,11 @@ def process_geolocation(body) -> Any:
     """geolocation extraction"""
 
     def shape_geo_entities(entity: dict, excerpt: str):
-
         ent = entity.copy()
-        start = random.randint(0, len(excerpt)-len(ent["ent"]))
-        ent.update({
-            "offset_start": start,
-            "offset_end": start + len(ent["ent"])
-            })
+        start = random.randint(0, len(excerpt) - len(ent["ent"]))
+        ent.update({"offset_start": start, "offset_end": start + len(ent["ent"])})
         return ent
-    
+
     request_body = body if isinstance(body, dict) else json.loads(body)
 
     client_id = request_body.get("client_id")
@@ -269,7 +281,9 @@ def process_geolocation(body) -> Any:
     callback_url = request_body.get("callback_url")
 
     try:
-        excerpts = [(x["entry_id"], x["excerpt"]) for x in get_entries_data(entries_url)]
+        excerpts = [
+            (x["entry_id"], x["excerpt"]) for x in get_entries_data(entries_url)
+        ]
     except Exception:
         send_callback_url_request(
             callback_url=callback_url,
@@ -278,15 +292,16 @@ def process_geolocation(body) -> Any:
             status=AnalysisModuleRequest.RequestStatus.PROCESS_INPUT_URL_FAILED,
         )
         return
-    
+
     data = []
     for entry_id, excerpt in excerpts:
-        entities = list(np.random.choice(MOCK_GEOLOCATION, size=random.randint(0, len(MOCK_GEOLOCATION))))
+        entities = list(
+            np.random.choice(
+                MOCK_GEOLOCATION, size=random.randint(0, len(MOCK_GEOLOCATION))
+            )
+        )
         entities = [shape_geo_entities(x, excerpt) for x in entities]
-        data.append({
-            "entry_id": int(entry_id),
-            "entities": entities
-        })
+        data.append({"entry_id": int(entry_id), "entities": entities})
 
     filepath = save_data_local_and_get_url(
         dir_name="geolocation", client_id=client_id, data=data

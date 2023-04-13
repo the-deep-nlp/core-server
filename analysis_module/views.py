@@ -16,7 +16,7 @@ from .serializers import (
 
 from .utils import spin_ecs_container
 from .models import AnalysisModuleRequest
-from .mockserver import topicmodelingmodel, ngramsmodel, summarizationmodel
+from .mockserver import topicmodelingmodel, ngramsmodel, summarizationmodel, geolocationmodel
 
 
 def process_mock_request(request: dict, type: str):
@@ -26,6 +26,8 @@ def process_mock_request(request: dict, type: str):
         response, code = summarizationmodel(request)
     elif type == "ngrams":
         response, code = ngramsmodel(request)
+    elif type == "geolocation":
+        response, code = geolocationmodel(request)
     else:
         raise ValidationError("Invalid request type")
 
@@ -65,10 +67,9 @@ def process_request(
         type=request_type,
         request_params=serializer.validated_data,
     )
-    # TODO: capture error inside spin_ecs_container and set error status accordingly
     transaction.on_commit(lambda: spin_ecs_container.delay(
         task=request_type,
-        params=serializer.data, # there
+        params=serializer.data,
         _id=am_request.unique_id,
     ))
 
