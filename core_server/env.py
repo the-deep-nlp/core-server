@@ -31,10 +31,13 @@ env = environ.Env(
 
     # SENTRY
     SENTRY_DSN=str,
+    SENTRY_TRACES_SAMPLE_RATE=(float, 0.2),
 
     # AWS
-    AWS_ACCESS_KEY=(str, None),
-    AWS_SECRET_KEY=(str, None),
+    AWS_ACCESS_KEY_ID=(str, None),
+    AWS_SECRET_ACCESS_KEY=(str, None),
+    AWS_S3_ACCESS_KEY_ID=(str, None),
+    AWS_S3_SECRET_ACCESS_KEY=(str, None),
     AWS_S3_BUCKET_NAME=(str, None),
     AWS_S3_REGION_NAME=(str, None),
 )

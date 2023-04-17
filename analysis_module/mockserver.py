@@ -220,12 +220,12 @@ def summarizationmodel(body) -> Any:
 @shared_task
 def process_topicmodeling(body) -> Any:
     """topic modeling"""
-    clusters = 5
     request_body = body if isinstance(body, dict) else json.loads(body)
 
     client_id = request_body.get("client_id")
     entries_url = request_body.get("entries_url")
     callback_url = request_body.get("callback_url")
+    clusters = request_body.get("max_clusters_num", 5)
 
     try:
         excerpt_ids = [x["entry_id"] for x in get_entries_data(entries_url)]

@@ -5,6 +5,7 @@ from django.db import models
 class AnalysisModuleRequest(models.Model):
 
     class RequestStatus(models.IntegerChoices):
+        # NOTE: If changed here, corresponding values should be changed in DEEP as well.
         INITIATED = 1
         SUCCESS = 2
         FAILED = 3

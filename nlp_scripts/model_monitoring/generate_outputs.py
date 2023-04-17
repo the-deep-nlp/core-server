@@ -40,8 +40,8 @@ class ClassificationModelOutput:
         self.batch = len(self.dataframe) // batch_size
         self.sg_client = boto3.session.Session().client(
             "sagemaker-runtime", region_name=aws_region,
-            aws_access_key_id=settings.AWS_ACCESS_KEY,
-            aws_secret_access_key=settings.AWS_SECRET_KEY,
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
         )
         self.prediction_required = prediction_required
         self.embeddings_required = embeddings_required
