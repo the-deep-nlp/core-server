@@ -174,7 +174,7 @@ def process_ngrams(body):
     )
 
 
-def ngramsmodel(body) -> Any:
+def ngrams_model(body) -> Any:
     process_ngrams.delay(body)
     return json.dumps({"status": "Successfully received the request."}), 200
 
@@ -187,7 +187,6 @@ def process_summarization(body: dict) -> Any:
     entries_url = request_body.get("entries_url")
     callback_url = request_body.get("callback_url")
 
-    # excerpts = [x["excerpt"] for x in get_entries_data(entries_url)]
     try:
         excerpts = [x["excerpt"] for x in get_entries_data(entries_url)]
     except Exception:
@@ -212,7 +211,7 @@ def process_summarization(body: dict) -> Any:
     )
 
 
-def summarizationmodel(body) -> Any:
+def summarization_model(body) -> Any:
     process_summarization.delay(body)
     return json.dumps({"status": "Successfully received the request."}), 200
 
@@ -259,7 +258,7 @@ def process_topicmodeling(body) -> Any:
     )
 
 
-def topicmodelingmodel(body) -> Any:
+def topicmodeling_model(body) -> Any:
     process_topicmodeling.delay(body)
     return json.dumps({"status": "Successfully received the request."}), 200
 
@@ -315,6 +314,6 @@ def process_geolocation(body) -> Any:
     )
 
 
-def geolocationmodel(body) -> Any:
+def geolocation_model(body) -> Any:
     process_geolocation.delay(body)
     return json.dumps({"status": "Successfully received the request."}), 200

@@ -9,6 +9,7 @@ env = environ.Env(
     ENDPOINT_NAME=(str, "http://localhost"),
     CSRF_TRUSTED_ORIGINS=list,
     USE_S3=(bool, True),
+    CALLBACK_MAX_RETRIES_LIMIT=(int, 5),
     # Celery
     CELERY_BROKER_URL=str,
     CELERY_RESULT_BACKEND=str,
