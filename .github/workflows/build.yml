@@ -56,6 +56,8 @@ jobs:
       DEBUG: false
       DJANGO_SECRET_KEY: insecure-key-just-for-testing
       ALLOWED_HOSTS: ''
+      ENVIRONMENT: 'CI'
+      CSRF_TRUSTED_ORIGINS: ''
 
       # Celery
       CELERY_BROKER_URL: ''
@@ -73,6 +75,9 @@ jobs:
       DEEP_DB_USER: ''
       DEEP_DB_PORT: ''
       DEEP_DB_HOST: ''
+
+      # SENTRY
+      SENTRY_DSN: ''
 
     steps:
       - name: Checkout
