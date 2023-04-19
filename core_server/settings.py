@@ -11,6 +11,12 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
+
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.celery import CeleryIntegration
+from sentry_sdk.integrations.redis import RedisIntegration
+
 from core_server.tasks_settings import CELERY_BEAT_SCHEDULE
 from core_server.env import env
 
@@ -32,8 +38,14 @@ CELERY_BROKER_URL = env("CELERY_BROKER_URL")
 CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND")
 CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS")
 
-AWS_ACESS_KEY = env("AWS_ACESS_KEY")
-AWS_SECRET_KEY = env("AWS_SECRET_KEY")
+AWS_S3_ACCESS_KEY_ID = env("AWS_S3_ACCESS_KEY_ID")
+AWS_S3_SECRET_ACCESS_KEY = env("AWS_S3_SECRET_ACCESS_KEY")
+AWS_S3_BUCKET_NAME = env("AWS_S3_BUCKET_NAME")
+AWS_S3_REGION_NAME = env("AWS_S3_REGION_NAME")
+ENDPOINT_NAME = env("ENDPOINT_NAME")
+SENTRY_DSN = env("SENTRY_DSN")
+ENVIRONMENT = env("ENVIRONMENT")
+USE_S3 = env("USE_S3")
 
 
 # Application definition
@@ -44,10 +56,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "storages",
     "rest_framework",
     "rest_framework.authtoken",
-
     "core",
+    "analysis_module"
 ]
 
 MIDDLEWARE = [
@@ -62,8 +75,8 @@ MIDDLEWARE = [
 
 REST_FRAMEWORK = {
     "EXCEPTION_HANDLER": "core_server.exception_handler.custom_exception_handler",  # noqa
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.TokenAuthentication",
     ],
 }
 
@@ -137,10 +150,40 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_ROOT = "static/"
-STATIC_URL = "static/"
+if USE_S3:
+    AWS_STORAGE_BUCKET_NAME = AWS_S3_BUCKET_NAME
+    AWS_DEFAULT_ACL = "public-read"
+    AWS_S3_CUSTOM_DOMAIN = f"{AWS_S3_BUCKET_NAME}.s3.amazonaws.com"
+    AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
+    # s3 static settings
+    STATIC_LOCATION = "static"
+    STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/{STATIC_LOCATION}/"
+    STATICFILES_STORAGE = "core_server.storage_backends.StaticStorage"
+else:
+    STATIC_ROOT = "static/"
+    STATIC_URL = "static/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+sentry_sdk.init(
+    dsn=SENTRY_DSN,
+    environment=ENVIRONMENT,
+    integrations=[
+        DjangoIntegration(),
+        CeleryIntegration(),
+        RedisIntegration(),
+    ],
+
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    # We recommend adjusting this value in production.
+    traces_sample_rate=1.0,
+
+    # If you wish to associate users to errors (assuming you are using
+    # django.contrib.auth) you may enable sending PII data.
+    send_default_pii=True
+)

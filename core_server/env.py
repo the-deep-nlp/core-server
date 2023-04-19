@@ -3,9 +3,12 @@ import environ
 
 env = environ.Env(
     DEBUG=(bool, False),
+    ENVIRONMENT=str,
     DJANGO_SECRET_KEY=str,
     ALLOWED_HOSTS=list,
+    ENDPOINT_NAME=(str, "http://localhost"),
     CSRF_TRUSTED_ORIGINS=list,
+    USE_S3=(bool, True),
     # Celery
     CELERY_BROKER_URL=str,
     CELERY_RESULT_BACKEND=str,
@@ -25,4 +28,16 @@ env = environ.Env(
     DEEP_DB_USER=str,
     DEEP_DB_PORT=int,
     DEEP_DB_HOST=str,
+
+    # SENTRY
+    SENTRY_DSN=str,
+    SENTRY_TRACES_SAMPLE_RATE=(float, 0.2),
+
+    # AWS
+    AWS_ACCESS_KEY_ID=(str, None),
+    AWS_SECRET_ACCESS_KEY=(str, None),
+    AWS_S3_ACCESS_KEY_ID=(str, None),
+    AWS_S3_SECRET_ACCESS_KEY=(str, None),
+    AWS_S3_BUCKET_NAME=(str, None),
+    AWS_S3_REGION_NAME=(str, None),
 )

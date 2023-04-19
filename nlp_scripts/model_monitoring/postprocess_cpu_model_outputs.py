@@ -176,8 +176,8 @@ def convert_current_dict_to_previous_one(
 def get_endpoint_probas(df, endpoint_name):
     client = boto3.session.Session().client(
         "sagemaker-runtime", region_name="us-east-1",
-        aws_access_key_id=settings.AWS_ACESS_KEY,
-        aws_secret_access_key=settings.AWS_SECRET_KEY,
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
     )
 
     all_outputs = []

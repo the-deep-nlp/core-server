@@ -10,7 +10,6 @@ class TestApiAuth(BaseTestCase):
         assert resp.status_code == 401
 
     def test_auth_with_auth_token(self):
-        token = Token.objects.create(user=self.user)
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
         resp = self.client.post(self.URL)
         assert resp.status_code == 200

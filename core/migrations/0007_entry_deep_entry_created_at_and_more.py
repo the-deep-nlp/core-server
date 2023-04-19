@@ -7,7 +7,7 @@ import django.utils.timezone
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0006_merge_20230321_0505'),
+        ('core', '0007_alter_computedfeaturedrift_entry_count'),
     ]
 
     operations = [

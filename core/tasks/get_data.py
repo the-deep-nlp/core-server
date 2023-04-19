@@ -77,9 +77,6 @@ def fetch_deep_data():
                 status__in=[ToFetchProject.FetchStatus.NOT_FETCHED, ToFetchProject.FetchStatus.FETCHING]
             )
         ):
-            logger.info(
-                f"Fetching deep project with id {prj.original_project_id}"
-            )  # noqa
             fetch_project_data(cursor, prj, afs_dict, orgs_dict or {})
             logger.info(
                 f"Fetched deep project with id {prj.original_project_id}"
@@ -270,7 +267,6 @@ def fetch_project_entries(
         return
     else:
         columns = []
-        logger.info("fetching entries")
         batch_size = 500
         for i, row_batch in enumerate(batched(rows, batch_size)):
             columns = columns if columns else [c.name for c in cursor.description]
@@ -284,7 +280,6 @@ def fetch_project_entries(
                 to_fetch = project.to_fetch_project
                 to_fetch.last_fetched_entry_created_at = last_entry_dict["created_at"]
                 to_fetch.save()
-            logger.info(f"Fetched {i+1} batches({batch_size}) entries")
     logger.info(f"fetched entries for project {pid}")
 
 
