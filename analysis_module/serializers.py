@@ -33,7 +33,8 @@ class NgramsParameters(serializers.Serializer):
     generate_bigrams = serializers.BooleanField(default=True, required=False)
     generate_trigrams = serializers.BooleanField(default=True, required=False)
     enable_stopwords = serializers.BooleanField(default=True, required=False)
-    enable_stemming = serializers.BooleanField(default=True, required=False)
+    enable_stemming = serializers.BooleanField(default=False, required=False)
+    enable_end_of_sentence = serializers.BooleanField(default=True, required=False)
     enable_case_sensitive = serializers.BooleanField(default=False, required=False)
     max_ngrams_items = serializers.IntegerField(default=10, required=False)
 
