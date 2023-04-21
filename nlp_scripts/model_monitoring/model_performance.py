@@ -1,14 +1,14 @@
 import datetime
+import warnings
 import pandas as pd
 import numpy as np
 from ast import literal_eval
 from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.metrics import precision_recall_fscore_support
 
-# from sklearn.metrics import multilabel_confusion_matrix
+from constants import SECTORS, SUBPILLARS_1D, SUBPILLARS_2D, CATEGORIES
 
-from .constants import SECTORS, SUBPILLARS_1D, SUBPILLARS_2D, CATEGORIES
-
+warnings.filterwarnings("ignore")
 
 class ModelPerformance:
     """
@@ -62,13 +62,13 @@ class ModelPerformance:
         Create objects for the multi-label encoding for all the categories
         """
         self.mlb_sectors = MultiLabelBinarizer()
-        self.mlb_sectors.fit_transform([SECTORS])
+        self.mlb_sectors.fit_transform([[s] for s in SECTORS])
 
         self.mlb_subpillars_1d = MultiLabelBinarizer()
-        self.mlb_subpillars_1d.fit_transform([SUBPILLARS_1D])
+        self.mlb_subpillars_1d.fit_transform([[s] for s in SUBPILLARS_1D])
 
         self.mlb_subpillars_2d = MultiLabelBinarizer()
-        self.mlb_subpillars_2d.fit_transform([SUBPILLARS_2D])
+        self.mlb_subpillars_2d.fit_transform([[s] for s in SUBPILLARS_2D])
 
     def _label_transform(self):
         """
@@ -82,10 +82,10 @@ class ModelPerformance:
         cat_to_mlb = self._category_to_mlb()
         for category in self.categories:
             self.dataframe[f"{category}_transformed"] = list(
-                cat_to_mlb[category].transform(list(self.dataframe[category]))
+                cat_to_mlb[category].transform(list(self.dataframe[category].apply(literal_eval)))
             )
             self.dataframe[f"{category}_pred_transformed"] = list(
-                cat_to_mlb[category].transform(list(self.dataframe[f"{category}_pred"]))
+                cat_to_mlb[category].transform(list(self.dataframe[f"{category}_pred"].apply(literal_eval)))
             )
 
     def project_wise_perf_metrics(
