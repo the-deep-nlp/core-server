@@ -11,6 +11,7 @@ x-server: &base-server-config
     REDIS_HOST: ${REDIS_HOST:-redis}
     # Django
     DEBUG: ${DEBUG:-false}
+    IS_MOCKSERVER: ${IS_MOCKSERVER:-}
     ENVIRONMENT: ${ENVIRONMENT:-local}
     DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:?Provide django secret key}
     ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost}

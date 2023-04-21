@@ -3,6 +3,7 @@ import environ
 
 env = environ.Env(
     DEBUG=(bool, False),
+    IS_MOCKSERVER=(bool, False),
     ENVIRONMENT=str,
     DJANGO_SECRET_KEY=str,
     ALLOWED_HOSTS=list,

@@ -13,6 +13,7 @@ from .serializers import (
     DeepEntriesSerializer,
     NgramsDeepRequest,
 )
+from core_server.settings import IS_MOCKSERVER
 
 from .utils import spin_ecs_container
 from .models import AnalysisModuleRequest
@@ -62,7 +63,7 @@ def process_request(
     serializer = serializer_model(data=request.data)
     serializer.is_valid(raise_exception=True)
 
-    if serializer.validated_data.get("mock"):
+    if serializer.validated_data.get("mock") or IS_MOCKSERVER:
         return process_mock_request(request=serializer.validated_data, request_type=request_type)
 
     am_request = AnalysisModuleRequest.objects.create(

@@ -8,7 +8,7 @@ def get_failed_callbacks():
     now = datetime.now()
     one_day_before = now - timedelta(hours=24)
     return FailedCallback.objects.filter(
-        status=FailedCallback.FailedStatus.RETRYING,
+        status=FailedCallback.Status.RETRYING,
         created_at__gte=one_day_before,
     )
 

@@ -38,7 +38,7 @@ class AnalysisModuleRequest(BaseModel):
 
 
 class FailedCallback(BaseModel):
-    class FailedStatus(models.IntegerChoices):
+    class Status(models.IntegerChoices):
         SUCCESS = 0, "Success"
         RETRY_MAXED_OUT = 1, "Retries maxed out"
         FAILED = 2, "Failed"
@@ -49,8 +49,8 @@ class FailedCallback(BaseModel):
     retries_count = models.PositiveIntegerField(default=0)
     last_retried_at = models.DateTimeField(null=True)
     status = models.PositiveIntegerField(
-        choices=FailedStatus.choices,
-        default=FailedStatus.RETRYING,
+        choices=Status.choices,
+        default=Status.RETRYING,
     )
 
     class Meta:
@@ -58,14 +58,14 @@ class FailedCallback(BaseModel):
 
     def resend_request(self):
         if self.retries_count >= CALLBACK_MAX_RETRIES_LIMIT:
-            self.status = self.FailedStatus.RETRY_MAXED_OUT
+            self.status = self.Status.RETRY_MAXED_OUT
             self.save()
             return
         original_request = AnalysisModuleRequest.objects.filter(
             unique_id=self.request_unique_id
         ).first()
         if original_request is None:
-            self.status = self.FailedStatus.FAILED
+            self.status = self.Status.FAILED
             self.save()
             return
         request_data = {
@@ -76,13 +76,13 @@ class FailedCallback(BaseModel):
         callback_url = original_request.request_params and \
             original_request.request_params.get("callback_url")
         if not callback_url:
-            self.status = self.FailedStatus.FAILED
+            self.status = self.Status.FAILED
             self.save()
             return
         try:
             resp = requests.post(callback_url, json=request_data)
             if resp.ok:
-                self.status = self.FailedStatus.SUCCESS
+                self.status = self.Status.SUCCESS
                 self.last_retried_at = datetime.now()
                 self.save()
                 return

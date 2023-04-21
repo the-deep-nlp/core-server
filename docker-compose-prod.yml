@@ -11,6 +11,7 @@ x-server: &base-server-config
     REDIS_HOST: ${REDIS_HOST:-redis}
     # Django
     DEBUG: ${DEBUG:-false}
+    IS_MOCKSERVER: ${IS_MOCKSERVER:-}
     DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-django-insecure-k^b3&gm&d7j)+ggtdo7d8y^vh709bd=f$dmv_m06$7*7y-kl_z}
     ALLOWED_HOSTS: ${ALLOWED_HOSTS:?Set allowed hosts}
     CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS:?Set trusted origins}
