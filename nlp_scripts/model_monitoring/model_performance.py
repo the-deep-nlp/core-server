@@ -6,7 +6,7 @@ from ast import literal_eval
 from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.metrics import precision_recall_fscore_support
 
-from constants import SECTORS, SUBPILLARS_1D, SUBPILLARS_2D, CATEGORIES
+from .constants import SECTORS, SUBPILLARS_1D, SUBPILLARS_2D, CATEGORIES
 
 warnings.filterwarnings("ignore")
 
@@ -82,10 +82,10 @@ class ModelPerformance:
         cat_to_mlb = self._category_to_mlb()
         for category in self.categories:
             self.dataframe[f"{category}_transformed"] = list(
-                cat_to_mlb[category].transform(list(self.dataframe[category].apply(literal_eval)))
+                cat_to_mlb[category].transform(list(self.dataframe[category]))
             )
             self.dataframe[f"{category}_pred_transformed"] = list(
-                cat_to_mlb[category].transform(list(self.dataframe[f"{category}_pred"].apply(literal_eval)))
+                cat_to_mlb[category].transform(list(self.dataframe[f"{category}_pred"]))
             )
 
     def project_wise_perf_metrics(
