@@ -4,6 +4,8 @@ import pandas as pd
 from django.db import transaction
 import django
 
+from utils.core import format_af_tags
+
 from core.models import (
     Entry,
     ClassificationPredictions,
@@ -166,13 +168,15 @@ def calculate_model_metrics():
 
         # prepare dataframe for model performance
         original_af_tags = df["original_af_tags"]
-        entry_df["sectors"] = [data.get("sectors", []) for data in original_af_tags]
-        entry_df["subpillars_1d"] = [
-            data.get("subpillars_1d", []) for data in original_af_tags
-        ]
-        entry_df["subpillars_2d"] = [
-            data.get("subpillars_2d", []) for data in original_af_tags
-        ]
+
+        sectors = [data.get("sectors", []) for data in original_af_tags]
+        subpillar_1d = [data.get("subpillars_1d", []) for data in original_af_tags]
+        subpillar_2d = [data.get("subpillars_2d", []) for data in original_af_tags]
+
+        entry_df["sectors"] = pd.Series(format_af_tags(sectors))
+        entry_df["subpillars_1d"] = pd.Series(format_af_tags(subpillar_1d))
+        entry_df["subpillars_2d"] = pd.Series(format_af_tags(subpillar_2d))
+
         combined_df = output_df.merge(entry_df, on="entry_id")
         current_df = combined_df[["project_id", "embeddings"]]
 
