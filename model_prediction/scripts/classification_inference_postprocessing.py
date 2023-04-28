@@ -2,9 +2,15 @@ import boto3
 import pandas as pd
 from ast import literal_eval
 import warnings
+import logging
+
+from botocore.exceptions import ClientError
 
 warnings.filterwarnings("ignore")
 client = boto3.session.Session().client("sagemaker-runtime", region_name="us-east-1")
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def _get_outputs_from_endpoint(test_df: pd.DataFrame, endpoint_name: str):
@@ -29,13 +35,16 @@ def _get_outputs_from_endpoint(test_df: pd.DataFrame, endpoint_name: str):
     inputs["embeddings_return_type"] = "array"
 
     backbone_inputs_json = inputs.to_json(orient="split")
-
-    response = client.invoke_endpoint(
-        EndpointName=endpoint_name,
-        Body=backbone_inputs_json,
-        ContentType="application/json; format=pandas-split",
-    )
-    output = response["Body"].read().decode("ascii")
+    try:
+        response = client.invoke_endpoint(
+            EndpointName=endpoint_name,
+            Body=backbone_inputs_json,
+            ContentType="application/json; format=pandas-split",
+        )
+        output = response["Body"].read().decode("ascii")
+    except ClientError as cexc:
+        logger.error("Error occurred while invoking the sagemaker endpoint. %s", str(cexc))
+        return None
 
     return output
 

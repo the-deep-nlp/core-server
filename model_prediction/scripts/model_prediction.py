@@ -31,14 +31,15 @@ class ModelTagsPrediction:
         """
         Gets the Model tags predictions
         """
-        raw_outputs = json.loads(
-            _get_outputs_from_endpoint(input_df, self.endpoint_name)
-        )
+        model_outputs = _get_outputs_from_endpoint(input_df, self.endpoint_name)
+        if not model_outputs:
+            return None
+        raw_outputs = json.loads(model_outputs)
         raw_preds = raw_outputs["raw_predictions"]
         thresholds = raw_outputs["thresholds"]
 
         tag_preds_lst = []
-        
+
         for pred in raw_preds:
             tag_preds = {}
             for label, prob in pred.items():
