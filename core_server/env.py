@@ -3,12 +3,14 @@ import environ
 
 env = environ.Env(
     DEBUG=(bool, False),
+    IS_MOCKSERVER=(bool, False),
     ENVIRONMENT=str,
     DJANGO_SECRET_KEY=str,
     ALLOWED_HOSTS=list,
     ENDPOINT_NAME=(str, "http://localhost"),
     CSRF_TRUSTED_ORIGINS=list,
     USE_S3=(bool, True),
+    CALLBACK_MAX_RETRIES_LIMIT=(int, 5),
     # Celery
     CELERY_BROKER_URL=str,
     CELERY_RESULT_BACKEND=str,

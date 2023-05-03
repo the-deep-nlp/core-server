@@ -22,5 +22,11 @@ CELERY_BEAT_SCHEDULE = {
             hour="*/12",  # Do it every 12 hours
             minute="0",
         ),
-    }
+    },
+    "retry_failed_callbacks": {
+        "task": "analysis_module.tasks.resend_failed_callbacks",
+        "schedule": crontab(
+            minute="*/15",
+        ),
+    },
 }

@@ -31,6 +31,7 @@ SECRET_KEY = env("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env("DEBUG")
+IS_MOCKSERVER = env("IS_MOCKSERVER")
 
 ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 
@@ -46,6 +47,8 @@ ENDPOINT_NAME = env("ENDPOINT_NAME")
 SENTRY_DSN = env("SENTRY_DSN")
 ENVIRONMENT = env("ENVIRONMENT")
 USE_S3 = env("USE_S3")
+
+CALLBACK_MAX_RETRIES_LIMIT = env("CALLBACK_MAX_RETRIES_LIMIT")
 
 
 # Application definition

@@ -13,28 +13,32 @@ from .serializers import (
     DeepEntriesSerializer,
     NgramsDeepRequest,
 )
+from core_server.settings import IS_MOCKSERVER
 
 from .utils import spin_ecs_container
 from .models import AnalysisModuleRequest
-from .mockserver import topicmodelingmodel, ngramsmodel, summarizationmodel, geolocationmodel
+from .mockserver import topicmodeling_model, ngrams_model, summarization_model, geolocation_model
 
 
-def process_mock_request(request: dict, type: str):
-    if type == "topicmodel":
-        response, code = topicmodelingmodel(request)
-    elif type == "summarization":
-        response, code = summarizationmodel(request)
-    elif type == "ngrams":
-        response, code = ngramsmodel(request)
-    elif type == "geolocation":
-        response, code = geolocationmodel(request)
-    else:
+TYPE_ACTIONS = {
+    "topicmodel": topicmodeling_model,
+    "summarization": summarization_model,
+    "ngrams": ngrams_model,
+    "geolocation": geolocation_model,
+}
+
+
+def process_mock_request(request: dict, request_type: str):
+    action = TYPE_ACTIONS.get(request_type)
+    if action is None:
         raise ValidationError("Invalid request type")
+
+    response, code = action(request)
 
     if code == 200:
         resp = {
             "client_id": request.get("client_id"),
-            "type": type,
+            "type": request_type,
             "message": "Request has been successfully processed",
         }
 
@@ -59,8 +63,8 @@ def process_request(
     serializer = serializer_model(data=request.data)
     serializer.is_valid(raise_exception=True)
 
-    if serializer.validated_data.get("mock"):
-        return process_mock_request(request=serializer.validated_data, type=request_type)
+    if serializer.validated_data.get("mock") or IS_MOCKSERVER:
+        return process_mock_request(request=serializer.validated_data, request_type=request_type)
 
     am_request = AnalysisModuleRequest.objects.create(
         client_id=serializer.validated_data["client_id"],
