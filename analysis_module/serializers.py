@@ -1,7 +1,5 @@
 from rest_framework import serializers
 
-from .models import AnalysisModuleRequest
-
 
 class BaseEntry(serializers.Serializer):
     entry_id = serializers.CharField()
@@ -45,10 +43,3 @@ class NgramsDeepRequest(DeepEntriesSerializer):
 
 class StatusRequest(serializers.Serializer):
     unique_id = serializers.UUIDField()
-
-
-class AnalysisModuleRequestSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AnalysisModuleRequest
-        fields = ["status", "unique_id", "result_s3_link", "type"]
-        read_only_fields = ["status", "unique_id", "result_s3_link", "type"]

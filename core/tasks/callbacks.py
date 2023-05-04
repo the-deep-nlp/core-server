@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from celery import shared_task
 
-from .models import FailedCallback
+from core.models import FailedCallback
 
 
 def get_failed_callbacks():

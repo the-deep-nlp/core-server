@@ -10,7 +10,7 @@ from math import ceil
 from celery import shared_task
 from sklearn.feature_extraction.text import CountVectorizer
 
-from analysis_module.models import AnalysisModuleRequest
+from core.models import NLPRequest
 from core_server.settings import ENDPOINT_NAME
 from .utils import send_callback_url_request
 
@@ -142,7 +142,7 @@ def process_ngrams(body):
             callback_url=callback_url,
             client_id=client_id,
             filepath="",
-            status=AnalysisModuleRequest.RequestStatus.PROCESS_INPUT_URL_FAILED,
+            status=NLPRequest.RequestStatus.PROCESS_INPUT_URL_FAILED,
         )
         return
 
@@ -170,7 +170,7 @@ def process_ngrams(body):
         callback_url=callback_url,
         client_id=client_id,
         filepath=filepath,
-        status=AnalysisModuleRequest.RequestStatus.SUCCESS,
+        status=NLPRequest.RequestStatus.SUCCESS,
     )
 
 
@@ -194,7 +194,7 @@ def process_summarization(body: dict) -> Any:
             callback_url=callback_url,
             client_id=client_id,
             filepath="",
-            status=AnalysisModuleRequest.RequestStatus.PROCESS_INPUT_URL_FAILED,
+            status=NLPRequest.RequestStatus.PROCESS_INPUT_URL_FAILED,
         )
         return
 
@@ -207,7 +207,7 @@ def process_summarization(body: dict) -> Any:
         callback_url=callback_url,
         client_id=client_id,
         filepath=filepath,
-        status=AnalysisModuleRequest.RequestStatus.SUCCESS,
+        status=NLPRequest.RequestStatus.SUCCESS,
     )
 
 
@@ -233,7 +233,7 @@ def process_topicmodeling(body) -> Any:
             callback_url=callback_url,
             client_id=client_id,
             filepath="",
-            status=AnalysisModuleRequest.RequestStatus.PROCESS_INPUT_URL_FAILED,
+            status=NLPRequest.RequestStatus.PROCESS_INPUT_URL_FAILED,
         )
         return
 
@@ -254,7 +254,7 @@ def process_topicmodeling(body) -> Any:
         callback_url=callback_url,
         client_id=client_id,
         filepath=filepath,
-        status=AnalysisModuleRequest.RequestStatus.SUCCESS,
+        status=NLPRequest.RequestStatus.SUCCESS,
     )
 
 
@@ -288,7 +288,7 @@ def process_geolocation(body) -> Any:
             callback_url=callback_url,
             client_id=client_id,
             filepath="",
-            status=AnalysisModuleRequest.RequestStatus.PROCESS_INPUT_URL_FAILED,
+            status=NLPRequest.RequestStatus.PROCESS_INPUT_URL_FAILED,
         )
         return
 
@@ -310,7 +310,7 @@ def process_geolocation(body) -> Any:
         callback_url=callback_url,
         client_id=client_id,
         filepath=filepath,
-        status=AnalysisModuleRequest.RequestStatus.SUCCESS,
+        status=NLPRequest.RequestStatus.SUCCESS,
     )
 
 

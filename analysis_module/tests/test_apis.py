@@ -1,7 +1,7 @@
 from unittest.mock import patch
 from core_server.base_test import BaseTestCase
 
-from analysis_module.models import AnalysisModuleRequest
+from core.models import NLPRequest
 
 
 class TestAnalysisModuleAPIs(BaseTestCase):
@@ -36,7 +36,7 @@ class TestAnalysisModuleAPIs(BaseTestCase):
         """
         This tests for a topicmodel api with valid data
         """
-        requests_count = AnalysisModuleRequest.objects.count()
+        requests_count = NLPRequest.objects.count()
         valid_data = {
             "entries_url": "https://someurl.com/entries",
             "cluster_size": 2,
@@ -48,11 +48,11 @@ class TestAnalysisModuleAPIs(BaseTestCase):
             resp = self.client.post(self.TOPICMODELING_URL, valid_data)
         assert resp.status_code == 202
         spin_ecs_mock.delay.assert_called_once()
-        new_requests_count = AnalysisModuleRequest.objects.count()
+        new_requests_count = NLPRequest.objects.count()
         assert \
             new_requests_count == requests_count + 1, \
-            "One more AnalysisModuleRequest object should be created"
-        assert AnalysisModuleRequest.objects.filter(type="topicmodel").exists()
+            "One more NLPRequest object should be created"
+        assert NLPRequest.objects.filter(type="topicmodel").exists()
 
     def test_ngrams_incomplete_data(self):
         """
@@ -84,7 +84,7 @@ class TestAnalysisModuleAPIs(BaseTestCase):
 
     @patch('analysis_module.views.spin_ecs_container')
     def test_ngrams_valid_request(self, spin_ecs_mock):
-        requests_count = AnalysisModuleRequest.objects.count()
+        requests_count = NLPRequest.objects.count()
         valid_data = {
             "client_id": "client_id",
             "entries_url": "http://someurl.com/entries",
@@ -99,11 +99,11 @@ class TestAnalysisModuleAPIs(BaseTestCase):
             resp = self.client.post(self.NGRAMS_URL, valid_data, format="json")
         assert resp.status_code == 202
         spin_ecs_mock.delay.assert_called_once()
-        new_requests_count = AnalysisModuleRequest.objects.count()
+        new_requests_count = NLPRequest.objects.count()
         assert \
             new_requests_count == requests_count + 1, \
-            "One more AnalysisModuleRequest object should be created"
-        assert AnalysisModuleRequest.objects.filter(type="ngrams").exists()
+            "One more NLPRequest object should be created"
+        assert NLPRequest.objects.filter(type="ngrams").exists()
 
     def test_summarization_incomplete_data(self):
         valid_data = {
@@ -122,7 +122,7 @@ class TestAnalysisModuleAPIs(BaseTestCase):
 
     @patch('analysis_module.views.spin_ecs_container')
     def test_summarization_valid_request(self, spin_ecs_mock):
-        requests_count = AnalysisModuleRequest.objects.count()
+        requests_count = NLPRequest.objects.count()
         valid_data = {
             "client_id": "client_id",
             "entries_url": "http://someurl.com/entries",
@@ -132,11 +132,11 @@ class TestAnalysisModuleAPIs(BaseTestCase):
             resp = self.client.post(self.SUMMARIZATION_URL, valid_data)
         assert resp.status_code == 202
         spin_ecs_mock.delay.assert_called_once()
-        new_requests_count = AnalysisModuleRequest.objects.count()
+        new_requests_count = NLPRequest.objects.count()
         assert \
             new_requests_count == requests_count + 1, \
-            "One more AnalysisModuleRequest object should be created"
-        assert AnalysisModuleRequest.objects.filter(type="summarization").exists()
+            "One more NLPRequest object should be created"
+        assert NLPRequest.objects.filter(type="summarization").exists()
 
     def test_geolocation_incomplete_data(self):
         valid_data = {
@@ -155,7 +155,7 @@ class TestAnalysisModuleAPIs(BaseTestCase):
 
     @patch('analysis_module.views.spin_ecs_container')
     def test_geolocation_valid_request(self, spin_ecs_mock):
-        requests_count = AnalysisModuleRequest.objects.count()
+        requests_count = NLPRequest.objects.count()
         valid_data = {
             "client_id": "client_id",
             "entries_url": "http://someurl.com/entries",
@@ -165,11 +165,11 @@ class TestAnalysisModuleAPIs(BaseTestCase):
             resp = self.client.post(self.GEOLOCATION_URL, valid_data)
         assert resp.status_code == 202
         spin_ecs_mock.delay.assert_called_once()
-        new_requests_count = AnalysisModuleRequest.objects.count()
+        new_requests_count = NLPRequest.objects.count()
         assert \
             new_requests_count == requests_count + 1, \
-            "One more AnalysisModuleRequest object should be created"
-        assert AnalysisModuleRequest.objects.filter(type="geolocation").exists()
+            "One more NLPRequest object should be created"
+        assert NLPRequest.objects.filter(type="geolocation").exists()
 
 
 class TestAnalysisModuleMockAPIs(BaseTestCase):
@@ -190,7 +190,7 @@ class TestAnalysisModuleMockAPIs(BaseTestCase):
         """
         This tests for a topicmodel api with valid data
         """
-        requests_count = AnalysisModuleRequest.objects.count()
+        requests_count = NLPRequest.objects.count()
         valid_data = {
             "client_id": "some client_id",
             "entries_url": "https://someurl.com/entries",
@@ -203,15 +203,15 @@ class TestAnalysisModuleMockAPIs(BaseTestCase):
         resp = self.client.post(self.TOPICMODELING_URL, valid_data)
         assert resp.status_code == 202
         process_mock.delay.assert_called_once()
-        new_requests_count = AnalysisModuleRequest.objects.count()
+        new_requests_count = NLPRequest.objects.count()
         assert \
             new_requests_count == requests_count, \
-            "No more AnalysisModuleRequest object should be created"
+            "No more NLPRequest object should be created"
 
     @patch('analysis_module.mockserver.process_ngrams')
     @patch('analysis_module.mockserver.get_entries_data')
     def test_ngrams_valid_request(self, get_entries_mock, process_mock):
-        requests_count = AnalysisModuleRequest.objects.count()
+        requests_count = NLPRequest.objects.count()
         valid_data = {
             "client_id": "client_id",
             "entries_url": "http://someurl.com/entries",
@@ -232,15 +232,15 @@ class TestAnalysisModuleMockAPIs(BaseTestCase):
         resp = self.client.post(self.NGRAMS_URL, valid_data, format="json")
         process_mock.delay.assert_called_once()
         assert resp.status_code == 202
-        new_requests_count = AnalysisModuleRequest.objects.count()
+        new_requests_count = NLPRequest.objects.count()
         assert \
             new_requests_count == requests_count, \
-            "No more AnalysisModuleRequest object should be created"
+            "No more NLPRequest object should be created"
 
     @patch('analysis_module.mockserver.process_summarization')
     @patch('analysis_module.mockserver.get_entries_data')
     def test_summarization_valid_request(self, get_entries_mock, process_mock):
-        requests_count = AnalysisModuleRequest.objects.count()
+        requests_count = NLPRequest.objects.count()
         valid_data = {
             "client_id": "client_id",
             "entries_url": "http://someurl.com/entries",
@@ -252,15 +252,15 @@ class TestAnalysisModuleMockAPIs(BaseTestCase):
         resp = self.client.post(self.SUMMARIZATION_URL, valid_data)
         assert resp.status_code == 202
         process_mock.delay.assert_called_once()
-        new_requests_count = AnalysisModuleRequest.objects.count()
+        new_requests_count = NLPRequest.objects.count()
         assert \
             new_requests_count == requests_count, \
-            "No more AnalysisModuleRequest object should be created"
+            "No more NLPRequest object should be created"
 
     @patch('analysis_module.mockserver.process_geolocation')
     @patch('analysis_module.mockserver.get_entries_data')
     def test_geolocation_valid_request(self, get_entries_mock, process_mock):
-        requests_count = AnalysisModuleRequest.objects.count()
+        requests_count = NLPRequest.objects.count()
         valid_data = {
             "client_id": "client_id",
             "entries_url": "http://someurl.com/entries",
@@ -270,10 +270,9 @@ class TestAnalysisModuleMockAPIs(BaseTestCase):
         get_entries_mock.return_value = self.GET_ENTRIES_DATA
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
         resp = self.client.post(self.GEOLOCATION_URL, valid_data)
-        print(resp.json())
         assert resp.status_code == 202
         process_mock.delay.assert_called_once()
-        new_requests_count = AnalysisModuleRequest.objects.count()
+        new_requests_count = NLPRequest.objects.count()
         assert \
             new_requests_count == requests_count, \
-            "No more AnalysisModuleRequest object should be created"
+            "No more NLPRequest object should be created"

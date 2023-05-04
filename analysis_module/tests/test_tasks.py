@@ -3,8 +3,8 @@ from unittest.mock import patch, Mock
 
 from core_server.base_test import BaseTestCase
 
-from analysis_module.models import FailedCallback, AnalysisModuleRequest
-from analysis_module.tasks import get_failed_callbacks
+from core.models import FailedCallback, NLPRequest
+from core.tasks.callbacks import get_failed_callbacks
 
 
 class TestFailedCallback(BaseTestCase):
@@ -12,7 +12,7 @@ class TestFailedCallback(BaseTestCase):
         super().setUp()
 
     def create_failed_callback(self, status=FailedCallback.Status.RETRYING, **kwargs):
-        req = AnalysisModuleRequest.objects.create(
+        req = NLPRequest.objects.create(
             client_id="some_client_id",
             request_params={"callback_url": "http://someurl.py"},
             type="ngrams",  # this is arbitrary choice
@@ -23,7 +23,7 @@ class TestFailedCallback(BaseTestCase):
             **kwargs,
         )
 
-    @patch("analysis_module.models.requests.post")
+    @patch("core.models.requests.post")
     def test_resend_request_successful(self, requests_patch):
         failed_callback = self.create_failed_callback()
         requests_patch.return_value = Mock(status_code=201)
@@ -32,10 +32,10 @@ class TestFailedCallback(BaseTestCase):
         failed_callback.refresh_from_db()
         assert failed_callback.status == FailedCallback.Status.SUCCESS
 
-    @patch("analysis_module.models.requests.post")
+    @patch("core.models.requests.post")
     def test_resend_request_no_callback_url(self, requests_patch):
         # Create a request without callback in params
-        req = AnalysisModuleRequest.objects.create(
+        req = NLPRequest.objects.create(
             client_id="some_client_id",
             request_params={},
             type="ngrams",  # this is arbitrary choice
