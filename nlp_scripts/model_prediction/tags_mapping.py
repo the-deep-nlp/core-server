@@ -4,7 +4,8 @@ from nlp_matching_algorithm import af2nlp_matching
 from first_level_tags import FirstLevel
 from second_level_tags import SecondLevel
 from third_level_tags import ThirdLevel
-from utils import get_tag_ids
+from .utils import get_tag_ids
+
 
 class AF2NLPMapping:
     """
@@ -74,6 +75,7 @@ class AF2NLPMapping:
             transformed_input_data,
             full_output=full_output
         )
+
 
 if __name__ == "__main__":
     # Sample
