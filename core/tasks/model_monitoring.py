@@ -3,6 +3,7 @@ from celery import shared_task
 import pandas as pd
 from django.db import transaction
 import django
+import django.utils.timezone as timezone
 
 from core.models import (
     Entry,
@@ -127,12 +128,12 @@ def create_feature_drift(current_df, entry_len):
 @shared_task
 def calculate_model_metrics():
     with transaction.atomic():
-        yesterday = datetime.date.today() - datetime.timedelta(days=1)
+        yesterday = timezone.now() - datetime.timedelta(days=1)
         newly_added_entries = list(
             Entry.objects.filter(
                 classificationpredictions__isnull=True,
                 deep_entry_created_at__gte=yesterday,
-                deep_entry_created_at__lt=datetime.date.today()
+                deep_entry_created_at__lt=timezone.now()
             )
             .order_by("-id")
             .values("original_entry_id", "excerpt_en", "original_af_tags", "lead__project__original_project_id")
