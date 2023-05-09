@@ -17,13 +17,14 @@ from django.contrib import admin
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
-from analysis_module.views import (
+from analysis_module.views.analysis_module import (
     topic_modeling,
     summarization,
     ngrams,
     geolocation,
     request_status,
 )
+from analysis_module.views.predictions import tags_mapping
 from core.views import token_auth_dummy_view
 
 urlpatterns = [
@@ -32,7 +33,7 @@ urlpatterns = [
     path("api/v1/summarization/", summarization),
     path("api/v1/ngrams/", ngrams),
     path("api/v1/geolocation/", geolocation),
-    # path("api/v1/tags-mapping/", tagsmapping),
+    path("api/v1/tags-mapping/", tags_mapping),
     path("api/v1/analysismodule/status/<uuid:unique_id>/", request_status),
     path("api/v1/test-auth/", token_auth_dummy_view),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

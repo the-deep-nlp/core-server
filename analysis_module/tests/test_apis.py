@@ -25,13 +25,13 @@ class TestAnalysisModuleAPIs(BaseTestCase):
         for param in params:
             data = dict(valid_data)  # copy original valid data
             data.pop(param)  # This makes it invalid
-            self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+            self.set_credentials()
             resp = self.client.post(self.TOPICMODELING_URL, data=data)
             assert resp.status_code == 400
             errors = resp.json()["field_errors"]
             assert param in errors
 
-    @patch('analysis_module.views.spin_ecs_container')
+    @patch('analysis_module.views.analysis_module.spin_ecs_container')
     def test_topicmodel_valid_request(self, spin_ecs_mock):
         """
         This tests for a topicmodel api with valid data
@@ -44,7 +44,7 @@ class TestAnalysisModuleAPIs(BaseTestCase):
             "max_clusters_num": 5,
         }
         with self.captureOnCommitCallbacks(execute=True):
-            self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+            self.set_credentials()
             resp = self.client.post(self.TOPICMODELING_URL, valid_data)
         assert resp.status_code == 202
         spin_ecs_mock.delay.assert_called_once()
@@ -76,13 +76,13 @@ class TestAnalysisModuleAPIs(BaseTestCase):
         for param in params:
             data = dict(valid_data)  # copy original valid data
             data.pop(param)  # This makes it invalid
-            self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+            self.set_credentials()
             resp = self.client.post(self.NGRAMS_URL, data=data, format="json")
             assert resp.status_code == 400
             errors = resp.json()["field_errors"]
             assert param in errors
 
-    @patch('analysis_module.views.spin_ecs_container')
+    @patch('analysis_module.views.analysis_module.spin_ecs_container')
     def test_ngrams_valid_request(self, spin_ecs_mock):
         requests_count = NLPRequest.objects.count()
         valid_data = {
@@ -95,7 +95,7 @@ class TestAnalysisModuleAPIs(BaseTestCase):
             },
         }
         with self.captureOnCommitCallbacks(execute=True):
-            self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+            self.set_credentials()
             resp = self.client.post(self.NGRAMS_URL, valid_data, format="json")
         assert resp.status_code == 202
         spin_ecs_mock.delay.assert_called_once()
@@ -114,13 +114,13 @@ class TestAnalysisModuleAPIs(BaseTestCase):
         for param in params:
             data = dict(valid_data)  # copy original valid data
             data.pop(param)  # This makes it invalid
-            self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+            self.set_credentials()
             resp = self.client.post(self.SUMMARIZATION_URL, data)
             assert resp.status_code == 400
             errors = resp.json()["field_errors"]
             assert param in errors
 
-    @patch('analysis_module.views.spin_ecs_container')
+    @patch('analysis_module.views.analysis_module.spin_ecs_container')
     def test_summarization_valid_request(self, spin_ecs_mock):
         requests_count = NLPRequest.objects.count()
         valid_data = {
@@ -128,7 +128,7 @@ class TestAnalysisModuleAPIs(BaseTestCase):
             "entries_url": "http://someurl.com/entries",
         }
         with self.captureOnCommitCallbacks(execute=True):
-            self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+            self.set_credentials()
             resp = self.client.post(self.SUMMARIZATION_URL, valid_data)
         assert resp.status_code == 202
         spin_ecs_mock.delay.assert_called_once()
@@ -147,13 +147,13 @@ class TestAnalysisModuleAPIs(BaseTestCase):
         for param in params:
             data = dict(valid_data)  # copy original valid data
             data.pop(param)  # This makes it invalid
-            self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+            self.set_credentials()
             resp = self.client.post(self.GEOLOCATION_URL, data)
             assert resp.status_code == 400
             errors = resp.json()["field_errors"]
             assert param in errors
 
-    @patch('analysis_module.views.spin_ecs_container')
+    @patch('analysis_module.views.analysis_module.spin_ecs_container')
     def test_geolocation_valid_request(self, spin_ecs_mock):
         requests_count = NLPRequest.objects.count()
         valid_data = {
@@ -161,7 +161,7 @@ class TestAnalysisModuleAPIs(BaseTestCase):
             "entries_url": "http://someurl.com/entries",
         }
         with self.captureOnCommitCallbacks(execute=True):
-            self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+            self.set_credentials()
             resp = self.client.post(self.GEOLOCATION_URL, valid_data)
         assert resp.status_code == 202
         spin_ecs_mock.delay.assert_called_once()
@@ -199,7 +199,7 @@ class TestAnalysisModuleMockAPIs(BaseTestCase):
             "mock": True,
         }
         get_entries_mock.return_value = self.GET_ENTRIES_DATA
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+        self.set_credentials()
         resp = self.client.post(self.TOPICMODELING_URL, valid_data)
         assert resp.status_code == 202
         process_mock.delay.assert_called_once()
@@ -228,7 +228,7 @@ class TestAnalysisModuleMockAPIs(BaseTestCase):
             "mock": True,
         }
         get_entries_mock.return_value = self.GET_ENTRIES_DATA
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+        self.set_credentials()
         resp = self.client.post(self.NGRAMS_URL, valid_data, format="json")
         process_mock.delay.assert_called_once()
         assert resp.status_code == 202
@@ -248,7 +248,7 @@ class TestAnalysisModuleMockAPIs(BaseTestCase):
             "mock": True,
         }
         get_entries_mock.return_value = self.GET_ENTRIES_DATA
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+        self.set_credentials()
         resp = self.client.post(self.SUMMARIZATION_URL, valid_data)
         assert resp.status_code == 202
         process_mock.delay.assert_called_once()
@@ -268,7 +268,7 @@ class TestAnalysisModuleMockAPIs(BaseTestCase):
             "mock": True,
         }
         get_entries_mock.return_value = self.GET_ENTRIES_DATA
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+        self.set_credentials()
         resp = self.client.post(self.GEOLOCATION_URL, valid_data)
         assert resp.status_code == 202
         process_mock.delay.assert_called_once()
@@ -276,3 +276,38 @@ class TestAnalysisModuleMockAPIs(BaseTestCase):
         assert \
             new_requests_count == requests_count, \
             "No more NLPRequest object should be created"
+
+
+class TagsMappingAPI(BaseTestCase):
+    TAGS_MAPPING_URL = '/api/v1/tags-mapping/'
+    VALID_DATA = {
+        "client_id": "1",
+        "label": "nutritional status",
+        "parent_label": "nutrition",
+        "widget_title": None,
+    }
+
+    def test_tags_mapping_invalid_data(self):
+        """Pop each item from valid data and check if it gives 400"""
+        params = self.VALID_DATA.keys()
+        for param in params:
+            data_ = dict(self.VALID_DATA)
+            data_.pop(param)
+            data = {"items": [data_]}
+            self.set_credentials()
+            resp = self.client.post(self.TAGS_MAPPING_URL, data=data, format="json")
+            assert resp.status_code == 400
+
+    def test_tags_mapping_valid_data(self):
+        """Pop each item from valid data and check if it gives 400"""
+        data = {"items": [self.VALID_DATA]}
+        self.set_credentials()
+        resp = self.client.post(self.TAGS_MAPPING_URL, data=data, format="json")
+        assert resp.status_code == 200
+        resp_data = resp.json()
+        assert len(resp_data) > 0, "There must be a result"
+        for item in resp_data:
+            assert "client_id" in item
+            assert "input_text" in item
+            assert "output_text" in item
+            assert "output_tagids" in item

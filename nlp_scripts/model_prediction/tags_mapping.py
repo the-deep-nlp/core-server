@@ -1,9 +1,10 @@
+from pathlib import Path
 from typing import List, Dict
-from nlp_matching_algorithm import af2nlp_matching
+from .nlp_matching_algorithm import af2nlp_matching
 
-from first_level_tags import FirstLevel
-from second_level_tags import SecondLevel
-from third_level_tags import ThirdLevel
+from .first_level_tags import FirstLevel
+from .second_level_tags import SecondLevel
+from .third_level_tags import ThirdLevel
 from .utils import get_tag_ids
 
 
@@ -12,7 +13,7 @@ class AF2NLPMapping:
     Generates the AF-NLP tags mapping
     """
     def __init__(self, mapping_file: str = "mapping_tags_nlp2original.json"):
-        self.mapping_file = mapping_file
+        self.mapping_file = Path(__file__).parent / mapping_file
         self.total_tags = [
             FirstLevel.first_level_lst(),
             SecondLevel.second_level_lst(),

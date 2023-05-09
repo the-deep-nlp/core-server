@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from .serializers import (
+from analysis_module.serializers import (
     TopicModelDeepRequest,
     DeepEntriesSerializer,
     NgramsDeepRequest,
@@ -16,9 +16,10 @@ from .serializers import (
 from core_server.settings import IS_MOCKSERVER
 
 from core.models import NLPRequest
-from .utils import spin_ecs_container
-from .mockserver import topicmodeling_model, ngrams_model, summarization_model, geolocation_model
+from analysis_module.utils import spin_ecs_container
+from analysis_module.mockserver import topicmodeling_model, ngrams_model, summarization_model, geolocation_model
 
+RequestType = Literal["topicmodel", "ngrams", "summarization", "geolocation"]
 
 TYPE_ACTIONS = {
     "topicmodel": topicmodeling_model,
@@ -58,7 +59,7 @@ def process_mock_request(request: dict, request_type: str):
 def process_request(
     serializer_model,
     request: Request,
-    request_type: Literal["topicmodel", "ngrams", "summarization"]
+    request_type: RequestType,
 ):
     serializer = serializer_model(data=request.data)
     serializer.is_valid(raise_exception=True)

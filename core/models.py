@@ -337,6 +337,8 @@ class NLPRequest(BaseModel):
         TOPICMODEL = "topicmodel", "Topicmodel"
         SUMMARIZATION = "summarization", "Summarization"
         GEOLOCATION = "geolocation", "Geolocation"
+        TAGS_MAPPING = "tags-mapping", "Tags Mapping"
+        PREDICTION = "prediction", "Prediction"
 
     client_id = models.CharField(max_length=50)
     status = models.IntegerField(choices=RequestStatus.choices, default=RequestStatus.INITIATED)

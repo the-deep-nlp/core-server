@@ -43,3 +43,13 @@ class NgramsDeepRequest(DeepEntriesSerializer):
 
 class StatusRequest(serializers.Serializer):
     unique_id = serializers.UUIDField()
+
+
+class TagsMappingRequestItem(BaseAnalysisSerializer):
+    label = serializers.CharField()
+    widget_title = serializers.CharField(required=False, allow_null=True)
+    parent_label = serializers.CharField(required=False, allow_null=True)
+
+
+class TagsMappingRequestSerializer(serializers.Serializer):
+    items = TagsMappingRequestItem(many=True)

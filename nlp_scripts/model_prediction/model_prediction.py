@@ -5,7 +5,7 @@ import pandas as pd
 from first_level_tags import FirstLevel
 from second_level_tags import SecondLevel
 from third_level_tags import ThirdLevel
-from classification_inference_postprocessing import _get_outputs_from_endpoint
+from .classification_inference_postprocessing import _get_outputs_from_endpoint
 from utils import get_tag_ids
 
 total_tags = [

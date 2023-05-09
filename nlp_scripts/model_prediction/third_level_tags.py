@@ -1,6 +1,6 @@
 from collections import namedtuple
 from enum import Enum
-from second_level_tags import SecondLevel
+from .second_level_tags import SecondLevel
 
 ThirdLevelCategories = namedtuple('ThirdLevelCategories', ['id', 'key', 'version', 'has_parent', 'parent_id', 'alias'])
 version = "1.0"

@@ -5,7 +5,9 @@ WORKDIR /code
 COPY . /code/
 
 RUN apt update -y \
-    && pip install --upgrade --no-cache-dir pip poetry \
+    && apt install -y enchant-2 \
+    && apt update -y \
+    && pip install --upgrade --no-cache-dir pip poetry pyenchant \
     && poetry --version \
     # Configure to use system instead of virtualenvs
     && poetry config virtualenvs.create false \
