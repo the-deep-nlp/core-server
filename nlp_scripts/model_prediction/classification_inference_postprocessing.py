@@ -1,6 +1,5 @@
 import boto3
 import pandas as pd
-from ast import literal_eval
 import warnings
 import logging
 
@@ -13,8 +12,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def _get_outputs_from_endpoint(test_df: pd.DataFrame, endpoint_name: str):
-
+def get_outputs_from_endpoint(test_df: pd.DataFrame, endpoint_name: str):
     inputs = test_df[["excerpt"]]
     inputs["return_type"] = "default_analyis"
     inputs["analyis_framework_id"] = "all"
@@ -44,37 +42,6 @@ def _get_outputs_from_endpoint(test_df: pd.DataFrame, endpoint_name: str):
         output = response["Body"].read().decode("ascii")
     except ClientError as cexc:
         logger.error("Error occurred while invoking the sagemaker endpoint. %s", str(cexc))
-        return None
+        raise cexc
 
     return output
-
-
-def _postprocess_outputs(raw_outputs, min_ratio: float):
-    final_predictions = []
-    eval_output = literal_eval(raw_outputs)
-    for one_output in eval_output["raw_predictions"]:
-        one_output_predictions = [
-            tag
-            for tag, ratio_one_tag in one_output.items()
-            if ratio_one_tag >= min_ratio
-        ]
-        final_predictions.append(one_output_predictions)
-
-    return {
-        "final_predictions": final_predictions,
-        "thresholds": eval_output["thresholds"],
-    }
-
-
-# def get_final_results(test_df: pd.DataFrame, endpoint_name: str, min_ratio: float = 1):
-#     raw_outputs = _get_outputs_from_endpoint(test_df, endpoint_name)
-#     print(raw_outputs)
-#     final_tags = _postprocess_outputs(raw_outputs, min_ratio)
-#     return final_tags
-
-
-# df = pd.DataFrame([["There has been an medical emergency in the town"]], columns=["excerpt"])
-
-# x = get_final_results(df, endpoint_name="main-model-cpu-new-test")
-# print(len(x["thresholds"]))
-

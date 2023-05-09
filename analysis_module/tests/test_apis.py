@@ -1,4 +1,5 @@
-from unittest.mock import patch
+from copy import deepcopy
+from unittest.mock import patch, Mock
 from core_server.base_test import BaseTestCase
 
 from core.models import NLPRequest
@@ -280,8 +281,9 @@ class TestAnalysisModuleMockAPIs(BaseTestCase):
 
 class TagsMappingAPI(BaseTestCase):
     TAGS_MAPPING_URL = '/api/v1/tags-mapping/'
+    CLIENT_ID = "client_id"
     VALID_DATA = {
-        "client_id": "1",
+        "client_id": CLIENT_ID,
         "label": "nutritional status",
         "parent_label": "nutrition",
         "widget_title": None,
@@ -298,16 +300,85 @@ class TagsMappingAPI(BaseTestCase):
             resp = self.client.post(self.TAGS_MAPPING_URL, data=data, format="json")
             assert resp.status_code == 400
 
+            assert not NLPRequest.objects.filter(client_id=self.CLIENT_ID).exists(), \
+                "No nlp request should be created"
+
     def test_tags_mapping_valid_data(self):
-        """Pop each item from valid data and check if it gives 400"""
         data = {"items": [self.VALID_DATA]}
         self.set_credentials()
         resp = self.client.post(self.TAGS_MAPPING_URL, data=data, format="json")
         assert resp.status_code == 200
         resp_data = resp.json()
-        assert len(resp_data) > 0, "There must be a result"
-        for item in resp_data:
+        assert "tags_mapping" in resp_data
+        tags_mapping = resp_data["tags_mapping"]
+        assert len(tags_mapping) > 0, "There must be a result"
+        for item in tags_mapping:
             assert "client_id" in item
             assert "input_text" in item
             assert "output_text" in item
             assert "output_tagids" in item
+        assert NLPRequest.objects.filter(
+            client_id=self.CLIENT_ID,
+            status=NLPRequest.RequestStatus.SUCCESS,
+        ).exists(), "NLP request should be created with success status"
+
+
+class PredictionAPI(BaseTestCase):
+    URL = '/api/v1/prediction/'
+    CLIENT_ID = "client_id"
+    VALID_DATA = {
+        "entries": [
+            {
+                "client_id": CLIENT_ID,
+                "entry": "this is a sample entry",
+            },
+        ],
+        "publishing_organization": "pub-org",
+        "authoring_organization": "auth-org",
+        "callback_url": "https://call.me.back/"
+    }
+
+    def test_prediction_invalid_data(self):
+        params = self.VALID_DATA.keys()
+        for param in params:
+            data = deepcopy(self.VALID_DATA)
+            data.pop(param)
+            self.set_credentials()
+            resp = self.client.post(self.URL, data=data, format="json")
+            assert resp.status_code == 400
+            assert param in resp.json()["field_errors"]
+            assert not NLPRequest.objects.filter(client_id=self.CLIENT_ID).exists(), \
+                "No nlp request should be created"
+
+        # Test invalid entries
+        entry_params = ["client_id", "entry"]
+        for param in entry_params:
+            data = deepcopy(self.VALID_DATA)
+            data["entries"][0].pop(param)
+            self.set_credentials()
+            resp = self.client.post(self.URL, data=data, format="json")
+            assert resp.status_code == 400
+            assert "entries" in resp.json()["field_errors"]
+            assert not NLPRequest.objects.filter(client_id=self.CLIENT_ID).exists(), \
+                "No nlp request should be created"
+
+    @patch("analysis_module.views.predictions.ModelTagsPrediction")
+    def test_prediction_valid_data(self, model_prediction_class):
+        self.set_credentials()
+        model_prediction_class.return_value.return_value = [{
+            "client_id": self.CLIENT_ID,
+            "model_preds": [],
+        }]
+        resp = self.client.post(self.URL, data=self.VALID_DATA, format="json")
+        resp_data = resp.json()
+        assert resp.status_code == 200
+        assert "predictions" in resp_data
+        predictions = resp_data["predictions"]
+        assert len(predictions) > 0, "There must be a result"
+        for item in predictions:
+            assert "client_id" in item
+            assert "model_preds" in item
+        assert NLPRequest.objects.filter(
+            client_id=self.CLIENT_ID,
+            status=NLPRequest.RequestStatus.SUCCESS,
+        ).exists(), "NLP request should be created with success status"

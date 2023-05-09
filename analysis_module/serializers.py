@@ -47,9 +47,21 @@ class StatusRequest(serializers.Serializer):
 
 class TagsMappingRequestItem(BaseAnalysisSerializer):
     label = serializers.CharField()
-    widget_title = serializers.CharField(required=False, allow_null=True)
-    parent_label = serializers.CharField(required=False, allow_null=True)
+    widget_title = serializers.CharField(allow_null=True)
+    parent_label = serializers.CharField(allow_null=True)
 
 
 class TagsMappingRequestSerializer(serializers.Serializer):
     items = TagsMappingRequestItem(many=True)
+
+
+class PredictionEntrySerializer(serializers.Serializer):
+    client_id = serializers.CharField()
+    entry = serializers.CharField()
+
+
+class PredictionRequestSerializer(serializers.Serializer):
+    entries = PredictionEntrySerializer(many=True)
+    publishing_organization = serializers.CharField()
+    authoring_organization = serializers.CharField()
+    callback_url = serializers.CharField()

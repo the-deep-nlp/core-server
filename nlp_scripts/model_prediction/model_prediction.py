@@ -2,11 +2,11 @@ import json
 from typing import List, Dict
 import pandas as pd
 
-from first_level_tags import FirstLevel
-from second_level_tags import SecondLevel
-from third_level_tags import ThirdLevel
-from .classification_inference_postprocessing import _get_outputs_from_endpoint
-from utils import get_tag_ids
+from .first_level_tags import FirstLevel
+from .second_level_tags import SecondLevel
+from .third_level_tags import ThirdLevel
+from .classification_inference_postprocessing import get_outputs_from_endpoint
+from .utils import get_tag_ids
 
 total_tags = [
     FirstLevel.first_level_lst(),
@@ -14,11 +14,12 @@ total_tags = [
     ThirdLevel.third_level_lst()
 ]
 
+
 class ModelTagsPrediction:
     """
     Class to get the prediction from the classification model
     """
-    def __init__(self, endpoint_name: str="main-model-cpu-new-test"):
+    def __init__(self, endpoint_name: str = "main-model-cpu-new-test"):
         """
         Input: endpoint_name: Name of the endpoint in sagemaker where the model is deployed
         """
@@ -27,13 +28,13 @@ class ModelTagsPrediction:
     def get_model_predictions(
         self,
         input_df: pd.DataFrame
-    )-> List[Dict]:
+    ) -> List[Dict]:
         """
         Gets the Model tags predictions
         """
-        model_outputs = _get_outputs_from_endpoint(input_df, self.endpoint_name)
+        model_outputs = get_outputs_from_endpoint(input_df, self.endpoint_name)
         if not model_outputs:
-            return None
+            return []
         raw_outputs = json.loads(model_outputs)
         raw_preds = raw_outputs["raw_predictions"]
         thresholds = raw_outputs["thresholds"]
@@ -69,8 +70,9 @@ class ModelTagsPrediction:
 
     def __call__(self, excerpts: List[Dict]):
         return self.get_model_predictions(
-            pd.DataFrame(excerpts).rename(columns={"entry":"excerpt"})
+            pd.DataFrame(excerpts).rename(columns={"entry": "excerpt"})
         )
+
 
 if __name__ == "__main__":
     # Sample
