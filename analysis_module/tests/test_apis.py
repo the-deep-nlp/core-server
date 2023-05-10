@@ -382,3 +382,20 @@ class PredictionAPI(BaseTestCase):
             client_id=self.CLIENT_ID,
             status=NLPRequest.RequestStatus.SUCCESS,
         ).exists(), "NLP request should be created with success status"
+
+    @patch("analysis_module.views.predictions.ModelTagsPrediction")
+    def test_prediction_mock(self, model_prediction_class):
+        self.set_credentials()
+        data = {**self.VALID_DATA, "mock": True}
+        resp = self.client.post(self.URL, data=data, format="json")
+        resp_data = resp.json()
+        assert "predictions" in resp_data
+        predictions = resp_data["predictions"]
+        for item in predictions:
+            assert "client_id" in item
+            assert "model_preds" in item
+        assert not NLPRequest.objects.filter(
+            client_id=self.CLIENT_ID,
+            status=NLPRequest.RequestStatus.SUCCESS,
+        ).exists(), "NLP request should not be created for mock request"
+        model_prediction_class.assert_not_called()

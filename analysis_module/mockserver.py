@@ -79,6 +79,186 @@ MOCK_GEOLOCATION: List = [
     },
 ]
 
+MOCK_PREDICTION = {
+  "predictions": [
+    {
+      "client_id": "5",
+      "model_preds": {
+        "2": {
+          "204": {
+            "2402": {
+              "prediction": 0.4069949281240046,
+              "threshold": 0.489,
+              "is_selected": False
+            },
+            "2401": {
+              "prediction": 0.27091098129102825,
+              "threshold": 0.461,
+              "is_selected": False
+            }
+          }
+        }
+      }
+    },
+    {
+      "client_id": "7",
+      "model_preds": {
+        "2": {
+          "204": {
+            "2402": {
+              "prediction": 0.5442236220665992,
+              "threshold": 0.489,
+              "is_selected": True
+            },
+            "2401": {
+              "prediction": 0.4262570897824335,
+              "threshold": 0.461,
+              "is_selected": False
+            }
+          },
+          "202": {
+            "2206": {
+              "prediction": 0.25068859880169236,
+              "threshold": 0.576,
+              "is_selected": False
+            },
+            "2201": {
+              "prediction": 0.5456802809044823,
+              "threshold": 0.431,
+              "is_selected": True
+            }
+          }
+        },
+        "5": {
+          "503": {
+            "5303": {
+              "prediction": 0.12105567270217965,
+              "threshold": 0.438,
+              "is_selected": False
+            },
+            "5306": {
+              "prediction": 0.0934217669913229,
+              "threshold": 0.424,
+              "is_selected": False
+            },
+            "5310": {
+              "prediction": 0.2706523782039786,
+              "threshold": 0.478,
+              "is_selected": False
+            },
+            "5302": {
+              "prediction": 0.10373815047470006,
+              "threshold": 0.44,
+              "is_selected": False
+            },
+            "5307": {
+              "prediction": 0.10675184680643865,
+              "threshold": 0.414,
+              "is_selected": False
+            },
+            "5309": {
+              "prediction": 0.15713495668023825,
+              "threshold": 0.512,
+              "is_selected": False
+            },
+            "5308": {
+              "prediction": 0.2450807941587348,
+              "threshold": 0.475,
+              "is_selected": False
+            },
+            "5301": {
+              "prediction": 0.16692731163052263,
+              "threshold": 0.488,
+              "is_selected": False
+            },
+            "5305": {
+              "prediction": 0.09886651321893601,
+              "threshold": 0.508,
+              "is_selected": False
+            },
+            "5304": {
+              "prediction": 0.18824445637496742,
+              "threshold": 0.444,
+              "is_selected": False
+            }
+          },
+          "501": {
+            "5102": {
+              "prediction": 0.21789910171917756,
+              "threshold": 0.541,
+              "is_selected": False
+            },
+            "5109": {
+              "prediction": 0.3480727123794051,
+              "threshold": 0.454,
+              "is_selected": False
+            },
+            "5106": {
+              "prediction": 0.23486564947864202,
+              "threshold": 0.381,
+              "is_selected": False
+            },
+            "5108": {
+              "prediction": 0.05966722541108756,
+              "threshold": 0.527,
+              "is_selected": False
+            },
+            "5111": {
+              "prediction": 0.46915922655621894,
+              "threshold": 0.447,
+              "is_selected": True
+            },
+            "5107": {
+              "prediction": 0.3090465321041693,
+              "threshold": 0.449,
+              "is_selected": False
+            },
+            "5101": {
+              "prediction": 0.015221919587000888,
+              "threshold": 0.47,
+              "is_selected": False
+            },
+            "5103": {
+              "prediction": 0.3523940058170018,
+              "threshold": 0.482,
+              "is_selected": False
+            },
+            "5104": {
+              "prediction": 0.003284739766450025,
+              "threshold": 0.786,
+              "is_selected": False
+            },
+            "5105": {
+              "prediction": 0.22805604930227613,
+              "threshold": 0.534,
+              "is_selected": False
+            },
+            "5110": {
+              "prediction": 0.20070979371666908,
+              "threshold": 0.05,
+              "is_selected": True
+            }
+          }
+        },
+        "4": {
+          "401": {
+            "4102": {
+              "prediction": 0.004212768160319299,
+              "threshold": 0.814,
+              "is_selected": False
+            },
+            "4101": {
+              "prediction": 0.4228575605351778,
+              "threshold": 0.422,
+              "is_selected": True
+            }
+          }
+        }
+      }
+    }
+  ]
+}
+
 
 def get_entries_data(url: str) -> Any:
     """get data"""

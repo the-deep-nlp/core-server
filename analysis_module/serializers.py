@@ -65,3 +65,4 @@ class PredictionRequestSerializer(serializers.Serializer):
     publishing_organization = serializers.CharField()
     authoring_organization = serializers.CharField()
     callback_url = serializers.CharField()
+    mock = serializers.BooleanField(default=False)

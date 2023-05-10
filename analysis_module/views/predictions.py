@@ -4,8 +4,10 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework import status
 
-from analysis_module.serializers import TagsMappingRequestSerializer, PredictionRequestSerializer
+from core_server.settings import IS_MOCKSERVER
 from core.models import NLPRequest
+from analysis_module.serializers import TagsMappingRequestSerializer, PredictionRequestSerializer
+from analysis_module.mockserver import MOCK_PREDICTION
 from nlp_scripts.model_prediction.tags_mapping import AF2NLPMapping
 from nlp_scripts.model_prediction.model_prediction import ModelTagsPrediction
 
@@ -49,6 +51,8 @@ def tags_mapping(request: Request):
 def prediction(request: Request):
     serializer = PredictionRequestSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
+    if serializer.validated_data.get("mock") or IS_MOCKSERVER:
+        return Response(MOCK_PREDICTION)
     entries = serializer.validated_data["entries"]
     if not entries:
         return Response({"predictions": []})
