@@ -7,7 +7,7 @@ from rest_framework import status
 from core_server.settings import IS_MOCKSERVER
 from core.models import NLPRequest
 from analysis_module.serializers import TagsMappingRequestSerializer, PredictionRequestSerializer
-from analysis_module.mockserver import MOCK_PREDICTION
+from analysis_module.mockserver import MOCK_ENTRY_CLASSIFICATION
 from nlp_scripts.model_prediction.tags_mapping import AF2NLPMapping
 from nlp_scripts.model_prediction.model_prediction import ModelTagsPrediction
 
@@ -48,18 +48,18 @@ def tags_mapping(request: Request):
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
-def prediction(request: Request):
+def entry_classification(request: Request):
     serializer = PredictionRequestSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     if serializer.validated_data.get("mock") or IS_MOCKSERVER:
-        return Response(MOCK_PREDICTION)
+        return Response(MOCK_ENTRY_CLASSIFICATION)
     entries = serializer.validated_data["entries"]
     if not entries:
-        return Response({"predictions": []})
+        return Response({"classifications": []})
     # Create a NLPRequest object
     nlp_request = NLPRequest.objects.create(
         client_id=entries[0]["client_id"],
-        type=NLPRequest.FeaturesType.PREDICTION,
+        type=NLPRequest.FeaturesType.ENTRY_CLASSIFICATION,
         request_params=serializer.validated_data,
     )
     predictor = ModelTagsPrediction()
@@ -75,4 +75,4 @@ def prediction(request: Request):
     else:
         nlp_request.status = NLPRequest.RequestStatus.SUCCESS
     nlp_request.save(update_fields=['status'])
-    return Response({"predictions": resp_data})
+    return Response({"classifications": resp_data})

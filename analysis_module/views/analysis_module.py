@@ -10,8 +10,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from analysis_module.serializers import (
     TopicModelDeepRequest,
-    DeepEntriesSerializer,
-    NgramsDeepRequest,
+    EntriesSerializer,
+    NgramsRequest,
 )
 from core_server.settings import IS_MOCKSERVER
 
@@ -102,19 +102,19 @@ def topic_modeling(request: Request):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def summarization(request: Request):
-    return process_request(DeepEntriesSerializer, request, "summarization")
+    return process_request(EntriesSerializer, request, "summarization")
 
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def ngrams(request: Request):
-    return process_request(NgramsDeepRequest, request, "ngrams")
+    return process_request(NgramsRequest, request, "ngrams")
 
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def geolocation(request: Request):
-    return process_request(DeepEntriesSerializer, request, "geolocation")
+    return process_request(EntriesSerializer, request, "geolocation")
 
 
 @api_view(["GET"])

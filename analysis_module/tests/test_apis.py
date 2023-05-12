@@ -324,7 +324,7 @@ class TagsMappingAPI(BaseTestCase):
 
 
 class PredictionAPI(BaseTestCase):
-    URL = '/api/v1/prediction/'
+    URL = '/api/v1/entry-classification/'
     CLIENT_ID = "client_id"
     VALID_DATA = {
         "entries": [
@@ -372,8 +372,8 @@ class PredictionAPI(BaseTestCase):
         resp = self.client.post(self.URL, data=self.VALID_DATA, format="json")
         resp_data = resp.json()
         assert resp.status_code == 200
-        assert "predictions" in resp_data
-        predictions = resp_data["predictions"]
+        assert "classifications" in resp_data
+        predictions = resp_data["classifications"]
         assert len(predictions) > 0, "There must be a result"
         for item in predictions:
             assert "client_id" in item
@@ -389,8 +389,8 @@ class PredictionAPI(BaseTestCase):
         data = {**self.VALID_DATA, "mock": True}
         resp = self.client.post(self.URL, data=data, format="json")
         resp_data = resp.json()
-        assert "predictions" in resp_data
-        predictions = resp_data["predictions"]
+        assert "classifications" in resp_data
+        predictions = resp_data["classifications"]
         for item in predictions:
             assert "client_id" in item
             assert "model_preds" in item

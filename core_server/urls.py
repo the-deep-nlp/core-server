@@ -24,7 +24,7 @@ from analysis_module.views.analysis_module import (
     geolocation,
     request_status,
 )
-from analysis_module.views.predictions import tags_mapping, prediction
+from analysis_module.views.predictions import tags_mapping, entry_classification
 from core.views import token_auth_dummy_view
 
 urlpatterns = [
@@ -34,7 +34,7 @@ urlpatterns = [
     path("api/v1/ngrams/", ngrams),
     path("api/v1/geolocation/", geolocation),
     path("api/v1/tags-mapping/", tags_mapping),
-    path("api/v1/prediction/", prediction),
+    path("api/v1/entry-classification/", entry_classification),
     path("api/v1/analysismodule/status/<uuid:unique_id>/", request_status),
     path("api/v1/test-auth/", token_auth_dummy_view),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

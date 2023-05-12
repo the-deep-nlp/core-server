@@ -79,8 +79,8 @@ MOCK_GEOLOCATION: List = [
     },
 ]
 
-MOCK_PREDICTION = {
-  "predictions": [
+MOCK_ENTRY_CLASSIFICATION = {
+  "classifications": [
     {
       "client_id": "5",
       "model_preds": {

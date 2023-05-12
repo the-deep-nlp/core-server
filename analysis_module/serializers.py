@@ -16,12 +16,12 @@ class GeneralUserSerializer(BaseAnalysisSerializer):
     entries_url = BaseEntry(many=True)
 
 
-class DeepEntriesSerializer(BaseAnalysisSerializer):
+class EntriesSerializer(BaseAnalysisSerializer):
     entries_url = serializers.URLField()
     callback_url = serializers.CharField(allow_null=True, required=False)
 
 
-class TopicModelDeepRequest(DeepEntriesSerializer):
+class TopicModelDeepRequest(EntriesSerializer):
     cluster_size = serializers.IntegerField(min_value=1, allow_null=True)
     max_clusters_num = serializers.IntegerField(min_value=1, allow_null=True)
 
@@ -37,7 +37,7 @@ class NgramsParameters(serializers.Serializer):
     max_ngrams_items = serializers.IntegerField(default=10, required=False)
 
 
-class NgramsDeepRequest(DeepEntriesSerializer):
+class NgramsRequest(EntriesSerializer):
     ngrams_config = NgramsParameters()
 
 
