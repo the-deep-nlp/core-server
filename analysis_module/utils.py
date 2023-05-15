@@ -7,7 +7,7 @@ import uuid
 from celery import shared_task
 from typing import Dict, Literal, List, Any
 
-from analysis_module.models import AnalysisModuleRequest
+from core.models import NLPRequest
 
 import logging
 
@@ -78,7 +78,7 @@ def spin_ecs_container(
     params,
     _id=None,
 ) -> Any:
-    am_request = AnalysisModuleRequest.objects.get(unique_id=_id)
+    am_request = NLPRequest.objects.get(unique_id=_id)
 
     try:
         ecs_client = boto3.client("ecs", region_name=os.getenv("AWS_REGION"))

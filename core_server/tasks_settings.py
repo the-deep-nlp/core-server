@@ -24,9 +24,9 @@ CELERY_BEAT_SCHEDULE = {
         ),
     },
     "retry_failed_callbacks": {
-        "task": "analysis_module.tasks.resend_failed_callbacks",
+        "task": "core.tasks.resend_failed_callbacks",
         "schedule": crontab(
-            minute="*/15",
+            minute=env("CRON_FAILED_CALLBACK_SCHEDULE"),
         ),
     },
 }

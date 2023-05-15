@@ -19,6 +19,7 @@ env = environ.Env(
     CRON_DEEP_FETCH_HOUR=str,
     CRON_CREATE_INDICES_MINUTE=str,
     CRON_CREATE_INDICES_HOUR=str,
+    CRON_FAILED_CALLBACK_SCHEDULE=(str, "*/15"),
     # DB
     POSTGRES_DB=str,
     POSTGRES_USER=str,

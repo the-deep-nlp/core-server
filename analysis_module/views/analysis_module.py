@@ -8,17 +8,18 @@ from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from .serializers import (
+from analysis_module.serializers import (
     TopicModelDeepRequest,
-    DeepEntriesSerializer,
-    NgramsDeepRequest,
+    EntriesSerializer,
+    NgramsRequest,
 )
 from core_server.settings import IS_MOCKSERVER
 
-from .utils import spin_ecs_container
-from .models import AnalysisModuleRequest
-from .mockserver import topicmodeling_model, ngrams_model, summarization_model, geolocation_model
+from core.models import NLPRequest
+from analysis_module.utils import spin_ecs_container
+from analysis_module.mockserver import topicmodeling_model, ngrams_model, summarization_model, geolocation_model
 
+RequestType = Literal["topicmodel", "ngrams", "summarization", "geolocation"]
 
 TYPE_ACTIONS = {
     "topicmodel": topicmodeling_model,
@@ -58,7 +59,7 @@ def process_mock_request(request: dict, request_type: str):
 def process_request(
     serializer_model,
     request: Request,
-    request_type: Literal["topicmodel", "ngrams", "summarization"]
+    request_type: RequestType,
 ):
     serializer = serializer_model(data=request.data)
     serializer.is_valid(raise_exception=True)
@@ -66,7 +67,7 @@ def process_request(
     if serializer.validated_data.get("mock") or IS_MOCKSERVER:
         return process_mock_request(request=serializer.validated_data, request_type=request_type)
 
-    am_request = AnalysisModuleRequest.objects.create(
+    am_request = NLPRequest.objects.create(
         client_id=serializer.validated_data["client_id"],
         type=request_type,
         request_params=serializer.validated_data,
@@ -101,26 +102,26 @@ def topic_modeling(request: Request):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def summarization(request: Request):
-    return process_request(DeepEntriesSerializer, request, "summarization")
+    return process_request(EntriesSerializer, request, "summarization")
 
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def ngrams(request: Request):
-    return process_request(NgramsDeepRequest, request, "ngrams")
+    return process_request(NgramsRequest, request, "ngrams")
 
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def geolocation(request: Request):
-    return process_request(DeepEntriesSerializer, request, "geolocation")
+    return process_request(EntriesSerializer, request, "geolocation")
 
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def request_status(request: Request, unique_id: str):
     unique_id = request.query_params.get("unique_id")
-    status = AnalysisModuleRequest.objects.filter(unique_id=unique_id).first()
+    status = NLPRequest.objects.filter(unique_id=unique_id).first()
 
     if not status:
         return Response(

@@ -16,3 +16,6 @@ class BaseTestCase(APITestCase):
             email="testuser@deepl.org",
         )
         self.token = Token.objects.create(user=self.user)
+
+    def set_credentials(self):
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)

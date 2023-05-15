@@ -1,7 +1,5 @@
 from rest_framework import serializers
 
-from .models import AnalysisModuleRequest
-
 
 class BaseEntry(serializers.Serializer):
     entry_id = serializers.CharField()
@@ -18,12 +16,12 @@ class GeneralUserSerializer(BaseAnalysisSerializer):
     entries_url = BaseEntry(many=True)
 
 
-class DeepEntriesSerializer(BaseAnalysisSerializer):
+class EntriesSerializer(BaseAnalysisSerializer):
     entries_url = serializers.URLField()
     callback_url = serializers.CharField(allow_null=True, required=False)
 
 
-class TopicModelDeepRequest(DeepEntriesSerializer):
+class TopicModelDeepRequest(EntriesSerializer):
     cluster_size = serializers.IntegerField(min_value=1, allow_null=True)
     max_clusters_num = serializers.IntegerField(min_value=1, allow_null=True)
 
@@ -39,7 +37,7 @@ class NgramsParameters(serializers.Serializer):
     max_ngrams_items = serializers.IntegerField(default=10, required=False)
 
 
-class NgramsDeepRequest(DeepEntriesSerializer):
+class NgramsRequest(EntriesSerializer):
     ngrams_config = NgramsParameters()
 
 
@@ -47,8 +45,24 @@ class StatusRequest(serializers.Serializer):
     unique_id = serializers.UUIDField()
 
 
-class AnalysisModuleRequestSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AnalysisModuleRequest
-        fields = ["status", "unique_id", "result_s3_link", "type"]
-        read_only_fields = ["status", "unique_id", "result_s3_link", "type"]
+class TagsMappingRequestItem(BaseAnalysisSerializer):
+    label = serializers.CharField()
+    widget_title = serializers.CharField(allow_null=True)
+    parent_label = serializers.CharField(allow_null=True)
+
+
+class TagsMappingRequestSerializer(serializers.Serializer):
+    items = TagsMappingRequestItem(many=True)
+
+
+class PredictionEntrySerializer(serializers.Serializer):
+    client_id = serializers.CharField()
+    entry = serializers.CharField()
+
+
+class PredictionRequestSerializer(serializers.Serializer):
+    entries = PredictionEntrySerializer(many=True)
+    publishing_organization = serializers.CharField()
+    authoring_organization = serializers.CharField()
+    callback_url = serializers.CharField()
+    mock = serializers.BooleanField(default=False)
