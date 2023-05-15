@@ -5,7 +5,7 @@ import requests
 import boto3
 import uuid
 from celery import shared_task
-from typing import Dict, Literal, List, Any
+from typing import Dict, Literal, List, Any, Optional
 
 from core.models import NLPRequest
 
@@ -78,7 +78,7 @@ def spin_ecs_container(
     params,
     _id=None,
 ) -> Any:
-    am_request = NLPRequest.objects.get(unique_id=_id)
+    nlp_request = NLPRequest.objects.get(unique_id=_id)
 
     try:
         ecs_client = boto3.client("ecs", region_name=os.getenv("AWS_REGION"))
@@ -116,8 +116,8 @@ def spin_ecs_container(
         return response
     except Exception:
         logger.error("Error spinning ecs_container", exc_info=True)
-        am_request.status = AnalysisModuleRequest.RequestStatus.FAILED
-        am_request.save(update_fields=['status'])
+        nlp_request.status = NLPRequest.RequestStatus.FAILED
+        nlp_request.save(update_fields=['status'])
 
 
 @shared_task
@@ -150,3 +150,21 @@ def send_callback_url_request(callback_url: str, client_id: str, filepath: str, 
 
     logging.error("No callback url found.")
     return json.dumps({"status": "No callback url found."}), 400
+
+
+@shared_task
+def send_ecs_http_request(url: str, request_id: str, data: dict, ecs_id_param_name: Optional[str]):
+    nlp_request = NLPRequest.objects.get(unique_id=request_id)
+    data = data if not ecs_id_param_name else {**data, ecs_id_param_name: request_id}
+    try:
+        response = requests.post(
+            url,
+            json=data,
+            timeout=30,
+        )
+        if response.status_code < 200 or response.status_code > 299:
+            logger.error(f"Failed response from ecs({url}): {response.text}", exc_info=True)
+    except Exception:
+        logger.error("could not send http request to ecs: {url}", exc_info=True)
+        nlp_request.status = NLPRequest.RequestStatus.FAILED
+        nlp_request.save(update_fields=["status"])

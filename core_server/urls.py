@@ -20,6 +20,7 @@ from django.conf.urls.static import static
 from analysis_module.views.analysis_module import (
     topic_modeling,
     summarization,
+    summarization_v2,
     ngrams,
     geolocation,
     request_status,
@@ -31,6 +32,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/topicmodel/", topic_modeling),
     path("api/v1/summarization/", summarization),
+    path("api/v2/summarization/", summarization_v2),
     path("api/v1/ngrams/", ngrams),
     path("api/v1/geolocation/", geolocation),
     path("api/v1/tags-mapping/", tags_mapping),

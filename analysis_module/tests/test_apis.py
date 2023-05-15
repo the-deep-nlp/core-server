@@ -9,6 +9,7 @@ class TestAnalysisModuleAPIs(BaseTestCase):
     TOPICMODELING_URL = '/api/v1/topicmodel/'
     NGRAMS_URL = '/api/v1/ngrams/'
     SUMMARIZATION_URL = '/api/v1/summarization/'
+    SUMMARIZATION_V2_URL = '/api/v2/summarization/'
     GEOLOCATION_URL = '/api/v1/geolocation/'
 
     def test_topicmodel_incomplete_data(self):
@@ -133,6 +134,24 @@ class TestAnalysisModuleAPIs(BaseTestCase):
             resp = self.client.post(self.SUMMARIZATION_URL, valid_data)
         assert resp.status_code == 202
         spin_ecs_mock.delay.assert_called_once()
+        new_requests_count = NLPRequest.objects.count()
+        assert \
+            new_requests_count == requests_count + 1, \
+            "One more NLPRequest object should be created"
+        assert NLPRequest.objects.filter(type="summarization").exists()
+
+    @patch('analysis_module.views.analysis_module.send_ecs_http_request')
+    def test_summarization_v2_valid_request(self, ecs_http_request):
+        requests_count = NLPRequest.objects.count()
+        valid_data = {
+            "client_id": "client_id",
+            "entries_url": "http://someurl.com/entries",
+        }
+        with self.captureOnCommitCallbacks(execute=True):
+            self.set_credentials()
+            resp = self.client.post(self.SUMMARIZATION_V2_URL, valid_data)
+        assert resp.status_code == 202
+        ecs_http_request.delay.assert_called_once()
         new_requests_count = NLPRequest.objects.count()
         assert \
             new_requests_count == requests_count + 1, \

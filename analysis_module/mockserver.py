@@ -420,7 +420,7 @@ def process_topicmodeling(body) -> Any:
     shuffle(excerpt_ids)
 
     data = [
-        excerpt_ids[x : x + ceil(len(excerpt_ids) / clusters)]
+        excerpt_ids[x: x + ceil(len(excerpt_ids) / clusters)]
         for x in range(0, len(excerpt_ids), ceil(len(excerpt_ids) / clusters))
     ]
 
