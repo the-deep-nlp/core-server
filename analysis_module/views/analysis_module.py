@@ -78,6 +78,7 @@ def process_request(
         client_id=serializer.validated_data["client_id"],
         type=request_type,
         request_params=serializer.validated_data,
+        created_by=request.user,
     )
     transaction.on_commit(
         lambda: spin_ecs_container.delay(
@@ -126,6 +127,7 @@ def summarization_v2(request: Request):
         client_id=serializer.validated_data["client_id"],
         type="summarization-v2",
         request_params=serializer.validated_data,
+        created_by=request.user,
     )
     unique_id = str(nlp_request.unique_id)
     transaction.on_commit(

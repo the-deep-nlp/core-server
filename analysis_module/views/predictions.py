@@ -29,6 +29,7 @@ def tags_mapping(request: Request):
         client_id=items[0]["client_id"],
         type=NLPRequest.FeaturesType.TAGS_MAPPING,
         request_params=serializer.validated_data,
+        created_by=request.user,
     )
     af2nlp_map = AF2NLPMapping()
     try:
@@ -61,6 +62,7 @@ def entry_classification(request: Request):
         client_id=entries[0]["client_id"],
         type=NLPRequest.FeaturesType.ENTRY_CLASSIFICATION,
         request_params=serializer.validated_data,
+        created_by=request.user,
     )
     predictor = ModelTagsPrediction()
     try:
