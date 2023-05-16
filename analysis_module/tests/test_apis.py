@@ -156,7 +156,7 @@ class TestAnalysisModuleAPIs(BaseTestCase):
         assert \
             new_requests_count == requests_count + 1, \
             "One more NLPRequest object should be created"
-        assert NLPRequest.objects.filter(type="summarization").exists()
+        assert NLPRequest.objects.filter(type="summarization-v2").exists()
 
     def test_geolocation_incomplete_data(self):
         valid_data = {

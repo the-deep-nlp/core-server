@@ -165,6 +165,6 @@ def send_ecs_http_request(url: str, request_id: str, data: dict, ecs_id_param_na
         if response.status_code < 200 or response.status_code > 299:
             logger.error(f"Failed response from ecs({url}): {response.text}", exc_info=True)
     except Exception:
-        logger.error("could not send http request to ecs: {url}", exc_info=True)
+        logger.error("Could not send http request to ecs: {url}", exc_info=True)
         nlp_request.status = NLPRequest.RequestStatus.FAILED
         nlp_request.save(update_fields=["status"])

@@ -24,16 +24,16 @@ class TestFailedCallback(BaseTestCase):
         )
 
     @patch("core.models.requests.post")
-    def test_resend_request_successful(self, requests_patch):
+    def test_resend_callback_request_successful(self, requests_patch):
         failed_callback = self.create_failed_callback()
         requests_patch.return_value = Mock(status_code=201)
-        failed_callback.resend_request()
+        failed_callback.resend_callback_request()
         requests_patch.assert_called_once()
         failed_callback.refresh_from_db()
         assert failed_callback.status == FailedCallback.Status.SUCCESS
 
     @patch("core.models.requests.post")
-    def test_resend_request_no_callback_url(self, requests_patch):
+    def test_resend_callback_request_no_callback_url(self, requests_patch):
         # Create a request without callback in params
         req = NLPRequest.objects.create(
             client_id="some_client_id",
@@ -45,7 +45,7 @@ class TestFailedCallback(BaseTestCase):
             request_unique_id=req.unique_id,
         )
         requests_patch.return_value = Mock(status_code=201)
-        failed_callback.resend_request()
+        failed_callback.resend_callback_request()
         requests_patch.assert_not_called()
         failed_callback.refresh_from_db()
         assert failed_callback.status == FailedCallback.Status.FAILED

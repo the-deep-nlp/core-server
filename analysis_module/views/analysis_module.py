@@ -1,4 +1,3 @@
-import requests
 from typing import Literal
 from urllib.parse import urljoin
 
@@ -18,15 +17,21 @@ from core_server.settings import IS_MOCKSERVER, SUMMARIZATION_V2_ECS_ENDPOINT
 
 from core.models import NLPRequest
 from analysis_module.utils import spin_ecs_container, send_ecs_http_request
-from analysis_module.mockserver import topicmodeling_model, ngrams_model, summarization_model, geolocation_model
+from analysis_module.mockserver import (
+    topicmodeling_mock_model,
+    ngrams_mock_model,
+    summarization_mock_model,
+    geolocation_mock_model,
+)
 
 RequestType = Literal["topicmodel", "ngrams", "summarization", "geolocation"]
 
 TYPE_ACTIONS_MOCK = {
-    "topicmodel": topicmodeling_model,
-    "summarization": summarization_model,
-    "ngrams": ngrams_model,
-    "geolocation": geolocation_model,
+    "topicmodel": topicmodeling_mock_model,
+    "summarization": summarization_mock_model,
+    "summarization-v2": summarization_mock_model,
+    "ngrams": ngrams_mock_model,
+    "geolocation": geolocation_mock_model,
 }
 
 
@@ -65,18 +70,22 @@ def process_request(
     serializer.is_valid(raise_exception=True)
 
     if serializer.validated_data.get("mock") or IS_MOCKSERVER:
-        return process_mock_request(request=serializer.validated_data, request_type=request_type)
+        return process_mock_request(
+            request=serializer.validated_data, request_type=request_type
+        )
 
     nlp_request = NLPRequest.objects.create(
         client_id=serializer.validated_data["client_id"],
         type=request_type,
         request_params=serializer.validated_data,
     )
-    transaction.on_commit(lambda: spin_ecs_container.delay(
-        task=request_type,
-        params=serializer.data,
-        _id=nlp_request.unique_id,
-    ))
+    transaction.on_commit(
+        lambda: spin_ecs_container.delay(
+            task=request_type,
+            params=serializer.data,
+            _id=nlp_request.unique_id,
+        )
+    )
 
     resp = {
         "client_id": serializer.data.get("client_id"),
@@ -109,20 +118,24 @@ def summarization_v2(request: Request):
     serializer.is_valid(raise_exception=True)
 
     if serializer.validated_data.get("mock") or IS_MOCKSERVER:
-        return process_mock_request(request=serializer.validated_data, request_type="summarization")
+        return process_mock_request(
+            request=serializer.validated_data, request_type="summarization-v2"
+        )
 
     nlp_request = NLPRequest.objects.create(
         client_id=serializer.validated_data["client_id"],
-        type="summarization",
+        type="summarization-v2",
         request_params=serializer.validated_data,
     )
     unique_id = str(nlp_request.unique_id)
-    transaction.on_commit(lambda: send_ecs_http_request.delay(
-        url=urljoin(SUMMARIZATION_V2_ECS_ENDPOINT, "/generate_report"),
-        request_id=unique_id,
-        data=serializer.validated_data,
-        ecs_id_param_name="summarization_id"
-    ))
+    transaction.on_commit(
+        lambda: send_ecs_http_request.delay(
+            url=urljoin(SUMMARIZATION_V2_ECS_ENDPOINT, "/generate_report"),
+            request_id=unique_id,
+            data=serializer.validated_data,
+            ecs_id_param_name="summarization_id",
+        )
+    )
     resp = {
         "client_id": serializer.data.get("client_id"),
         "type": "summaraization",
@@ -158,7 +171,4 @@ def request_status(request: Request, unique_id: str):
             {"message": "Unrecorded process"}, status=status.HTTP_404_NOT_FOUND
         )
     else:
-        return Response(
-            status,
-            status=status.HTTP_200_OK
-        )
+        return Response(status, status=status.HTTP_200_OK)

@@ -336,6 +336,7 @@ class NLPRequest(BaseModel):
         NGRAMS = "ngrams", "Ngrams"
         TOPICMODEL = "topicmodel", "Topicmodel"
         SUMMARIZATION = "summarization", "Summarization"
+        SUMMARIZATION_V2 = "summarization-v2", "Summarization-V2"
         GEOLOCATION = "geolocation", "Geolocation"
         TAGS_MAPPING = "tags-mapping", "Tags Mapping"
         ENTRY_CLASSIFICATION = "entry-classification", "Entry Classification"
@@ -370,7 +371,7 @@ class FailedCallback(BaseModel):
     class Meta:
         db_table = "failed_callback_tracker"
 
-    def resend_request(self):
+    def resend_callback_request(self):
         if self.retries_count >= CALLBACK_MAX_RETRIES_LIMIT:
             self.status = self.Status.RETRY_MAXED_OUT
             self.save()
