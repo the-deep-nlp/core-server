@@ -58,6 +58,7 @@ jobs:
       ALLOWED_HOSTS: ''
       ENVIRONMENT: 'CI'
       CSRF_TRUSTED_ORIGINS: ''
+      SUMMARIZATION_V2_ECS_ENDPOINT: ''
 
       # Celery
       CELERY_BROKER_URL: ''
@@ -88,15 +89,16 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install enchant
+      - name: Install enchant library
         run: |
           sudo apt install enchant-2
-          python -m pip install --upgrade pip pyenchant
 
       - name: Test
         run: |
           python -m pip install --upgrade poetry
           poetry install
+          # Install enchant separately because adding it to poetry toml doesn't work
+          poetry run pip install --upgrade pyenchant
           poetry run python manage.py migrate
           poetry run pytest --cov .
           poetry run coverage xml

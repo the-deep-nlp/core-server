@@ -346,7 +346,10 @@ class NLPRequest(BaseModel):
     unique_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     result_s3_link = models.TextField(null=True, blank=True)
     type = models.CharField(choices=FeaturesType.choices, max_length=20)
-    request_params = models.JSONField(null=True, blank=True)  # To capture the original request params
+    # To capture the original request params
+    request_params = models.JSONField(null=True, blank=True)
+    process_attempts = models.PositiveIntegerField(default=0)
+    last_process_attempted = models.DateTimeField(null=True)
 
     class Meta:
         db_table = "event_status_tracker"

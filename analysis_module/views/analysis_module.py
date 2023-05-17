@@ -1,5 +1,4 @@
 from typing import Literal
-from urllib.parse import urljoin
 
 from django.db import transaction
 from rest_framework import status
@@ -120,29 +119,21 @@ def summarization_v2(request: Request):
 
     if serializer.validated_data.get("mock") or IS_MOCKSERVER:
         return process_mock_request(
-            request=serializer.validated_data, request_type="summarization-v2"
+            request=serializer.validated_data,
+            request_type=NLPRequest.FeaturesType.SUMMARIZATION_V2,
         )
 
     nlp_request = NLPRequest.objects.create(
         client_id=serializer.validated_data["client_id"],
-        type="summarization-v2",
+        type=NLPRequest.FeaturesType.SUMMARIZATION_V2,
         request_params=serializer.validated_data,
         created_by=request.user,
     )
-    unique_id = str(nlp_request.unique_id)
-    transaction.on_commit(
-        lambda: send_ecs_http_request.delay(
-            url=urljoin(SUMMARIZATION_V2_ECS_ENDPOINT, "/generate_report"),
-            request_id=unique_id,
-            data=serializer.validated_data,
-            ecs_id_param_name="summarization_id",
-        )
-    )
     resp = {
         "client_id": serializer.data.get("client_id"),
-        "type": "summaraization",
+        "type": NLPRequest.FeaturesType.SUMMARIZATION_V2,
         "message": "Request has been successfully processed",
-        "request_id": unique_id,
+        "request_id": str(nlp_request.unique_id),
     }
     return Response(
         resp,

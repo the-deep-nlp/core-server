@@ -11,6 +11,8 @@ env = environ.Env(
     CSRF_TRUSTED_ORIGINS=list,
     USE_S3=(bool, True),
     CALLBACK_MAX_RETRIES_LIMIT=(int, 5),
+    ECS_REQUESTS_BATCH_SIZE=(int, 20),
+    MAX_NLP_PROCESSING_ATTEMPTS=(int, 3),
     # Celery
     CELERY_BROKER_URL=str,
     CELERY_RESULT_BACKEND=str,
@@ -20,6 +22,7 @@ env = environ.Env(
     CRON_CREATE_INDICES_MINUTE=str,
     CRON_CREATE_INDICES_HOUR=str,
     CRON_FAILED_CALLBACK_SCHEDULE=(str, "*/15"),
+    CRON_RESEND_ECS_REQUEST_MINUTES=(int, 15),
     # DB
     POSTGRES_DB=str,
     POSTGRES_USER=str,

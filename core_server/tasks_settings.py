@@ -29,4 +29,10 @@ CELERY_BEAT_SCHEDULE = {
             minute=env("CRON_FAILED_CALLBACK_SCHEDULE"),
         ),
     },
+    "process_pending_nlp_requests": {
+        "task": "analysis_module.tasks.process_pending_nlp_requests",
+        "schedule": crontab(
+            minute=env("CRON_RESEND_ECS_REQUEST_MINUTES"),
+        ),
+    },
 }

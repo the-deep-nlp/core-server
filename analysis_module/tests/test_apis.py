@@ -149,18 +149,15 @@ class TestAnalysisModuleAPIs(BaseTestCase):
             created_by=self.user
         ).exists()
 
-    @patch('analysis_module.views.analysis_module.send_ecs_http_request')
-    def test_summarization_v2_valid_request(self, ecs_http_request):
+    def test_summarization_v2_valid_request(self):
         requests_count = NLPRequest.objects.count()
         valid_data = {
             "client_id": "client_id",
             "entries_url": "http://someurl.com/entries",
         }
-        with self.captureOnCommitCallbacks(execute=True):
-            self.set_credentials()
-            resp = self.client.post(self.SUMMARIZATION_V2_URL, valid_data)
+        self.set_credentials()
+        resp = self.client.post(self.SUMMARIZATION_V2_URL, valid_data)
         assert resp.status_code == 202
-        ecs_http_request.delay.assert_called_once()
         new_requests_count = NLPRequest.objects.count()
         assert \
             new_requests_count == requests_count + 1, \
