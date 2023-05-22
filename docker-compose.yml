@@ -47,10 +47,10 @@ x-server: &base-server-config
     DEEP_DB_PORT: ${DEEP_DB_PORT:-5432}
     DEEP_DB_HOST: ${DEEP_DB_HOST:-host.docker.internal}
 
-    #MOCKSERVER
+    # MOCKSERVER
     MOCKSERVER_PORT: ${MOCKSERVER_PORT:-8081}
 
-    #
+    # ECS endpoints
     SUMMARIZATION_V2_ECS_ENDPOINT: ${SUMMARIZATION_V2_ECS_ENDPOINT:?Provide summarization v2 endpoint}
 
     # SENTRY
