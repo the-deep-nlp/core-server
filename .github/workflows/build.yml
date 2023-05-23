@@ -100,8 +100,16 @@ jobs:
           poetry run pytest --cov .
           poetry run coverage xml
 
+  build:
+    name: Build and push images
+    needs: checkout-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
       - name: Configure AWS Credentials
-        if: ${{ github.ref == 'ref/head/main' }}
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -109,12 +117,10 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Login to AWS ECR
-        if: ${{ github.ref == 'ref/head/main' }}
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: Build, Tag and Push Image to AWS ECR
-        if: ${{ github.ref == 'ref/head/main' }}
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_BACKEND }}
@@ -124,7 +130,6 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Upload Coverage to Codecov
-        if: ${{ github.ref == 'ref/head/main' }}
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
