@@ -5,9 +5,13 @@ import requests
 import boto3
 import uuid
 from celery import shared_task
+from urllib.parse import urljoin
 from typing import Dict, Literal, List, Any
 
 from core.models import NLPRequest
+from core_server.settings import (
+    SUMMARIZATION_V2_ECS_ENDPOINT,
+)
 
 import logging
 
@@ -78,7 +82,7 @@ def spin_ecs_container(
     params,
     _id=None,
 ) -> Any:
-    am_request = NLPRequest.objects.get(unique_id=_id)
+    nlp_request = NLPRequest.objects.get(unique_id=_id)
 
     try:
         ecs_client = boto3.client("ecs", region_name=os.getenv("AWS_REGION"))
@@ -116,8 +120,8 @@ def spin_ecs_container(
         return response
     except Exception:
         logger.error("Error spinning ecs_container", exc_info=True)
-        am_request.status = AnalysisModuleRequest.RequestStatus.FAILED
-        am_request.save(update_fields=['status'])
+        nlp_request.status = NLPRequest.RequestStatus.FAILED
+        nlp_request.save(update_fields=['status'])
 
 
 @shared_task
@@ -150,3 +154,41 @@ def send_callback_url_request(callback_url: str, client_id: str, filepath: str, 
 
     logging.error("No callback url found.")
     return json.dumps({"status": "No callback url found."}), 400
+
+
+def send_ecs_http_request(nlp_request: NLPRequest):
+    ecs_id_param_name = get_ecs_id_param_name(nlp_request.type)
+    url = get_ecs_url(nlp_request.type)
+    if url is None:
+        return
+    data = nlp_request.request_params \
+        if not ecs_id_param_name \
+        else {
+            **nlp_request.request_params,
+            ecs_id_param_name: str(nlp_request.pk),
+        }
+    try:
+        response = requests.post(
+            url,
+            json=data,
+            timeout=30,
+        )
+        if response.status_code < 200 or response.status_code > 299:
+            logger.error(f"Failed response from ecs({url}): {response.text}", exc_info=True)
+            nlp_request.status = NLPRequest.RequestStatus.FAILED
+    except Exception:
+        logger.error("Could not send http request to ecs: {url}", exc_info=True)
+        nlp_request.status = NLPRequest.RequestStatus.FAILED
+    nlp_request.save(update_fields=["status"])
+
+
+def get_ecs_id_param_name(request_type: NLPRequest.FeaturesType):
+    if request_type == NLPRequest.FeaturesType.SUMMARIZATION_V2:
+        return "summarization_id"
+    return None
+
+
+def get_ecs_url(request_type: NLPRequest.FeaturesType):
+    if request_type == NLPRequest.FeaturesType.SUMMARIZATION_V2:
+        return urljoin(SUMMARIZATION_V2_ECS_ENDPOINT, "/generate_report")
+    return None

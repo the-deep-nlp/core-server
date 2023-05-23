@@ -336,6 +336,7 @@ class NLPRequest(BaseModel):
         NGRAMS = "ngrams", "Ngrams"
         TOPICMODEL = "topicmodel", "Topicmodel"
         SUMMARIZATION = "summarization", "Summarization"
+        SUMMARIZATION_V2 = "summarization-v2", "Summarization-V2"
         GEOLOCATION = "geolocation", "Geolocation"
         TAGS_MAPPING = "tags-mapping", "Tags Mapping"
         ENTRY_CLASSIFICATION = "entry-classification", "Entry Classification"
@@ -345,7 +346,10 @@ class NLPRequest(BaseModel):
     unique_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     result_s3_link = models.TextField(null=True, blank=True)
     type = models.CharField(choices=FeaturesType.choices, max_length=20)
-    request_params = models.JSONField(null=True, blank=True)  # To capture the original request params
+    # To capture the original request params
+    request_params = models.JSONField(null=True, blank=True)
+    process_attempts = models.PositiveIntegerField(default=0)
+    last_process_attempted = models.DateTimeField(null=True)
 
     class Meta:
         db_table = "event_status_tracker"
@@ -370,7 +374,7 @@ class FailedCallback(BaseModel):
     class Meta:
         db_table = "failed_callback_tracker"
 
-    def resend_request(self):
+    def resend_callback_request(self):
         if self.retries_count >= CALLBACK_MAX_RETRIES_LIMIT:
             self.status = self.Status.RETRY_MAXED_OUT
             self.save()

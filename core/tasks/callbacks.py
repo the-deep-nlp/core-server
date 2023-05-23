@@ -13,8 +13,8 @@ def get_failed_callbacks():
     )
 
 
-@shared_task
+@shared_task(name="core.tasks.resend_failed_callbacks")
 def resend_failed_callbacks():
     failed_callbacks = get_failed_callbacks()
     for failed_callback in failed_callbacks:
-        failed_callback.resend_request()
+        failed_callback.resend_callback_request()

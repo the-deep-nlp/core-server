@@ -354,7 +354,7 @@ def process_ngrams(body):
     )
 
 
-def ngrams_model(body) -> Any:
+def ngrams_mock_model(body) -> Any:
     process_ngrams.delay(body)
     return json.dumps({"status": "Successfully received the request."}), 200
 
@@ -391,7 +391,7 @@ def process_summarization(body: dict) -> Any:
     )
 
 
-def summarization_model(body) -> Any:
+def summarization_mock_model(body) -> Any:
     process_summarization.delay(body)
     return json.dumps({"status": "Successfully received the request."}), 200
 
@@ -420,7 +420,7 @@ def process_topicmodeling(body) -> Any:
     shuffle(excerpt_ids)
 
     data = [
-        excerpt_ids[x : x + ceil(len(excerpt_ids) / clusters)]
+        excerpt_ids[x: x + ceil(len(excerpt_ids) / clusters)]
         for x in range(0, len(excerpt_ids), ceil(len(excerpt_ids) / clusters))
     ]
 
@@ -438,7 +438,7 @@ def process_topicmodeling(body) -> Any:
     )
 
 
-def topicmodeling_model(body) -> Any:
+def topicmodeling_mock_model(body) -> Any:
     process_topicmodeling.delay(body)
     return json.dumps({"status": "Successfully received the request."}), 200
 
@@ -494,6 +494,6 @@ def process_geolocation(body) -> Any:
     )
 
 
-def geolocation_model(body) -> Any:
+def geolocation_mock_model(body) -> Any:
     process_geolocation.delay(body)
     return json.dumps({"status": "Successfully received the request."}), 200

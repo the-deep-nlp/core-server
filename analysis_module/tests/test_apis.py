@@ -9,6 +9,7 @@ class TestAnalysisModuleAPIs(BaseTestCase):
     TOPICMODELING_URL = '/api/v1/topicmodel/'
     NGRAMS_URL = '/api/v1/ngrams/'
     SUMMARIZATION_URL = '/api/v1/summarization/'
+    SUMMARIZATION_V2_URL = '/api/v2/summarization/'
     GEOLOCATION_URL = '/api/v1/geolocation/'
 
     def test_topicmodel_incomplete_data(self):
@@ -53,7 +54,10 @@ class TestAnalysisModuleAPIs(BaseTestCase):
         assert \
             new_requests_count == requests_count + 1, \
             "One more NLPRequest object should be created"
-        assert NLPRequest.objects.filter(type="topicmodel").exists()
+        assert NLPRequest.objects.filter(
+            type="topicmodel",
+            created_by=self.user,
+        ).exists()
 
     def test_ngrams_incomplete_data(self):
         """
@@ -104,7 +108,10 @@ class TestAnalysisModuleAPIs(BaseTestCase):
         assert \
             new_requests_count == requests_count + 1, \
             "One more NLPRequest object should be created"
-        assert NLPRequest.objects.filter(type="ngrams").exists()
+        assert NLPRequest.objects.filter(
+            type="ngrams",
+            created_by=self.user,
+        ).exists()
 
     def test_summarization_incomplete_data(self):
         valid_data = {
@@ -137,7 +144,28 @@ class TestAnalysisModuleAPIs(BaseTestCase):
         assert \
             new_requests_count == requests_count + 1, \
             "One more NLPRequest object should be created"
-        assert NLPRequest.objects.filter(type="summarization").exists()
+        assert NLPRequest.objects.filter(
+            type="summarization",
+            created_by=self.user
+        ).exists()
+
+    def test_summarization_v2_valid_request(self):
+        requests_count = NLPRequest.objects.count()
+        valid_data = {
+            "client_id": "client_id",
+            "entries_url": "http://someurl.com/entries",
+        }
+        self.set_credentials()
+        resp = self.client.post(self.SUMMARIZATION_V2_URL, valid_data)
+        assert resp.status_code == 202
+        new_requests_count = NLPRequest.objects.count()
+        assert \
+            new_requests_count == requests_count + 1, \
+            "One more NLPRequest object should be created"
+        assert NLPRequest.objects.filter(
+            type="summarization-v2",
+            created_by=self.user,
+        ).exists()
 
     def test_geolocation_incomplete_data(self):
         valid_data = {
@@ -170,7 +198,10 @@ class TestAnalysisModuleAPIs(BaseTestCase):
         assert \
             new_requests_count == requests_count + 1, \
             "One more NLPRequest object should be created"
-        assert NLPRequest.objects.filter(type="geolocation").exists()
+        assert NLPRequest.objects.filter(
+            type="geolocation",
+            created_by=self.user
+        ).exists()
 
 
 class TestAnalysisModuleMockAPIs(BaseTestCase):
@@ -320,6 +351,7 @@ class TagsMappingAPI(BaseTestCase):
         assert NLPRequest.objects.filter(
             client_id=self.CLIENT_ID,
             status=NLPRequest.RequestStatus.SUCCESS,
+            created_by=self.user,
         ).exists(), "NLP request should be created with success status"
 
 
@@ -359,7 +391,10 @@ class PredictionAPI(BaseTestCase):
             resp = self.client.post(self.URL, data=data, format="json")
             assert resp.status_code == 400
             assert "entries" in resp.json()["field_errors"]
-            assert not NLPRequest.objects.filter(client_id=self.CLIENT_ID).exists(), \
+            assert not NLPRequest.objects.filter(
+                client_id=self.CLIENT_ID,
+                created_by=self.user,
+            ).exists(), \
                 "No nlp request should be created"
 
     @patch("analysis_module.views.predictions.ModelTagsPrediction")
@@ -380,6 +415,7 @@ class PredictionAPI(BaseTestCase):
             assert "model_preds" in item
         assert NLPRequest.objects.filter(
             client_id=self.CLIENT_ID,
+            created_by=self.user,
             status=NLPRequest.RequestStatus.SUCCESS,
         ).exists(), "NLP request should be created with success status"
 
@@ -396,6 +432,7 @@ class PredictionAPI(BaseTestCase):
             assert "model_preds" in item
         assert not NLPRequest.objects.filter(
             client_id=self.CLIENT_ID,
+            created_by=self.user,
             status=NLPRequest.RequestStatus.SUCCESS,
         ).exists(), "NLP request should not be created for mock request"
         model_prediction_class.assert_not_called()
