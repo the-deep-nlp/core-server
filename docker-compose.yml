@@ -52,6 +52,7 @@ x-server: &base-server-config
 
     # ECS endpoints
     SUMMARIZATION_V2_ECS_ENDPOINT: ${SUMMARIZATION_V2_ECS_ENDPOINT:?Provide summarization v2 endpoint}
+    TEXT_EXTRACTION_ECS_ENDPOINT: ${TEXT_EXTRACTION_ECS_ENDPOINT:?Provide text extraction endpoint}
 
     # SENTRY
     SENTRY_DSN: ${SENTRY_DSN:-}

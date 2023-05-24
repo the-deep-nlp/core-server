@@ -8,9 +8,12 @@ from celery import shared_task
 from urllib.parse import urljoin
 from typing import Dict, Literal, List, Any
 
+from django.utils import timezone
+
 from core.models import NLPRequest
 from core_server.settings import (
     SUMMARIZATION_V2_ECS_ENDPOINT,
+    TEXT_EXTRACTION_ECS_ENDPOINT,
 )
 
 import logging
@@ -179,7 +182,9 @@ def send_ecs_http_request(nlp_request: NLPRequest):
     except Exception:
         logger.error("Could not send http request to ecs: {url}", exc_info=True)
         nlp_request.status = NLPRequest.RequestStatus.FAILED
-    nlp_request.save(update_fields=["status"])
+    nlp_request.last_process_attempted = timezone.now()
+    nlp_request.process_attempts += 1
+    nlp_request.save(update_fields=["status", "last_process_attempted", "process_attempts"])
 
 
 def get_ecs_id_param_name(request_type: NLPRequest.FeaturesType):
@@ -191,4 +196,6 @@ def get_ecs_id_param_name(request_type: NLPRequest.FeaturesType):
 def get_ecs_url(request_type: NLPRequest.FeaturesType):
     if request_type == NLPRequest.FeaturesType.SUMMARIZATION_V2:
         return urljoin(SUMMARIZATION_V2_ECS_ENDPOINT, "/generate_report")
+    elif request_type == NLPRequest.FeaturesType.TEXT_EXTRACTION:
+        return urljoin(TEXT_EXTRACTION_ECS_ENDPOINT, "/extract_document")
     return None

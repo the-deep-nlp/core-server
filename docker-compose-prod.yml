@@ -41,6 +41,10 @@ x-server: &base-server-config
     #MOCKSERVER
     MOCKSERVER_PORT: ${MOCKSERVER_PORT:-8081}
 
+    # ECS endpoints
+    SUMMARIZATION_V2_ECS_ENDPOINT: ${SUMMARIZATION_V2_ECS_ENDPOINT:?Provide summarization v2 endpoint}
+    TEXT_EXTRACTION_ECS_ENDPOINT: ${TEXT_EXTRACTION_ECS_ENDPOINT:?Provide text extraction endpoint}
+
   tty: true
   depends_on:
     - redis

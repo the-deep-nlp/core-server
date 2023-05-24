@@ -1,3 +1,4 @@
+from django.db import models
 from rest_framework import serializers
 
 
@@ -66,3 +67,25 @@ class PredictionRequestSerializer(serializers.Serializer):
     authoring_organization = serializers.CharField()
     callback_url = serializers.CharField()
     mock = serializers.BooleanField(default=False)
+
+
+class ExtractionDocumentSerializer(serializers.Serializer):
+    url = serializers.CharField()
+    client_id = serializers.CharField()
+
+
+class ExtractionRequestTypeChoices(models.IntegerChoices):
+    # SYSTEM: Triggered by the client(eg DEEP's) system internally, and this need not
+    # be processed right away
+    SYSTEM = 0, "SYSTEM"
+    # USER: Triggerd by user from the UI, and this needs to be processed right away
+    USER = 1, "USER"
+
+
+class TextExtractionSerializer(serializers.Serializer):
+    documents = ExtractionDocumentSerializer(many=True)
+    callback_url = serializers.CharField()
+    request_type = serializers.ChoiceField(
+        choices=ExtractionRequestTypeChoices,
+        default=ExtractionRequestTypeChoices.SYSTEM,
+    )

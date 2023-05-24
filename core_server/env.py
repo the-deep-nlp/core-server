@@ -46,4 +46,8 @@ env = environ.Env(
     AWS_S3_SECRET_ACCESS_KEY=(str, None),
     AWS_S3_BUCKET_NAME=(str, None),
     AWS_S3_REGION_NAME=(str, None),
+
+    # ECS endpoints
+    SUMMARIZATION_V2_ECS_ENDPOINT=(str, None),
+    TEXT_EXTRACTION_ECS_ENDPOINT=(str, None),
 )
