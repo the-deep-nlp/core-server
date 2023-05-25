@@ -7,7 +7,6 @@ import numpy as np
 
 from typing import List
 from botocore.exceptions import ClientError
-from django.conf import settings
 
 from .postprocess_cpu_model_outputs import (
     convert_current_dict_to_previous_one,
@@ -34,14 +33,16 @@ class ClassificationModelOutput:
         batch_size: int = 10,
         prediction_required: bool = True,
         embeddings_required: bool = True,
+        aws_access_key_id: str = None,
+        aws_secret_access_key: str = None
     ):
         self.dataframe = dataframe
         self.endpoint_name = endpoint_name
         self.batch = len(self.dataframe) // batch_size
         self.sg_client = boto3.session.Session().client(
             "sagemaker-runtime", region_name=aws_region,
-            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key,
         )
         self.prediction_required = prediction_required
         self.embeddings_required = embeddings_required

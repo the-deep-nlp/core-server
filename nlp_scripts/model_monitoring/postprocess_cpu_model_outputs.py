@@ -6,7 +6,6 @@ from botocore.exceptions import ClientError
 from ast import literal_eval
 from typing import List, Dict
 from collections import defaultdict
-from django.conf import settings
 
 
 logging.getLogger().setLevel(logging.INFO)
@@ -173,11 +172,11 @@ def convert_current_dict_to_previous_one(
     return outputs
 
 
-def get_endpoint_probas(df, endpoint_name):
+def get_endpoint_probas(df, endpoint_name, aws_access_key_id=None, aws_secret_access_key=None):
     client = boto3.session.Session().client(
         "sagemaker-runtime", region_name="us-east-1",
-        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+        aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_secret_access_key,
     )
 
     all_outputs = []
