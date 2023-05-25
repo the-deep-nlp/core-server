@@ -4,6 +4,7 @@ import pandas as pd
 from django.db import transaction
 import django
 import django.utils.timezone as timezone
+from django.conf import settings
 
 from utils.core import format_af_tags
 
@@ -163,6 +164,8 @@ def calculate_model_metrics():
             batch_size=1,
             prediction_required=True,
             embeddings_required=True,
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
         )
         output_df = model_output.generate_outputs()
         save_classification_prediction(output_df)
