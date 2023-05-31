@@ -2,6 +2,7 @@ from copy import deepcopy
 from unittest.mock import patch, Mock
 from core_server.base_test import BaseTestCase
 
+from django.test import override_settings
 from django.db import transaction
 
 from core.models import NLPRequest
@@ -12,7 +13,6 @@ class TestAnalysisModuleAPIs(BaseTestCase):
     TOPICMODELING_URL = '/api/v1/topicmodel/'
     NGRAMS_URL = '/api/v1/ngrams/'
     SUMMARIZATION_URL = '/api/v1/summarization/'
-    SUMMARIZATION_V2_URL = '/api/v2/summarization/'
     GEOLOCATION_URL = '/api/v1/geolocation/'
 
     def test_topicmodel_incomplete_data(self):
@@ -138,9 +138,12 @@ class TestAnalysisModuleAPIs(BaseTestCase):
             "client_id": "client_id",
             "entries_url": "http://someurl.com/entries",
         }
-        with self.captureOnCommitCallbacks(execute=True):
+        with patch("analysis_module.views.analysis_module.USE_NEW_SUMMARIZATION", False), \
+                self.captureOnCommitCallbacks(execute=True) as callbacks:
             self.set_credentials()
             resp = self.client.post(self.SUMMARIZATION_URL, valid_data)
+
+        assert len(callbacks) == 1
         assert resp.status_code == 202
         spin_ecs_mock.delay.assert_called_once()
         new_requests_count = NLPRequest.objects.count()
@@ -152,6 +155,7 @@ class TestAnalysisModuleAPIs(BaseTestCase):
             created_by=self.user
         ).exists()
 
+    @override_settings(USE_NEW_SUMMARIZATION=True)
     def test_summarization_v2_valid_request(self):
         requests_count = NLPRequest.objects.count()
         valid_data = {
@@ -159,7 +163,7 @@ class TestAnalysisModuleAPIs(BaseTestCase):
             "entries_url": "http://someurl.com/entries",
         }
         self.set_credentials()
-        resp = self.client.post(self.SUMMARIZATION_V2_URL, valid_data)
+        resp = self.client.post(self.SUMMARIZATION_URL, valid_data)
         assert resp.status_code == 202
         new_requests_count = NLPRequest.objects.count()
         assert \
@@ -563,7 +567,8 @@ class TestTextExtractionAPI(BaseTestCase):
         # Because callback() above makes db change
         transaction.on_commit(_test)
 
-    def test_extraction_mock(self):
+    @patch("analysis_module.mockserver.process_extraction_mock.apply_async")
+    def test_extraction_mock(self, process_mock):
         data = {
             "documents": [
                 {"url": "someurl", "client_id": self.CLIENT_ID},
@@ -584,5 +589,7 @@ class TestTextExtractionAPI(BaseTestCase):
             created_by=self.user,
             status=NLPRequest.RequestStatus.INITIATED,
         ).first()
+
+        process_mock.assert_called_once()
 
         assert req_object is None, "NLP request should not be created for mock request"

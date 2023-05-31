@@ -10,6 +10,7 @@ env = environ.Env(
     ENDPOINT_NAME=(str, "http://localhost"),
     CSRF_TRUSTED_ORIGINS=list,
     USE_S3=(bool, True),
+    USE_NEW_SUMMARIZATION=(bool, True),
     CALLBACK_MAX_RETRIES_LIMIT=(int, 5),
     ECS_REQUESTS_BATCH_SIZE=(int, 20),
     MAX_NLP_PROCESSING_ATTEMPTS=(int, 3),

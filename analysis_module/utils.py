@@ -189,6 +189,8 @@ def send_ecs_http_request(nlp_request: NLPRequest):
 def get_ecs_id_param_name(request_type: NLPRequest.FeaturesType):
     if request_type == NLPRequest.FeaturesType.SUMMARIZATION_V2:
         return "summarization_id"
+    if request_type == NLPRequest.FeaturesType.TEXT_EXTRACTION:
+        return "textextraction_id"
     return None
 
 

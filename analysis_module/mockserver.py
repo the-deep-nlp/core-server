@@ -532,7 +532,7 @@ def process_extraction_mock(body) -> Any:
         filepath = save_data_local_and_get_url("extraction", client_id, data)
         send_callback_url_request(
             callback_url=callback_url,
-            client_id=document["client_id"],
+            client_id=client_id,
             filepath=filepath,
             status=NLPRequest.RequestStatus.SUCCESS,
         )
