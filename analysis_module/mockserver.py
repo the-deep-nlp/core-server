@@ -10,6 +10,10 @@ from math import ceil
 from celery import shared_task
 from sklearn.feature_extraction.text import CountVectorizer
 
+from rest_framework.exceptions import ValidationError
+from rest_framework.response import Response
+from rest_framework import status
+
 from core.models import NLPRequest
 from core_server.settings import ENDPOINT_NAME
 from .utils import send_callback_url_request
@@ -497,3 +501,43 @@ def process_geolocation(body) -> Any:
 def geolocation_mock_model(body) -> Any:
     process_geolocation.delay(body)
     return json.dumps({"status": "Successfully received the request."}), 200
+
+
+def text_extraction_mock(body) -> Any:
+    return {}
+
+
+TYPE_ACTIONS_MOCK = {
+    "topicmodel": topicmodeling_mock_model,
+    "summarization": summarization_mock_model,
+    "summarization-v2": summarization_mock_model,
+    "ngrams": ngrams_mock_model,
+    "geolocation": geolocation_mock_model,
+    "text_extraction": text_extraction_mock,
+}
+
+
+def process_mock_request(request: dict, request_type: str):
+    action = TYPE_ACTIONS_MOCK.get(request_type)
+    if action is None:
+        raise ValidationError("Invalid request type")
+
+    response, code = action(request)
+
+    if code == 200:
+        resp = {
+            "client_id": request.get("client_id"),
+            "type": request_type,
+            "message": "Request has been successfully processed",
+        }
+
+        return Response(
+            resp,
+            status=status.HTTP_202_ACCEPTED,
+        )
+
+    else:
+        return Response(
+            {"message": response["status"]},
+            status=status.HTTP_400_BAD_REQUEST,
+        )

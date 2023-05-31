@@ -2,7 +2,6 @@ from typing import Literal
 
 from django.db import transaction
 from rest_framework import status
-from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.decorators import api_view, permission_classes
@@ -12,52 +11,12 @@ from analysis_module.serializers import (
     EntriesSerializer,
     NgramsRequest,
 )
-from core_server.settings import IS_MOCKSERVER, SUMMARIZATION_V2_ECS_ENDPOINT
-
+from core_server.settings import IS_MOCKSERVER
 from core.models import NLPRequest
-from analysis_module.utils import spin_ecs_container, send_ecs_http_request
-from analysis_module.mockserver import (
-    topicmodeling_mock_model,
-    ngrams_mock_model,
-    summarization_mock_model,
-    geolocation_mock_model,
-)
+from analysis_module.utils import spin_ecs_container
+from analysis_module.mockserver import process_mock_request
 
 RequestType = Literal["topicmodel", "ngrams", "summarization", "geolocation"]
-
-TYPE_ACTIONS_MOCK = {
-    "topicmodel": topicmodeling_mock_model,
-    "summarization": summarization_mock_model,
-    "summarization-v2": summarization_mock_model,
-    "ngrams": ngrams_mock_model,
-    "geolocation": geolocation_mock_model,
-}
-
-
-def process_mock_request(request: dict, request_type: str):
-    action = TYPE_ACTIONS_MOCK.get(request_type)
-    if action is None:
-        raise ValidationError("Invalid request type")
-
-    response, code = action(request)
-
-    if code == 200:
-        resp = {
-            "client_id": request.get("client_id"),
-            "type": request_type,
-            "message": "Request has been successfully processed",
-        }
-
-        return Response(
-            resp,
-            status=status.HTTP_202_ACCEPTED,
-        )
-
-    else:
-        return Response(
-            {"message": response["status"]},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
 
 
 def process_request(

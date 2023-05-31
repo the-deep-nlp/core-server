@@ -544,4 +544,25 @@ class TestTextExtractionAPI(BaseTestCase):
         assert req_object.process_attempts == 1
 
     def test_extraction_mock(self):
-        assert False
+        data = {
+            "documents": [
+                {"url": "someurl", "client_id": self.CLIENT_ID},
+            ],
+            "callback_url": "https://call.me.back",
+            "request_type": ExtractionRequestTypeChoices.USER,
+            "mock": True,
+        }
+        self.set_credentials()
+        with self.captureOnCommitCallbacks():
+            resp = self.client.post(self.URL, data=data, format="json")
+
+        assert resp.status_code == 202
+
+        req_object = NLPRequest.objects.filter(
+            type=NLPRequest.FeaturesType.TEXT_EXTRACTION,
+            client_id=self.CLIENT_ID,
+            created_by=self.user,
+            status=NLPRequest.RequestStatus.INITIATED,
+        ).first()
+
+        assert req_object is None, "NLP request should not be created for mock request"

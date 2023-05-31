@@ -15,7 +15,6 @@ from core_server.settings import (
     SUMMARIZATION_V2_ECS_ENDPOINT,
     TEXT_EXTRACTION_ECS_ENDPOINT,
 )
-
 import logging
 
 logger = logging.getLogger(__name__)

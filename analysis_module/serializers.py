@@ -89,3 +89,4 @@ class TextExtractionSerializer(serializers.Serializer):
         choices=ExtractionRequestTypeChoices,
         default=ExtractionRequestTypeChoices.SYSTEM,
     )
+    mock = serializers.BooleanField(default=False)

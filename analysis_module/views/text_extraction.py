@@ -9,6 +9,7 @@ from core_server.settings import IS_MOCKSERVER
 from core.models import NLPRequest
 from analysis_module.serializers import TextExtractionSerializer, ExtractionRequestTypeChoices
 from analysis_module.utils import send_ecs_http_request
+from analysis_module.mockserver import process_mock_request
 
 
 @api_view(["POST"])
@@ -22,7 +23,6 @@ def text_extraction(request: Request):
     req_type = NLPRequest.FeaturesType.TEXT_EXTRACTION
 
     if serializer.validated_data.get("mock") or IS_MOCKSERVER:
-        # TODO:
         return process_mock_request(
             request=serializer.validated_data,
             request_type=req_type,
