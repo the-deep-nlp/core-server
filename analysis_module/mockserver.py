@@ -307,7 +307,7 @@ def get_ngrams(
 
 
 @shared_task
-def process_ngrams(body):
+def process_ngrams(body: dict):
     request_body = body if isinstance(body, dict) else json.loads(body)
 
     client_id = request_body.get("client_id")
@@ -499,12 +499,43 @@ def process_geolocation(body) -> Any:
 
 
 def geolocation_mock_model(body) -> Any:
-    process_geolocation.delay(body)
+    process_geolocation.delay(body, countdown=2)  # Trigger task after 2 seconds
     return json.dumps({"status": "Successfully received the request."}), 200
 
 
 def text_extraction_mock(body) -> Any:
-    return {}
+    process_extraction_mock.apply_async(args=(body,), countdown=2)  # Trigger task after 2 seconds
+    return json.dumps({"status": "Successfully received the request."}), 200
+
+
+@shared_task
+def process_extraction_mock(body) -> Any:
+    documents = body.get("documents") or []
+    callback_url = body.get("callback_url")
+    if not documents or not callback_url:
+        return
+
+    callback_data = {
+        "client_id": "",
+        "text_presigned_url": "",
+        "images_presigned_url": "",
+        "total_pages": 1,
+        "total_words_count": 1,
+        "extraction_status": 1,
+    }
+    for document in documents:
+        client_id = document["client_id"]
+        data = {
+            **callback_data,
+            "client_id": client_id,
+        }
+        filepath = save_data_local_and_get_url("extraction", client_id, data)
+        send_callback_url_request(
+            callback_url=callback_url,
+            client_id=document["client_id"],
+            filepath=filepath,
+            status=NLPRequest.RequestStatus.SUCCESS,
+        )
 
 
 TYPE_ACTIONS_MOCK = {
@@ -513,7 +544,7 @@ TYPE_ACTIONS_MOCK = {
     "summarization-v2": summarization_mock_model,
     "ngrams": ngrams_mock_model,
     "geolocation": geolocation_mock_model,
-    "text_extraction": text_extraction_mock,
+    "text-extraction": text_extraction_mock,
 }
 
 

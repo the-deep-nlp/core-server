@@ -2,6 +2,8 @@ from copy import deepcopy
 from unittest.mock import patch, Mock
 from core_server.base_test import BaseTestCase
 
+from django.db import transaction
+
 from core.models import NLPRequest
 from analysis_module.serializers import ExtractionRequestTypeChoices
 
@@ -484,10 +486,12 @@ class TestTextExtractionAPI(BaseTestCase):
         """
         Http request to ECS will not be called right away
         """
+        documents = [
+            {"url": "someurl", "client_id": self.CLIENT_ID},
+            {"url": "anothersomeurl", "client_id": self.CLIENT_ID+"1"},
+        ]
         data = {
-            "documents": [
-                {"url": "someurl", "client_id": self.CLIENT_ID},
-            ],
+            "documents": documents,
             "callback_url": "https://call.me.back",
             "request_type": ExtractionRequestTypeChoices.SYSTEM,
         }
@@ -499,26 +503,32 @@ class TestTextExtractionAPI(BaseTestCase):
         assert resp.status_code == 202
         assert len(callbacks) == 0
 
-        req_object = NLPRequest.objects.filter(
+        resp_data = resp.json()
+        assert "request_ids" in resp_data
+        assert len(resp_data["request_ids"]) == len(documents), "Request ids should be as many as documents"
+
+        req_objects = NLPRequest.objects.filter(
             type=NLPRequest.FeaturesType.TEXT_EXTRACTION,
-            client_id=self.CLIENT_ID,
             created_by=self.user,
             status=NLPRequest.RequestStatus.INITIATED,
-        ).first()
+        )
 
-        assert req_object is not None, "NLP request should be created with initiated status"
-        assert req_object.last_process_attempted is None
-        assert req_object.process_attempts == 0
+        assert req_objects.count() == len(documents), "NLP requests count should be same as the documents count"
+        for req_object in req_objects:
+            assert req_object.last_process_attempted is None
+            assert req_object.process_attempts == 0
 
     @patch('analysis_module.utils.requests')
     def test_extraction_user_request(self, requests_mock):
         """
         Http request to ECS will be called right away
         """
+        documents = [
+            {"url": "someurl", "client_id": self.CLIENT_ID},
+            {"url": "anothersomeurl", "client_id": self.CLIENT_ID+"1"},
+        ]
         data = {
-            "documents": [
-                {"url": "someurl", "client_id": self.CLIENT_ID},
-            ],
+            "documents": documents,
             "callback_url": "https://call.me.back",
             "request_type": ExtractionRequestTypeChoices.USER,
         }
@@ -528,20 +538,30 @@ class TestTextExtractionAPI(BaseTestCase):
             resp = self.client.post(self.URL, data=data, format="json")
 
         assert resp.status_code == 202
-        assert len(callbacks) == 1
-        send_ecs_callback = callbacks[0]
-        send_ecs_callback()
+        assert len(callbacks) == 2, "There should be one callback for each document"
 
-        req_object = NLPRequest.objects.filter(
-            type=NLPRequest.FeaturesType.TEXT_EXTRACTION,
-            client_id=self.CLIENT_ID,
-            created_by=self.user,
-            status=NLPRequest.RequestStatus.INITIATED,
-        ).first()
+        for callback in callbacks:
+            # Since this does db update, which has to be tested below, need to use on_commit later
+            callback()
 
-        assert req_object is not None, "NLP request should be created with initiated status"
-        assert req_object.last_process_attempted is not None
-        assert req_object.process_attempts == 1
+        resp_data = resp.json()
+        assert "request_ids" in resp_data
+        assert len(resp_data["request_ids"]) == len(documents), "Request ids should be as many as documents"
+
+        def _test():
+            req_objects = NLPRequest.objects.filter(
+                type=NLPRequest.FeaturesType.TEXT_EXTRACTION,
+                created_by=self.user,
+                status=NLPRequest.RequestStatus.INITIATED,
+            )
+
+            assert len(req_objects) == len(documents), "NLP requests count should be same as the documents count"
+            for req_object in req_objects:
+                assert req_object.last_process_attempted is not None, "Attempt must have been made for user request"
+                assert req_object.process_attempts == 1, "An attempt must have been made"
+
+        # Because callback() above makes db change
+        transaction.on_commit(_test)
 
     def test_extraction_mock(self):
         data = {
