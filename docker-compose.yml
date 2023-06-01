@@ -18,6 +18,7 @@ x-server: &base-server-config
     CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS:-http://localhost}
     ENDPOINT_NAME: ${ENDPOINT_NAME:-http://localhost}
     USE_S3: ${USE_S3:-}
+    USE_NEW_SUMMARIZATION: ${USE_NEW_SUMMARIZATION:-}
     ECS_REQUESTS_BATCH_SIZE: ${ECS_REQUESTS_BATCH_SIZE:-20}
     MAX_NLP_PROCESSING_ATTEMPTS: ${MAX_NLP_PROCESSING_ATTEMPTS:-3}
 
@@ -52,6 +53,7 @@ x-server: &base-server-config
 
     # ECS endpoints
     SUMMARIZATION_V2_ECS_ENDPOINT: ${SUMMARIZATION_V2_ECS_ENDPOINT:?Provide summarization v2 endpoint}
+    TEXT_EXTRACTION_ECS_ENDPOINT: ${TEXT_EXTRACTION_ECS_ENDPOINT:?Provide text extraction endpoint}
 
     # SENTRY
     SENTRY_DSN: ${SENTRY_DSN:-}

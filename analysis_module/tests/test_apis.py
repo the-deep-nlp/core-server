@@ -2,14 +2,17 @@ from copy import deepcopy
 from unittest.mock import patch, Mock
 from core_server.base_test import BaseTestCase
 
+from django.test import override_settings
+from django.db import transaction
+
 from core.models import NLPRequest
+from analysis_module.serializers import ExtractionRequestTypeChoices
 
 
 class TestAnalysisModuleAPIs(BaseTestCase):
     TOPICMODELING_URL = '/api/v1/topicmodel/'
     NGRAMS_URL = '/api/v1/ngrams/'
     SUMMARIZATION_URL = '/api/v1/summarization/'
-    SUMMARIZATION_V2_URL = '/api/v2/summarization/'
     GEOLOCATION_URL = '/api/v1/geolocation/'
 
     def test_topicmodel_incomplete_data(self):
@@ -135,9 +138,12 @@ class TestAnalysisModuleAPIs(BaseTestCase):
             "client_id": "client_id",
             "entries_url": "http://someurl.com/entries",
         }
-        with self.captureOnCommitCallbacks(execute=True):
+        with patch("analysis_module.views.analysis_module.USE_NEW_SUMMARIZATION", False), \
+                self.captureOnCommitCallbacks(execute=True) as callbacks:
             self.set_credentials()
             resp = self.client.post(self.SUMMARIZATION_URL, valid_data)
+
+        assert len(callbacks) == 1
         assert resp.status_code == 202
         spin_ecs_mock.delay.assert_called_once()
         new_requests_count = NLPRequest.objects.count()
@@ -149,6 +155,7 @@ class TestAnalysisModuleAPIs(BaseTestCase):
             created_by=self.user
         ).exists()
 
+    @override_settings(USE_NEW_SUMMARIZATION=True)
     def test_summarization_v2_valid_request(self):
         requests_count = NLPRequest.objects.count()
         valid_data = {
@@ -156,7 +163,7 @@ class TestAnalysisModuleAPIs(BaseTestCase):
             "entries_url": "http://someurl.com/entries",
         }
         self.set_credentials()
-        resp = self.client.post(self.SUMMARIZATION_V2_URL, valid_data)
+        resp = self.client.post(self.SUMMARIZATION_URL, valid_data)
         assert resp.status_code == 202
         new_requests_count = NLPRequest.objects.count()
         assert \
@@ -310,7 +317,7 @@ class TestAnalysisModuleMockAPIs(BaseTestCase):
             "No more NLPRequest object should be created"
 
 
-class TagsMappingAPI(BaseTestCase):
+class TestTagsMappingAPI(BaseTestCase):
     TAGS_MAPPING_URL = '/api/v1/tags-mapping/'
     CLIENT_ID = "client_id"
     VALID_DATA = {
@@ -355,7 +362,7 @@ class TagsMappingAPI(BaseTestCase):
         ).exists(), "NLP request should be created with success status"
 
 
-class PredictionAPI(BaseTestCase):
+class TestPredictionAPI(BaseTestCase):
     URL = '/api/v1/entry-classification/'
     CLIENT_ID = "client_id"
     VALID_DATA = {
@@ -436,3 +443,153 @@ class PredictionAPI(BaseTestCase):
             status=NLPRequest.RequestStatus.SUCCESS,
         ).exists(), "NLP request should not be created for mock request"
         model_prediction_class.assert_not_called()
+
+
+class TestTextExtractionAPI(BaseTestCase):
+    URL = '/api/v1/text-extraction/'
+    CLIENT_ID = "client_id"
+
+    def test_extraction_invalid_data(self):
+        no_documents = {"callback_url": "someurl"}
+        no_callback_url = {"documents": []}
+        no_url = {
+            "documents": [{"client_id": "some client id"}],
+            "callback_url": "some url"
+        }
+        no_client_id = {
+            "documents": [{"url": "someurl"}],
+            "callback_url": "some url"
+        }
+        request_type_string = {
+            "documents": [{"url": "someurl", "client_id": "cid"}],
+            "callback_url": "some url",
+            "request_type": "somerandom",
+        }
+        request_type_invalid = {
+            "documents": [{"url": "someurl", "client_id": "cid"}],
+            "callback_url": "some url",
+            "request_type": 20,  # 20 is not a valid request type
+        }
+        invalid_data = [
+            (no_documents, "documents"),
+            (no_callback_url, "callback_url"),
+            (no_url, "documents"),
+            (no_client_id, "documents"),
+            (request_type_string, "request_type"),
+            (request_type_invalid, "request_type"),
+        ]
+        for params, err_key in invalid_data:
+            self.set_credentials()
+            resp = self.client.post(self.URL, data=params)
+            assert resp.status_code == 400
+            errors = resp.json()["field_errors"]
+            assert err_key in errors
+
+    @patch('analysis_module.utils.requests')
+    def test_extraction_system_request(self, requests_mock):
+        """
+        Http request to ECS will not be called right away
+        """
+        documents = [
+            {"url": "someurl", "client_id": self.CLIENT_ID},
+            {"url": "anothersomeurl", "client_id": self.CLIENT_ID+"1"},
+        ]
+        data = {
+            "documents": documents,
+            "callback_url": "https://call.me.back",
+            "request_type": ExtractionRequestTypeChoices.SYSTEM,
+        }
+        requests_mock.post.return_value = Mock(status_code=200)
+        self.set_credentials()
+        with self.captureOnCommitCallbacks() as callbacks:
+            resp = self.client.post(self.URL, data=data, format="json")
+
+        assert resp.status_code == 202
+        assert len(callbacks) == 0
+
+        resp_data = resp.json()
+        assert "request_ids" in resp_data
+        assert len(resp_data["request_ids"]) == len(documents), "Request ids should be as many as documents"
+
+        req_objects = NLPRequest.objects.filter(
+            type=NLPRequest.FeaturesType.TEXT_EXTRACTION,
+            created_by=self.user,
+            status=NLPRequest.RequestStatus.INITIATED,
+        )
+
+        assert req_objects.count() == len(documents), "NLP requests count should be same as the documents count"
+        for req_object in req_objects:
+            assert req_object.last_process_attempted is None
+            assert req_object.process_attempts == 0
+
+    @patch('analysis_module.utils.requests')
+    def test_extraction_user_request(self, requests_mock):
+        """
+        Http request to ECS will be called right away
+        """
+        documents = [
+            {"url": "someurl", "client_id": self.CLIENT_ID},
+            {"url": "anothersomeurl", "client_id": self.CLIENT_ID+"1"},
+        ]
+        data = {
+            "documents": documents,
+            "callback_url": "https://call.me.back",
+            "request_type": ExtractionRequestTypeChoices.USER,
+        }
+        requests_mock.post.return_value = Mock(status_code=200)
+        self.set_credentials()
+        with self.captureOnCommitCallbacks() as callbacks:
+            resp = self.client.post(self.URL, data=data, format="json")
+
+        assert resp.status_code == 202
+        assert len(callbacks) == 2, "There should be one callback for each document"
+
+        for callback in callbacks:
+            # Since this does db update, which has to be tested below, need to use on_commit later
+            callback()
+
+        resp_data = resp.json()
+        assert "request_ids" in resp_data
+        assert len(resp_data["request_ids"]) == len(documents), "Request ids should be as many as documents"
+
+        def _test():
+            req_objects = NLPRequest.objects.filter(
+                type=NLPRequest.FeaturesType.TEXT_EXTRACTION,
+                created_by=self.user,
+                status=NLPRequest.RequestStatus.INITIATED,
+            )
+
+            assert len(req_objects) == len(documents), "NLP requests count should be same as the documents count"
+            for req_object in req_objects:
+                assert req_object.last_process_attempted is not None, "Attempt must have been made for user request"
+                assert req_object.process_attempts == 1, "An attempt must have been made"
+
+        # Because callback() above makes db change
+        transaction.on_commit(_test)
+
+    @patch("analysis_module.mockserver.process_extraction_mock.apply_async")
+    def test_extraction_mock(self, process_mock):
+        data = {
+            "documents": [
+                {"url": "someurl", "client_id": self.CLIENT_ID},
+            ],
+            "callback_url": "https://call.me.back",
+            "request_type": ExtractionRequestTypeChoices.USER,
+            "mock": True,
+        }
+        self.set_credentials()
+        with self.captureOnCommitCallbacks():
+            resp = self.client.post(self.URL, data=data, format="json")
+
+        assert resp.status_code == 202
+
+        req_object = NLPRequest.objects.filter(
+            type=NLPRequest.FeaturesType.TEXT_EXTRACTION,
+            client_id=self.CLIENT_ID,
+            created_by=self.user,
+            status=NLPRequest.RequestStatus.INITIATED,
+        ).first()
+
+        process_mock.assert_called_once()
+
+        assert req_object is None, "NLP request should not be created for mock request"

@@ -10,6 +10,7 @@ env = environ.Env(
     ENDPOINT_NAME=(str, "http://localhost"),
     CSRF_TRUSTED_ORIGINS=list,
     USE_S3=(bool, True),
+    USE_NEW_SUMMARIZATION=(bool, True),
     CALLBACK_MAX_RETRIES_LIMIT=(int, 5),
     ECS_REQUESTS_BATCH_SIZE=(int, 20),
     MAX_NLP_PROCESSING_ATTEMPTS=(int, 3),
@@ -46,4 +47,8 @@ env = environ.Env(
     AWS_S3_SECRET_ACCESS_KEY=(str, None),
     AWS_S3_BUCKET_NAME=(str, None),
     AWS_S3_REGION_NAME=(str, None),
+
+    # ECS endpoints
+    SUMMARIZATION_V2_ECS_ENDPOINT=(str, None),
+    TEXT_EXTRACTION_ECS_ENDPOINT=(str, None),
 )
