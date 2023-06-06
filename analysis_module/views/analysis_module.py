@@ -13,7 +13,7 @@ from analysis_module.serializers import (
 )
 from core_server.settings import IS_MOCKSERVER, USE_NEW_SUMMARIZATION
 from core.models import NLPRequest
-from analysis_module.utils import spin_ecs_container
+from analysis_module.utils import spin_ecs_container, send_ecs_http_request
 from analysis_module.mockserver import process_mock_request
 
 ECSRequestType = Literal["topicmodel", "ngrams", "summarization", "geolocation"]
@@ -92,6 +92,7 @@ def summarization_v2(data: Any, user):
         request_params=serializer.validated_data,
         created_by=user,
     )
+    transaction.on_commit(lambda: send_ecs_http_request(nlp_request))
     resp = {
         "client_id": serializer.data.get("client_id"),
         "type": NLPRequest.FeaturesType.SUMMARIZATION_V2,
