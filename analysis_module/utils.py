@@ -167,7 +167,7 @@ def send_ecs_http_request(nlp_request: NLPRequest):
         if not ecs_id_param_name \
         else {
             **nlp_request.request_params,
-            ecs_id_param_name: str(nlp_request.pk),
+            ecs_id_param_name: str(nlp_request.unique_id),
         }
     try:
         response = requests.post(
