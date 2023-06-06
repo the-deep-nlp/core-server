@@ -3,7 +3,6 @@ import requests
 from datetime import datetime
 
 from django.db import models
-from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 
 from core_server.settings import CALLBACK_MAX_RETRIES_LIMIT
@@ -388,7 +387,7 @@ class FailedCallback(BaseModel):
             self.save()
             return
         request_data = {
-            "client_id": original_request.unique_id,
+            "client_id": str(original_request.unique_id),
             "status": original_request.status,
             "presigned_s3_url": original_request.result_s3_link,
         }
