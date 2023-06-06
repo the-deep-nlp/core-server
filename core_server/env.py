@@ -50,5 +50,5 @@ env = environ.Env(
 
     # ECS endpoints
     SUMMARIZATION_V2_ECS_ENDPOINT=(str, None),
-    TEXT_EXTRACTION_ECS_ENDPOINT=(str, None),
+    TEXTEXTRACTION_ECS_ENDPOINT=(str, None),
 )
