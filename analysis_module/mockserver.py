@@ -18,7 +18,10 @@ from core.models import NLPRequest
 from core_server.settings import ENDPOINT_NAME
 from .utils import send_callback_url_request
 
-logging.getLogger().setLevel(logging.INFO)
+
+logger = logging.getLogger('__name__')
+logger.setLevel(logging.INFO)
+
 
 MOCK_GEOLOCATION: List = [
     {
@@ -515,27 +518,26 @@ def process_extraction_mock(body) -> Any:
     if not documents or not callback_url:
         return
 
-    callback_data = {
-        "client_id": "",
-        "text_presigned_url": "",
-        "images_presigned_url": "",
-        "total_pages": 1,
-        "total_words_count": 1,
-        "extraction_status": 1,
-    }
     for document in documents:
         client_id = document["client_id"]
-        data = {
-            **callback_data,
+        random_extracted_text = "This is some random extracted text"
+        filepath = save_data_local_and_get_url("extraction", client_id, random_extracted_text)
+        callback_data = {
+            "text_path": filepath,
+            "images_path": [],
+            "total_pages": 1,
+            "total_words_count": 1,
+            "extraction_status": 1,
             "client_id": client_id,
         }
-        filepath = save_data_local_and_get_url("extraction", client_id, data)
-        send_callback_url_request(
-            callback_url=callback_url,
-            client_id=client_id,
-            filepath=filepath,
-            status=NLPRequest.RequestStatus.SUCCESS,
-        )
+        try:
+            requests.post(
+                callback_url,
+                json=callback_data,
+                timeout=30,
+            )
+        except Exception:
+            logger.error("Could not send data to callback url", exc_info=True)
 
 
 TYPE_ACTIONS_MOCK = {

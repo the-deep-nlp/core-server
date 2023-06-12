@@ -22,7 +22,10 @@ def text_extraction(request: Request):
     data = deepcopy(serializer.validated_data)  # Deep copy To pop documents
     items = data.pop("documents")
     if not items:
-        return Response({"extracted_documents": []})
+        return Response(
+            {"message": "No documents present"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
     req_type = NLPRequest.FeaturesType.TEXT_EXTRACTION
 
     if serializer.validated_data.get("mock") or IS_MOCKSERVER:

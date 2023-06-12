@@ -344,7 +344,7 @@ class NLPRequest(BaseModel):
     client_id = models.CharField(max_length=50)
     status = models.IntegerField(choices=RequestStatus.choices, default=RequestStatus.INITIATED)
     unique_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    result_s3_link = models.TextField(null=True, blank=True)
+    result_data = models.JSONField(default=dict)
     type = models.CharField(choices=FeaturesType.choices, max_length=20)
     # To capture the original request params
     request_params = models.JSONField(null=True, blank=True)
@@ -386,11 +386,6 @@ class FailedCallback(BaseModel):
             self.status = self.Status.FAILED
             self.save()
             return
-        request_data = {
-            "client_id": str(original_request.unique_id),
-            "status": original_request.status,
-            "presigned_s3_url": original_request.result_s3_link,
-        }
         callback_url = original_request.request_params and \
             original_request.request_params.get("callback_url")
         if not callback_url:
@@ -398,7 +393,7 @@ class FailedCallback(BaseModel):
             self.save()
             return
         try:
-            resp = requests.post(callback_url, json=request_data)
+            resp = requests.post(callback_url, json=original_request.result_data)
             if resp.ok:
                 self.status = self.Status.SUCCESS
                 self.last_retried_at = datetime.now()
