@@ -79,7 +79,12 @@ class Organization(BaseModel):
     def __str__(self):
         return self.name
 
-
+"""
+NOTE: 
+i think some discussion is needed here.
+NLP mapping is not something that depends on projects or related frameworks ids,
+it's a manual overall map builded by hand. 
+"""
 class AFMapping(BaseModel):
     af_name = models.CharField(max_length=200)
     original_af_id = models.PositiveIntegerField(unique=True)
@@ -161,15 +166,51 @@ class Entry(BaseModel):
     # The structure is shown after the fields declaration below
     original_af_tags = models.JSONField(default=dict)
     export_data = models.JSONField(default=dict)
-    af_exportable_data = models.JSONField(default=dict)
+    af_exportable_data = models.JSONField(default=list) # it's not more like that after aggregation. it's a list (dict->list)
     extra = models.JSONField(default=dict)
     deep_entry_created_at = models.DateTimeField()
+
+    # i add here other fields (review it together):
+    nlp_tags = models.JSONField(default=list)
+    nlp_mapping = models.JSONField(default=dict)
+
     """
     NOTE:
     original_af_tags = {
         "sectors": ["xXx"],             # might not be present
         "subpillars_1d": ["xXx"],       # might not be present
         "subpillars_2d": ["xXx"],       # might not be present
+    }
+    """
+
+    # it's no more like above but something like:
+    # for now i excluded the date widget (idk if related with created_at or a data that the analyst assign to the excerpt)
+    # and the mapped geolocations too. We already have the information in original_af_tags
+
+    """
+    NOTE:
+    original_af_tags = {
+        'matrix2dWidget': ['protection', 'impact->impact on people'],
+        'geoWidget': [659709, 659702],
+        'scaleWidget': ['usually reliable'],
+        'matrix1dWidget': ['conflict->casualties & missings'],
+        'dateRangeWidget': ['04-03-2022']
+    }
+
+    nlp_tags = [
+        'first_level_tags->pillars_2d->Impact',
+        'subpillars_2d->Impact->Impact on people',
+        'first_level_tags->sectors->Protection',
+        'secondary_tags->reliability->Usually reliable',
+        'first_level_tags->pillars_1d->Casualties'
+    ]
+
+    nlp_mapping = {
+        'protection': ['first_level_tags->sectors->Protection'],
+        'impact->impact on people': ['subpillars_2d->Impact->Impact on people',
+        'first_level_tags->pillars_2d->Impact'],
+        'usually reliable': ['secondary_tags->reliability->Usually reliable'],
+        'conflict->casualties & missings': ['first_level_tags->pillars_1d->Casualties']
     }
     """
 

@@ -1,4 +1,5 @@
 import psycopg2
+import pandas as pd
 from typing import Optional, Dict, TypeVar
 
 from datetime import datetime
@@ -19,6 +20,11 @@ from core.models import (
     DeepDataFetchTracker,
 )
 from .get_data_old import get_tags_data_for_exportable
+from .nlp_mapping import (
+    get_geolocation_dict, 
+    get_mapping_sheet, 
+    get_nlp_outputs
+)
 
 from celery.utils.log import get_task_logger
 
@@ -215,7 +221,12 @@ def fetch_project_leads(
 
 
 def _process_entries_batch(
-    entries_batch, leads_dict, columns, widget_id_labels: dict
+    entries_batch, 
+    leads_dict, 
+    columns, 
+    widget_id_labels: dict,
+    geo_locations_dict: dict,
+    mapping_sheet: pd.DataFrame,
 ) -> dict:
     entry_extra_fields = [
         "entry_type",
@@ -229,16 +240,24 @@ def _process_entries_batch(
             logger.warning("no lead for lead id", current_entry_dict["lead_id"])
             continue
         exp_data = current_entry_dict["export_data"]
-        manual_tagged_data = get_tags_data_for_exportable(exp_data, widget_id_labels)
+        #manual_tagged_data = get_tags_data_for_exportable(exp_data, widget_id_labels)
+        manual_tagged_data = format_manual_tags(exp_data, widget_id_labels)
+        nlp_tags, nlp_mapping  = get_nlp_outputs(manual_tagged_data, mapping_sheet, geo_locations_dict)
+
         Entry.objects.update_or_create(
             original_entry_id=current_entry_dict["id"],
             lead_id=lead_id,
             defaults={
-                "original_lang": "",  # TODO: fill this
+                "original_lang": "",  # TODO: I suggest to use langdetect library https://pypi.org/project/langdetect/ 
+                # i didn't get why excerpt_en. Is it suppose to be always in english? 
+                # Original data in Deep can be of any language (it's not always translated by the users)
+                # Is there now a translator in Deep? 
                 "excerpt_en": current_entry_dict["excerpt"],
                 "original_af_tags": manual_tagged_data,
+                "nlp_tags": nlp_tags,
+                "nlp_mapping": nlp_mapping,
                 "export_data": exp_data,
-                "af_exportable_data": current_entry_dict["export_data"],
+                "af_exportable_data": current_entry_dict["af_exportable_data"], # here there is an error. af_exportable_data key. Anyway, not sure if we need to save that (it's huge)
                 "extra": {k: current_entry_dict[k] for k in entry_extra_fields},
                 "deep_entry_created_at": current_entry_dict["created_at"],
             },
@@ -250,16 +269,26 @@ def fetch_project_entries(
     cursor: CursorWrapper,
     project: Project,
     leads_dict: Dict[int, int],
+    mapping_sheet_path: str
 ):
     af_mapping = project.af_mapping
     # These are to convert subsectors/subpillars key to corresponding label
     # which is required by the nlp services
     widget_id_labels = get_widget_id_to_label_dict(af_mapping)
+    geo_locations_dict = get_geolocation_dict(cursor=cursor)
+    
+    """
+    NOTE:
+    IMO we can directly create a db table, so avoiding to upload the csv in the server (discuss it together)
+    """
+    
+    mapping_sheet = get_mapping_sheet(path=mapping_sheet_path)
+
     pid = project.original_project_id
     try:
         last_fetched = project.to_fetch_project.last_fetched_entry_created_at
         cursor.execute(
-            queries.entries_exportable_q.format(pid, last_fetched or VERY_PAST_DATE)
+            queries.entries_exportable_grouped_q.format(pid, last_fetched or VERY_PAST_DATE)
         )
         rows = cursor_fetch_iterator(cursor, 3000)
     except psycopg2.ProgrammingError as e:
@@ -268,14 +297,18 @@ def fetch_project_entries(
     else:
         columns = []
         batch_size = 500
+        columns = columns if columns else [c.name for c in cursor.description]
         for i, row_batch in enumerate(batched(rows, batch_size)):
-            columns = columns if columns else [c.name for c in cursor.description]
+            # columns are always the same at each iterarion i guess. we can move before 
+            #columns = columns if columns else [c.name for c in cursor.description]
             with transaction.atomic():
                 last_entry_dict = _process_entries_batch(
                     row_batch,
                     leads_dict,
                     columns,
                     widget_id_labels,
+                    geo_locations_dict,
+                    mapping_sheet
                 )
                 to_fetch = project.to_fetch_project
                 to_fetch.last_fetched_entry_created_at = last_entry_dict["created_at"]
@@ -387,3 +420,14 @@ def get_widget_id_to_label_dict(af: AFMapping) -> dict:
             for pp in p.get("subColumns", []):
                 mapping[pp["key"]] = pp["label"]
     return mapping
+
+def format_manual_tags(total_tags: dict, id2label: dict) -> dict:
+
+    results = {}
+    for tag in total_tags:
+        d = get_tags_data_for_exportable(tag, id2label)
+        # not sure if it's possibile (at deep side) that an entry has more elements of the same widget.
+        # it will be more safe to check if "d" key is already present in "results" and
+        # exteding the corresponding value.
+        results.update(d)
+    return results
