@@ -3,14 +3,21 @@
 @modified_by: Nico(nico@datafriendlyspace.org)
 """
 
+import os
 import re
 import pandas as pd
 from ast import literal_eval
-from typing import Dict
+from typing import Dict, Optional
 from collections import defaultdict
 
 from core.tasks import queries
 from utils.db import connect_db, CursorWrapper
+
+
+DEFAULT_MAPPING_PATH = os.path.join(
+    os.path.dirname(__file__),
+    "tags_mapping_sheet.csv"
+)
 
 
 mapping_widgets = [
@@ -44,21 +51,21 @@ def _custom_eval(x):
         return x
     else:
         return literal_eval(x)
-    
 
-def get_mapping_sheet(path: str):
 
-    mapping_sheet =  pd.read_csv(path)
+def get_mapping_sheet(path: Optional[str] = None):
+
+    mapping_sheet = pd.read_csv(path or DEFAULT_MAPPING_PATH)
     mapping_sheet["mapped_nlp"] = mapping_sheet["mapped_nlp"].apply(_custom_eval)
 
     return mapping_sheet
 
 
-def get_geolocation_dict(cursor: CursorWrapper = None):
-    
+def get_geolocation_dict(cursor: Optional[CursorWrapper] = None):
+
     if not cursor:
         cursor = connect_db()
-    
+
     cursor.execute(queries.geolocation_q)
     data = cursor.fetchall()
     data = pd.DataFrame(data, columns=[c.name for c in cursor.description])

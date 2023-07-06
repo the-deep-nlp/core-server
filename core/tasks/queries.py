@@ -213,3 +213,8 @@ where o.verified=true and
     o.created_at >= '{}'
 order by o.created_at asc
 """
+
+geolocation_q = """SELECT
+    id, title
+    FROM geo_geoarea
+"""

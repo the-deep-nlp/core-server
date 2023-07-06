@@ -27,7 +27,7 @@ def _clean_tags(tag):
             .replace("\t", "")
             .replace("•", "")
         )
-    
+
 
 def _flatten(t):
     return [item for sublist in t for item in sublist]
@@ -112,6 +112,7 @@ element1...) Here you hardcoded "element1" but it's something we can
 generalize, for example:
 """
 
+
 def _get_id2label(frame):
     t = {}
     d = frame[frame.widget_id.isin(["matrix2dWidget"])]
@@ -144,9 +145,6 @@ def _get_id2label(frame):
     return t
 
 
-def _entry2af(entries):
-    return {k: v for k, v in zip(entries.id, entries.analysis_framework_id)}
-
 
 def _reshape_report(a):
     a = a.split("-")
@@ -166,7 +164,7 @@ def _reshape_report(a):
 
 
 # omg = 0
-def _get_values_one_row(ex, widget, id2label, only_sectors_subpillars=False):
+def _get_values_one_row(ex, widget, id2label):
     """
     * iterate through individual tags and extract content
     * pulls all the widgets from the AF. note that 1d and 2d matrices have special handling
@@ -179,13 +177,12 @@ def _get_values_one_row(ex, widget, id2label, only_sectors_subpillars=False):
     """
     key_id = ex["common"]["widget_key"]
     title = widget[widget.key == key_id].title.tolist()
-    return get_tags_data_for_exportable(ex, id2label, only_sectors_subpillars, title)
+    return get_tags_data_for_exportable(ex, id2label, title)
 
 
 def get_tags_data_for_exportable(
-    ex, 
-    id2label, 
-    only_sectors_subpillars=True, # we don't need this param.
+    ex,
+    id2label,
     title=None
 ):
     key_title = "MISSING"
@@ -253,13 +250,6 @@ def get_tags_data_for_exportable(
             sub_pillars.append(f"{r[0]}->{r[1]}")
 
         output = sub_pillars
-        #if only_sectors_subpillars:
-        #    return {
-        #        "sectors": [],
-        #        "sub_sectors": [],
-        #        "subpillars_1d": sub_pillars,
-        #        "subpillars_2d": [],
-        #   }
 
     elif tip in ["matrix2dWidget", "no_common_matrix2dWidget"]:
         sectors, sub_sectors, sub_pillars = [], [], []
@@ -293,18 +283,10 @@ def get_tags_data_for_exportable(
         output = sectors + sub_sectors + sub_pillars
         """
         it's not correct at this point -translating widget tags into raw tags- to infer these keys.
-        The reason is that (probably except only for the sectors) our mapping sometimes doesn't reflect 
-        the widgets "classification" (especially in less common AFs). 
+        The reason is that (probably except only for the sectors) our mapping sometimes doesn't reflect
+        the widgets "classification" (especially in less common AFs).
         For example a matrix2dwidget tag in one AF can be considered as a (sub)pillar-1d in the NLP AF.
         """
-        #if only_sectors_subpillars:
-
-            #return {
-            #    "sectors": sectors,
-            #    "sub_sectors": sub_sectors,
-            #    "subpillars_2d": sub_pillars,
-            #    "subpillars_1d": [],
-            #}
 
     elif key_title == "MISSING":
         output = ["MISSING"]
@@ -316,7 +298,6 @@ def get_tags_data_for_exportable(
         output = ex["excel"]["values"]
 
     else:
-        #print(ex)
         raise Exception("widget not found!")
 
     if output is None:
@@ -325,9 +306,6 @@ def get_tags_data_for_exportable(
 
     if type(output) is not list:
         output = [output.strip()] if type(output) is str else [output]
-
-    # output dict if value is not emtpy and empty list if value is empty
-    #output = {tip: output} if len(output) > 0 else []
 
     # some cleaning
     if len(output) > 0:
@@ -344,17 +322,8 @@ def get_tags_data_for_exportable(
     else:
         output = []
 
-    # Some thing as described before    
-    #if not only_sectors_subpillars:
-    #    return {
-    #        "sectors": [],
-    #        "sub_sectors": [],
-    #        "subpillars_1d": [],
-    #        "subpillars_2d": [],
-    #    }
-    
     """
-    Proposal: keeping "tip" (the widget type name) always as keys of the output also 
+    Proposal: keeping "tip" (the widget type name) always as keys of the output also
     for primary tags
     """
 

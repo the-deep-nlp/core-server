@@ -21,8 +21,8 @@ from core.models import (
 )
 from .get_data_old import get_tags_data_for_exportable
 from .nlp_mapping import (
-    get_geolocation_dict, 
-    get_mapping_sheet, 
+    get_geolocation_dict,
+    get_mapping_sheet,
     get_nlp_outputs
 )
 
@@ -148,7 +148,7 @@ def fetch_project_data(
 
         leads_dict = fetch_project_leads(cursor, project, orgs_dict)
         if not project.af_mapping:
-            logger.warning(f"Project with id:{project.original_project_id} doesnot have analysisframework")
+            logger.warning(f"Project with id:{project.original_project_id} does not have analysis framework")
             return
         if leads_dict:
             fetch_project_entries(cursor, project, leads_dict)
@@ -221,9 +221,9 @@ def fetch_project_leads(
 
 
 def _process_entries_batch(
-    entries_batch, 
-    leads_dict, 
-    columns, 
+    entries_batch,
+    leads_dict,
+    columns,
     widget_id_labels: dict,
     geo_locations_dict: dict,
     mapping_sheet: pd.DataFrame,
@@ -240,9 +240,8 @@ def _process_entries_batch(
             logger.warning("no lead for lead id", current_entry_dict["lead_id"])
             continue
         exp_data = current_entry_dict["export_data"]
-        #manual_tagged_data = get_tags_data_for_exportable(exp_data, widget_id_labels)
         manual_tagged_data = format_manual_tags(exp_data, widget_id_labels)
-        nlp_tags, nlp_mapping  = get_nlp_outputs(manual_tagged_data, mapping_sheet, geo_locations_dict)
+        nlp_tags, nlp_mapping = get_nlp_outputs(manual_tagged_data, mapping_sheet, geo_locations_dict)
 
         Entry.objects.update_or_create(
             original_entry_id=current_entry_dict["id"],
@@ -269,20 +268,14 @@ def fetch_project_entries(
     cursor: CursorWrapper,
     project: Project,
     leads_dict: Dict[int, int],
-    mapping_sheet_path: str
 ):
     af_mapping = project.af_mapping
     # These are to convert subsectors/subpillars key to corresponding label
     # which is required by the nlp services
     widget_id_labels = get_widget_id_to_label_dict(af_mapping)
     geo_locations_dict = get_geolocation_dict(cursor=cursor)
-    
-    """
-    NOTE:
-    IMO we can directly create a db table, so avoiding to upload the csv in the server (discuss it together)
-    """
-    
-    mapping_sheet = get_mapping_sheet(path=mapping_sheet_path)
+
+    mapping_sheet = get_mapping_sheet()
 
     pid = project.original_project_id
     try:
@@ -297,10 +290,11 @@ def fetch_project_entries(
     else:
         columns = []
         batch_size = 500
-        columns = columns if columns else [c.name for c in cursor.description]
         for i, row_batch in enumerate(batched(rows, batch_size)):
-            # columns are always the same at each iterarion i guess. we can move before 
-            #columns = columns if columns else [c.name for c in cursor.description]
+            # NOTE: Although it seems like we can move columns before the loop,
+            # but since it is just an iterator, there is nothing available
+            # inside the cursor until inside this loop.
+            columns = columns if columns else [c.name for c in cursor.description]
             with transaction.atomic():
                 last_entry_dict = _process_entries_batch(
                     row_batch,
