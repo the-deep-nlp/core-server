@@ -49,7 +49,6 @@ def _short_distance_matching(tag, matching_dict: Dict[str, List[str]]):
 
 
 def _one_tag2nlp_match(tag, matching_dict) -> List[str]:
-
     if type(tag) is str:
         clean_tag = _clean_tag(tag)
         mapped_tag = matching_dict.get(clean_tag)
@@ -68,11 +67,13 @@ def af2nlp_matching(
     with open(matching_dict_path, "r") as f:
         matching_dict = json.load(f)
 
-    return [{
-        "client_id": one_original_af_tag["client_id"],
-        "input_text": one_original_af_tag["input_text"],
-        "output_text": _one_tag2nlp_match(
-            one_original_af_tag["input_text"], matching_dict
-        )}
+    return [
+        {
+            "client_id": one_original_af_tag["client_id"],
+            "input_text": one_original_af_tag["input_text"],
+            "output_text": _one_tag2nlp_match(
+                one_original_af_tag["input_text"], matching_dict
+            ),
+        }
         for one_original_af_tag in tags
     ]

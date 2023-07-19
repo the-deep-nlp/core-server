@@ -6,25 +6,27 @@ import boto3
 import polars as pl
 import numpy as np
 
-from utils import invoke_model_endpoint, group_tags
-from constants import categories
+from .utils import invoke_model_endpoint, group_tags
+from .constants import CATEGORIES
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
 
 class ClassificationModelOutput:
     """
     Classify excerpts to a defined list of tags and also generates embeddings
     """
+
     def __init__(
         self,
         dataframe: pl.dataframe.frame.DataFrame,
-        batch_size: int=2,
-        prediction_generation: bool=True,
-        embeddings_generation: bool=True,
-        aws_access_key_id: Optional[str]=None,
-        aws_secret_access_key: Optional[str]=None,
-        region_name: str="us-east-1"
+        batch_size: int = 2,
+        prediction_generation: bool = True,
+        embeddings_generation: bool = True,
+        aws_access_key_id: Optional[str] = None,
+        aws_secret_access_key: Optional[str] = None,
+        region_name: str = "us-east-1",
     ):
         # Note: AWS Creds should not be used when deployed in AWS
         self.aws_access_key_id = aws_access_key_id
@@ -41,24 +43,24 @@ class ClassificationModelOutput:
             "sagemaker-runtime",
             region_name=region_name,
             aws_access_key_id=aws_access_key_id,
-            aws_secret_access_key=aws_secret_access_key
+            aws_secret_access_key=aws_secret_access_key,
         )
 
-    def _get_model_inputs(self, excerpt: list)-> str:
+    def _get_model_inputs(self, excerpt: list) -> str:
         """
         Build the model input data
         """
         excerpt_df = pl.DataFrame({"excerpt": excerpt})
         model_in_df = excerpt_df.with_columns(
-            return_type = pl.lit(["default_analyis"]),
-            analyis_framework_id = pl.lit(["all"]),
-            interpretability = pl.lit([False]),
-            ratio_interpreted_labels = pl.lit([0.5]),
-            return_prediction_labels = pl.lit([self.prediction_generation]),
-            output_backbone_embeddings = pl.lit([self.embeddings_generation]),
-            pooling_type = pl.lit(["['mean_pooling']"]),
-            finetuned_task = pl.lit(["['first_level_tags']"]),
-            embeddings_return_type = pl.lit(["array"]),
+            return_type=pl.lit(["default_analyis"]),
+            analyis_framework_id=pl.lit(["all"]),
+            interpretability=pl.lit([False]),
+            ratio_interpreted_labels=pl.lit([0.5]),
+            return_prediction_labels=pl.lit([self.prediction_generation]),
+            output_backbone_embeddings=pl.lit([self.embeddings_generation]),
+            pooling_type=pl.lit(["['mean_pooling']"]),
+            finetuned_task=pl.lit(["['first_level_tags']"]),
+            embeddings_return_type=pl.lit(["array"]),
         )
         return model_in_df.to_pandas().to_json(orient="split")
 
@@ -83,16 +85,19 @@ class ClassificationModelOutput:
         outputs = invoke_model_endpoint(
             backbone_inputs=model_inputs,
             sagemaker_model=self.sagemaker_client,
-            endpoint_name=self.endpoint_name
+            endpoint_name=self.endpoint_name,
         )
-        if (self.prediction_generation and 
-            "raw_predictions" in outputs and "thresholds" in outputs):
+        if (
+            self.prediction_generation
+            and "raw_predictions" in outputs
+            and "thresholds" in outputs
+        ):
             predictions = outputs["raw_predictions"]
             thresholds = outputs["thresholds"]
             for prediction in predictions:
                 clean_op = self.get_clean_outputs(prediction, thresholds)
                 model_preds_output.append(clean_op)
-        if (self.embeddings_generation and "output_backbone" in outputs):
+        if self.embeddings_generation and "output_backbone" in outputs:
             model_embeddings_output = outputs["output_backbone"]
 
         return model_preds_output, model_embeddings_output
@@ -106,12 +111,18 @@ class ClassificationModelOutput:
 
         for entries_batch in np.array_split(self.dataframe, self.batch):
             op_lst = []
-            batch_model_pred_op, batch_model_emb_op = self.get_model_outputs(entries_batch.tolist())
-            if self.prediction_generation:    
+            batch_model_pred_op, batch_model_emb_op = self.get_model_outputs(
+                entries_batch.tolist()
+            )
+            if self.prediction_generation:
                 for batch_model_output in batch_model_pred_op:
                     grouped_tags = group_tags(batch_model_output)
-                    o = {item: json.dumps(grouped_tags[item])
-                            if item in grouped_tags.keys() else json.dumps([]) for item in categories}
+                    o = {
+                        item: json.dumps(grouped_tags[item])
+                        if item in grouped_tags.keys()
+                        else json.dumps([])
+                        for item in CATEGORIES
+                    }
                     op_lst.append(o)
                 if prediction_df.is_empty():
                     prediction_df = pl.DataFrame(op_lst)
@@ -122,18 +133,26 @@ class ClassificationModelOutput:
                 if embeddings_df.is_empty():
                     embeddings_df = pl.DataFrame({"embeddings": batch_model_emb_op})
                 else:
-                    embeddings_df = pl.concat([embeddings_df, pl.DataFrame({"embeddings": batch_model_emb_op})])
-        
+                    embeddings_df = pl.concat(
+                        [
+                            embeddings_df,
+                            pl.DataFrame({"embeddings": batch_model_emb_op}),
+                        ]
+                    )
+
         embeddings_df = embeddings_df.apply(str)
-        prediction_df = prediction_df.rename({key: f"{key}_pred" for key in categories})
-        return pl.concat([self.dataframe, prediction_df, embeddings_df], how="horizontal")
+        prediction_df = prediction_df.rename({key: f"{key}_pred" for key in CATEGORIES})
+        return pl.concat(
+            [self.dataframe, prediction_df, embeddings_df], how="horizontal"
+        )
+
 
 if __name__ == "__main__":
     test_excerpt = [
         "There has been a health crisis in Ukraine",
         "Pesticides has been all around the year affecting Kenyan Health",
         "Lots of people are migrating due to violence in Sahara desert.",
-        "There are air strikes due to which people are fleeing and many have been hospitalized."
+        "There are air strikes due to which people are fleeing and many have been hospitalized.",
     ]
     dff = pl.DataFrame({"excerpt": test_excerpt})
     cm = ClassificationModelOutput(dff)

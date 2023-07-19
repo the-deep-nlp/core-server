@@ -12,12 +12,14 @@ from evidently.metrics import DatasetDriftMetric
 
 warnings.filterwarnings("ignore")
 
+
 class FeatureDrift:
     """
     Calculates per project feature drift of excerpts
     Input: Dataframe with columns 'project_id', 'embeddings'
     Output: Dataframe containing columns
     """
+
     def __init__(self, ref_df: pl.DataFrame, cur_df: pl.DataFrame) -> None:
         self.reference_df = ref_df
         self.current_df = cur_df
@@ -34,9 +36,7 @@ class FeatureDrift:
         return embeddings.apply(literal_eval).apply(np.array).to_list()
 
     def _project_id_based_mask(
-        self,
-        dataframe: pl.DataFrame,
-        project_id: Optional[int]=None
+        self, dataframe: pl.DataFrame, project_id: Optional[int] = None
     ) -> pl.DataFrame:
         if project_id:
             dataframe = dataframe.filter(pl.col("project_id") == project_id)
@@ -44,10 +44,10 @@ class FeatureDrift:
 
     def compute_feature_drift(
         self,
-        ref_n_samples: int=500,
-        cur_n_samples: int=500,
-        random_state: int=5432
-    )->pl.DataFrame:
+        ref_n_samples: int = 500,
+        cur_n_samples: int = 500,
+        random_state: int = 5432,
+    ) -> pl.DataFrame:
         """
         Computes the Feature drift on the excerpts embeddings at project level
         """
@@ -57,12 +57,18 @@ class FeatureDrift:
 
         for project_id in tqdm(reference_project_ids):
             if project_id in current_project_ids:
-                reference_df = self._project_id_based_mask(self.reference_df, project_id)
+                reference_df = self._project_id_based_mask(
+                    self.reference_df, project_id
+                )
                 current_df = self._project_id_based_mask(self.current_df, project_id)
 
                 if len(reference_df["embeddings"]) and len(current_df["embeddings"]):
-                    reference_embedding_lst = self._process_embeddings(reference_df["embeddings"])
-                    current_embedding_lst = self._process_embeddings(current_df["embeddings"])
+                    reference_embedding_lst = self._process_embeddings(
+                        reference_df["embeddings"]
+                    )
+                    current_embedding_lst = self._process_embeddings(
+                        current_df["embeddings"]
+                    )
                     # Note that sample size is less by 1 because it should less than population size
                     ref_n_samples = (
                         len(reference_embedding_lst) - 1
@@ -75,12 +81,20 @@ class FeatureDrift:
                         else cur_n_samples
                     )
 
-                    reference_df = pl.DataFrame(reference_embedding_lst).transpose().sample(n=ref_n_samples, seed=random_state)
-                    current_df = pl.DataFrame(current_embedding_lst).transpose().sample(n=cur_n_samples, seed=random_state)
+                    reference_df = (
+                        pl.DataFrame(reference_embedding_lst)
+                        .transpose()
+                        .sample(n=ref_n_samples, seed=random_state)
+                    )
+                    current_df = (
+                        pl.DataFrame(current_embedding_lst)
+                        .transpose()
+                        .sample(n=cur_n_samples, seed=random_state)
+                    )
 
                     self.data_drift_dataset_report.run(
                         reference_data=reference_df.to_pandas(),
-                        current_data=current_df.to_pandas()
+                        current_data=current_df.to_pandas(),
                     )
 
                     temp_result = {}
@@ -111,6 +125,7 @@ class FeatureDrift:
                     final_result.append(temp_result)
 
         return pl.DataFrame._from_records(final_result)
+
 
 if __name__ == "__main__":
     reference_data_path = "/home/rsh/projects/deepl/model-monitoring/csvfiles/data_with_embeddings_22000.csv"

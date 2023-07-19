@@ -2,7 +2,9 @@ from collections import namedtuple
 from enum import Enum
 from .second_level_tags import SecondLevel
 
-ThirdLevelCategories = namedtuple('ThirdLevelCategories', ['id', 'key', 'version', 'has_parent', 'parent_id', 'alias'])
+ThirdLevelCategories = namedtuple(
+    "ThirdLevelCategories", ["id", "key", "version", "has_parent", "parent_id", "alias"]
+)
 version = "1.0"
 
 
@@ -14,7 +16,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.EducationTag.value, "id"),
-        alias="Facilities and Amenities"
+        alias="Facilities and Amenities",
     )
     LearningEnvironmentTag = ThirdLevelCategories(
         id="1102",
@@ -22,7 +24,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.EducationTag.value, "id"),
-        alias="Learning Environment"
+        alias="Learning Environment",
     )
     TeachersAndEduPersonnelTag = ThirdLevelCategories(
         id="1103",
@@ -30,7 +32,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.EducationTag.value, "id"),
-        alias="Teachers and Education Personnel"
+        alias="Teachers and Education Personnel",
     )
     TeachingAndLearningTag = ThirdLevelCategories(
         id="1104",
@@ -38,7 +40,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.EducationTag.value, "id"),
-        alias="Teaching and Learning"
+        alias="Teaching and Learning",
     )
     # Health - 102
     HealthCareSystemTag = ThirdLevelCategories(
@@ -47,7 +49,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.HealthTag.value, "id"),
-        alias="Health Care System"
+        alias="Health Care System",
     )
     HealthStatusTag = ThirdLevelCategories(
         id="1202",
@@ -55,7 +57,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.HealthTag.value, "id"),
-        alias="Health Status"
+        alias="Health Status",
     )
     # Livelihoods - 103
     AssetsTag = ThirdLevelCategories(
@@ -64,7 +66,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.LivelihoodsTag.value, "id"),
-        alias="Assets"
+        alias="Assets",
     )
     ExpendituresTag = ThirdLevelCategories(
         id="1302",
@@ -72,7 +74,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.LivelihoodsTag.value, "id"),
-        alias="Expenditures"
+        alias="Expenditures",
     )
     IncomeTag = ThirdLevelCategories(
         id="1303",
@@ -80,7 +82,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.LivelihoodsTag.value, "id"),
-        alias="Income"
+        alias="Income",
     )
     SkillsAndQualificationsTag = ThirdLevelCategories(
         id="1304",
@@ -88,7 +90,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.LivelihoodsTag.value, "id"),
-        alias="Skills and Qualifications"
+        alias="Skills and Qualifications",
     )
     # Logistics - 104
     SupplyChainTag = ThirdLevelCategories(
@@ -97,7 +99,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.LogisticsTag.value, "id"),
-        alias="Supply Chain"
+        alias="Supply Chain",
     )
     # Shelter - 105
     DomesticLivingSpaceTag = ThirdLevelCategories(
@@ -106,7 +108,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.ShelterTag.value, "id"),
-        alias="Domestic Living Space"
+        alias="Domestic Living Space",
     )
     DwellingEnvelopeTag = ThirdLevelCategories(
         id="1502",
@@ -114,7 +116,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.ShelterTag.value, "id"),
-        alias="Dwelling Envelope"
+        alias="Dwelling Envelope",
     )
     # Nutrition - 106
     NutritionGoodsAndServicesTag = ThirdLevelCategories(
@@ -123,7 +125,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.NutritionTag.value, "id"),
-        alias="Nutrition Goods And Services"
+        alias="Nutrition Goods And Services",
     )
     NutritionalStatusTag = ThirdLevelCategories(
         id="1602",
@@ -131,7 +133,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.NutritionTag.value, "id"),
-        alias="Nutritional Status"
+        alias="Nutritional Status",
     )
     # Protection - 107
     ChildProtectionTag = ThirdLevelCategories(
@@ -140,7 +142,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.ProtectionTag.value, "id"),
-        alias="Child Protection"
+        alias="Child Protection",
     )
     CivilAndPoliticalRightsTag = ThirdLevelCategories(
         id="1702",
@@ -148,7 +150,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.ProtectionTag.value, "id"),
-        alias="Civil and Political Rights"
+        alias="Civil and Political Rights",
     )
     DocumentationTag = ThirdLevelCategories(
         id="1703",
@@ -156,7 +158,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.ProtectionTag.value, "id"),
-        alias="Documentation"
+        alias="Documentation",
     )
     FreedomOfMovementTag = ThirdLevelCategories(
         id="1704",
@@ -164,7 +166,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.ProtectionTag.value, "id"),
-        alias="Freedom of Movement"
+        alias="Freedom of Movement",
     )
     HousingLandAndPropertyTag = ThirdLevelCategories(
         id="1705",
@@ -172,7 +174,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.ProtectionTag.value, "id"),
-        alias="Housing land and property"
+        alias="Housing land and property",
     )
     HumanRightsTag = ThirdLevelCategories(
         id="1706",
@@ -180,7 +182,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.ProtectionTag.value, "id"),
-        alias="Human rights"
+        alias="Human rights",
     )
     JusticeAndRuleOfLawTag = ThirdLevelCategories(
         id="1707",
@@ -188,7 +190,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.ProtectionTag.value, "id"),
-        alias="Justice And Rule Of Law"
+        alias="Justice And Rule Of Law",
     )
     LibertyTag = ThirdLevelCategories(
         id="1708",
@@ -196,7 +198,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.ProtectionTag.value, "id"),
-        alias="Liberty"
+        alias="Liberty",
     )
     MinesTag = ThirdLevelCategories(
         id="1709",
@@ -204,7 +206,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.ProtectionTag.value, "id"),
-        alias="Mines"
+        alias="Mines",
     )
     PhysicalSafetyAndSecurityTag = ThirdLevelCategories(
         id="1710",
@@ -212,7 +214,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.ProtectionTag.value, "id"),
-        alias="Physical Safety and Security"
+        alias="Physical Safety and Security",
     )
     SexualAndGenderBasedViolenceTag = ThirdLevelCategories(
         id="1711",
@@ -220,7 +222,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.ProtectionTag.value, "id"),
-        alias="Sexual and gender based violence"
+        alias="Sexual and gender based violence",
     )
     # 108
     HygieneTag = ThirdLevelCategories(
@@ -229,7 +231,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.WashTag.value, "id"),
-        alias="Hygiene"
+        alias="Hygiene",
     )
     SanitationTag = ThirdLevelCategories(
         id="1802",
@@ -237,7 +239,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.WashTag.value, "id"),
-        alias="Sanitation"
+        alias="Sanitation",
     )
     WaterSupplyTag = ThirdLevelCategories(
         id="1803",
@@ -245,7 +247,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.WashTag.value, "id"),
-        alias="Water Supply"
+        alias="Water Supply",
     )
     WasteManagementTag = ThirdLevelCategories(
         id="1804",
@@ -253,7 +255,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.WashTag.value, "id"),
-        alias="Waste Management"
+        alias="Waste Management",
     )
     VectorControlTag = ThirdLevelCategories(
         id="1805",
@@ -261,7 +263,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.WashTag.value, "id"),
-        alias="Vector Control"
+        alias="Vector Control",
     )
     # 201
     LivelihoodsTag = ThirdLevelCategories(
@@ -270,7 +272,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.SectorsTag.value, "id"),
-        alias="Livelihoods"
+        alias="Livelihoods",
     )
     NutritionTag = ThirdLevelCategories(
         id="2102",
@@ -278,7 +280,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.SectorsTag.value, "id"),
-        alias="Nutrition"
+        alias="Nutrition",
     )
     AgricultureTag = ThirdLevelCategories(
         id="2103",
@@ -286,7 +288,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.SectorsTag.value, "id"),
-        alias="Agriculture"
+        alias="Agriculture",
     )
     CrossTag = ThirdLevelCategories(
         id="2104",
@@ -294,7 +296,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.SectorsTag.value, "id"),
-        alias="Cross"
+        alias="Cross",
     )
     FoodSecurityTag = ThirdLevelCategories(
         id="2105",
@@ -302,7 +304,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.SectorsTag.value, "id"),
-        alias="Food Security"
+        alias="Food Security",
     )
     ShelterTag = ThirdLevelCategories(
         id="2106",
@@ -310,7 +312,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.SectorsTag.value, "id"),
-        alias="Shelter"
+        alias="Shelter",
     )
     EducationTag = ThirdLevelCategories(
         id="2107",
@@ -318,7 +320,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.SectorsTag.value, "id"),
-        alias="Education"
+        alias="Education",
     )
     WashTag = ThirdLevelCategories(
         id="2108",
@@ -326,7 +328,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.SectorsTag.value, "id"),
-        alias="Wash"
+        alias="Wash",
     )
     LogisticsTag = ThirdLevelCategories(
         id="2109",
@@ -334,7 +336,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.SectorsTag.value, "id"),
-        alias="Logistics"
+        alias="Logistics",
     )
     HealthTag = ThirdLevelCategories(
         id="2110",
@@ -342,7 +344,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.SectorsTag.value, "id"),
-        alias="Health"
+        alias="Health",
     )
     ProtectionTag = ThirdLevelCategories(
         id="2111",
@@ -350,7 +352,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.SectorsTag.value, "id"),
-        alias="Protection"
+        alias="Protection",
     )
     # 202
     DisplacementTag = ThirdLevelCategories(
@@ -359,7 +361,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.Pillars1DTag.value, "id"),
-        alias="Displacement"
+        alias="Displacement",
     )
     ShockEventTag = ThirdLevelCategories(
         id="2202",
@@ -367,7 +369,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.Pillars1DTag.value, "id"),
-        alias="Shock/Event"
+        alias="Shock/Event",
     )
     Covid19Tag = ThirdLevelCategories(
         id="2203",
@@ -375,7 +377,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.Pillars1DTag.value, "id"),
-        alias="Covid-19"
+        alias="Covid-19",
     )
     InformationAndCommTag = ThirdLevelCategories(
         id="2204",
@@ -383,7 +385,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.Pillars1DTag.value, "id"),
-        alias="Information and Communication"
+        alias="Information and Communication",
     )
     ContextTag = ThirdLevelCategories(
         id="2205",
@@ -391,7 +393,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.Pillars1DTag.value, "id"),
-        alias="Context"
+        alias="Context",
     )
     CasualtiesTag = ThirdLevelCategories(
         id="2206",
@@ -399,7 +401,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.Pillars1DTag.value, "id"),
-        alias="Casualties"
+        alias="Casualties",
     )
     HumanitarianAccessTag = ThirdLevelCategories(
         id="2207",
@@ -407,7 +409,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.Pillars1DTag.value, "id"),
-        alias="Humanitarian Access"
+        alias="Humanitarian Access",
     )
     # 203
     ImpactTag = ThirdLevelCategories(
@@ -416,7 +418,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.Pillars2DTag.value, "id"),
-        alias="Impact"
+        alias="Impact",
     )
     AtRiskTag = ThirdLevelCategories(
         id="2302",
@@ -424,7 +426,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.Pillars2DTag.value, "id"),
-        alias="At Risk"
+        alias="At Risk",
     )
     CapacitiesAndResponseTag = ThirdLevelCategories(
         id="2303",
@@ -432,7 +434,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.Pillars2DTag.value, "id"),
-        alias="Capacities & Response"
+        alias="Capacities & Response",
     )
     PriorityInterventionsTag = ThirdLevelCategories(
         id="2304",
@@ -440,7 +442,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.Pillars2DTag.value, "id"),
-        alias="Priority Interventions"
+        alias="Priority Interventions",
     )
     HumanitarianConditionsTag = ThirdLevelCategories(
         id="2305",
@@ -448,7 +450,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.Pillars2DTag.value, "id"),
-        alias="Humanitarian conditions"
+        alias="Humanitarian conditions",
     )
     PriorityNeedsTag = ThirdLevelCategories(
         id="2306",
@@ -456,7 +458,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.Pillars2DTag.value, "id"),
-        alias="Priority needs"
+        alias="Priority needs",
     )
     # 204
     NonDisplacedTag = ThirdLevelCategories(
@@ -465,7 +467,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.AffectedTag.value, "id"),
-        alias="Non displaced"
+        alias="Non displaced",
     )
     DisplacedTag = ThirdLevelCategories(
         id="2402",
@@ -473,7 +475,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.AffectedTag.value, "id"),
-        alias="Displaced"
+        alias="Displaced",
     )
     # 301
     InjuredTag = ThirdLevelCategories(
@@ -482,7 +484,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.CasualtiesTag.value, "id"),
-        alias="Injured"
+        alias="Injured",
     )
     DeadTag = ThirdLevelCategories(
         id="3102",
@@ -490,7 +492,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.CasualtiesTag.value, "id"),
-        alias="Dead"
+        alias="Dead",
     )
     MissingTag = ThirdLevelCategories(
         id="3103",
@@ -498,7 +500,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.CasualtiesTag.value, "id"),
-        alias="Missing"
+        alias="Missing",
     )
     # 302
     TechnologicalTag = ThirdLevelCategories(
@@ -507,7 +509,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.ContextTag.value, "id"),
-        alias="Technological"
+        alias="Technological",
     )
     LegalAndPolicyTag = ThirdLevelCategories(
         id="3202",
@@ -515,7 +517,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.ContextTag.value, "id"),
-        alias="Legal and Policy"
+        alias="Legal and Policy",
     )
     EconomyTag = ThirdLevelCategories(
         id="3203",
@@ -523,7 +525,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.ContextTag.value, "id"),
-        alias="Economy"
+        alias="Economy",
     )
     SecurityAndStabilityTag = ThirdLevelCategories(
         id="3204",
@@ -531,7 +533,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.ContextTag.value, "id"),
-        alias="Security & stability"
+        alias="Security & stability",
     )
     SocioCulturalTag = ThirdLevelCategories(
         id="3205",
@@ -539,7 +541,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.ContextTag.value, "id"),
-        alias="Socio cultural"
+        alias="Socio cultural",
     )
     DemographyTag = ThirdLevelCategories(
         id="3206",
@@ -547,7 +549,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.ContextTag.value, "id"),
-        alias="Demography"
+        alias="Demography",
     )
     PoliticsTag = ThirdLevelCategories(
         id="3207",
@@ -555,7 +557,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.ContextTag.value, "id"),
-        alias="Politics"
+        alias="Politics",
     )
     EnvironmentTag = ThirdLevelCategories(
         id="3208",
@@ -563,7 +565,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.ContextTag.value, "id"),
-        alias="Environment"
+        alias="Environment",
     )
     # 303
     ContactTracingTag = ThirdLevelCategories(
@@ -572,7 +574,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.Covid19Tag.value, "id"),
-        alias="Contact tracing"
+        alias="Contact tracing",
     )
     HospitalizationAndCareTag = ThirdLevelCategories(
         id="3302",
@@ -580,7 +582,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.Covid19Tag.value, "id"),
-        alias="Hospitalization And Care"
+        alias="Hospitalization And Care",
     )
     DeathsTag = ThirdLevelCategories(
         id="3303",
@@ -588,7 +590,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.Covid19Tag.value, "id"),
-        alias="Deaths"
+        alias="Deaths",
     )
     CasesTag = ThirdLevelCategories(
         id="3304",
@@ -596,7 +598,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.Covid19Tag.value, "id"),
-        alias="Cases"
+        alias="Cases",
     )
     PreventionCampaignTag = ThirdLevelCategories(
         id="3305",
@@ -604,7 +606,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.Covid19Tag.value, "id"),
-        alias="Prevention campaign"
+        alias="Prevention campaign",
     )
     VaccinationTag = ThirdLevelCategories(
         id="3306",
@@ -612,7 +614,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.Covid19Tag.value, "id"),
-        alias="Vaccination"
+        alias="Vaccination",
     )
     ResearchAndOutlookTag = ThirdLevelCategories(
         id="3307",
@@ -620,7 +622,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.Covid19Tag.value, "id"),
-        alias="Research and outlook"
+        alias="Research and outlook",
     )
     TestingTag = ThirdLevelCategories(
         id="3308",
@@ -628,7 +630,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.Covid19Tag.value, "id"),
-        alias="Testing"
+        alias="Testing",
     )
     RestrictionMeasuresTag = ThirdLevelCategories(
         id="3309",
@@ -636,7 +638,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.Covid19Tag.value, "id"),
-        alias="Restriction measures"
+        alias="Restriction measures",
     )
     # 304
     PushFactors = ThirdLevelCategories(
@@ -645,7 +647,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.DisplacementTag.value, "id"),
-        alias="Push Factors"
+        alias="Push Factors",
     )
     LocalIntegrationTag = ThirdLevelCategories(
         id="3402",
@@ -653,7 +655,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.DisplacementTag.value, "id"),
-        alias="Local integration"
+        alias="Local integration",
     )
     TypeNumbersMovementsTag = ThirdLevelCategories(
         id="3403",
@@ -661,7 +663,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.DisplacementTag.value, "id"),
-        alias="Type/numbers/movements"
+        alias="Type/numbers/movements",
     )
     PullFactorsTag = ThirdLevelCategories(
         id="3404",
@@ -669,7 +671,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.DisplacementTag.value, "id"),
-        alias="Pull Factors"
+        alias="Pull Factors",
     )
     IntentionsTag = ThirdLevelCategories(
         id="3405",
@@ -677,7 +679,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.DisplacementTag.value, "id"),
-        alias="Intentions"
+        alias="Intentions",
     )
     # 305
     PeopleHumanitarianAccessConstraintsTag = ThirdLevelCategories(
@@ -686,7 +688,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.HumanitarianAccessTag.value, "id"),
-        alias="People facing humanitarian access constraints/humanitarian access gaps"
+        alias="People facing humanitarian access constraints/humanitarian access gaps",
     )
     PhysicalConstraintsTag = ThirdLevelCategories(
         id="3502",
@@ -694,7 +696,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.HumanitarianAccessTag.value, "id"),
-        alias="Physical constraints"
+        alias="Physical constraints",
     )
     SecurityConstraintsTag = ThirdLevelCategories(
         id="3503",
@@ -702,7 +704,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.HumanitarianAccessTag.value, "id"),
-        alias="Security Constraints"
+        alias="Security Constraints",
     )
     PopulationToReliefTag = ThirdLevelCategories(
         id="3504",
@@ -710,7 +712,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.HumanitarianAccessTag.value, "id"),
-        alias="Population to relief"
+        alias="Population to relief",
     )
     ReliefToPopulationTag = ThirdLevelCategories(
         id="3505",
@@ -718,7 +720,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.HumanitarianAccessTag.value, "id"),
-        alias="Relief to population"
+        alias="Relief to population",
     )
     # 306
     InfoChallengesAndBarriersTag = ThirdLevelCategories(
@@ -727,7 +729,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.InfoAndCommTag.value, "id"),
-        alias="Information challenges and barriers"
+        alias="Information challenges and barriers",
     )
     CommMeansAndPreferencesTag = ThirdLevelCategories(
         id="3602",
@@ -735,7 +737,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.InfoAndCommTag.value, "id"),
-        alias="Communication means and preferences"
+        alias="Communication means and preferences",
     )
     KnowledgeAndInfoGapsHumTag = ThirdLevelCategories(
         id="3603",
@@ -743,7 +745,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.InfoAndCommTag.value, "id"),
-        alias="Knowledge and info gaps (hum)"
+        alias="Knowledge and info gaps (hum)",
     )
     KnowledgeAndInfoGapsPopTag = ThirdLevelCategories(
         id="3604",
@@ -751,7 +753,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.InfoAndCommTag.value, "id"),
-        alias="Knowledge and info gaps (pop)"
+        alias="Knowledge and info gaps (pop)",
     )
     # 307
     MitigatingFactorsTag = ThirdLevelCategories(
@@ -760,7 +762,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.ShockEventTag.value, "id"),
-        alias="Mitigating factors"
+        alias="Mitigating factors",
     )
     TypeAndCharacteristicsTag = ThirdLevelCategories(
         id="3702",
@@ -768,7 +770,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.ShockEventTag.value, "id"),
-        alias="Type and characteristics"
+        alias="Type and characteristics",
     )
     HazardAndThreatsTag = ThirdLevelCategories(
         id="3703",
@@ -776,7 +778,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.ShockEventTag.value, "id"),
-        alias="Hazard & threats"
+        alias="Hazard & threats",
     )
     UnderlyingAggravatingFactorsTag = ThirdLevelCategories(
         id="3704",
@@ -784,7 +786,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.ShockEventTag.value, "id"),
-        alias="Underlying/aggravating factors"
+        alias="Underlying/aggravating factors",
     )
     # 401
     RiskAndVulnerabilitiesTag = ThirdLevelCategories(
@@ -793,7 +795,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.AtRiskTag.value, "id"),
-        alias="Risk and vulnerabilities"
+        alias="Risk and vulnerabilities",
     )
     NumberOfPeopleAtRiskTag = ThirdLevelCategories(
         id="4102",
@@ -801,7 +803,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.AtRiskTag.value, "id"),
-        alias="Number of people at risk"
+        alias="Number of people at risk",
     )
     # 402
     LocalResponseTag = ThirdLevelCategories(
@@ -810,7 +812,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.CapacitiesAndResponseTag.value, "id"),
-        alias="Local response"
+        alias="Local response",
     )
     NationalResponseTag = ThirdLevelCategories(
         id="4202",
@@ -818,7 +820,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.CapacitiesAndResponseTag.value, "id"),
-        alias="National Response"
+        alias="National Response",
     )
     HumanitarianCoordinationTag = ThirdLevelCategories(
         id="4203",
@@ -826,7 +828,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.CapacitiesAndResponseTag.value, "id"),
-        alias="Humanitarian coordination"
+        alias="Humanitarian coordination",
     )
     InternationalResponseTag = ThirdLevelCategories(
         id="4204",
@@ -834,7 +836,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.CapacitiesAndResponseTag.value, "id"),
-        alias="International response"
+        alias="International response",
     )
     RedCrossTag = ThirdLevelCategories(
         id="4205",
@@ -842,7 +844,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.CapacitiesAndResponseTag.value, "id"),
-        alias="Red cross/red crescent"
+        alias="Red cross/red crescent",
     )
     PeopleReachedResponseGapsTag = ThirdLevelCategories(
         id="4206",
@@ -850,7 +852,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.CapacitiesAndResponseTag.value, "id"),
-        alias="People reached/response gaps"
+        alias="People reached/response gaps",
     )
     # 403
     PhysicalAndMentalWellBeingTag = ThirdLevelCategories(
@@ -859,7 +861,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.HumanitarianConditionsTag.value, "id"),
-        alias="Physical and mental well being"
+        alias="Physical and mental well being",
     )
     LivingStandardsTag = ThirdLevelCategories(
         id="4302",
@@ -867,7 +869,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.HumanitarianConditionsTag.value, "id"),
-        alias="Living standards"
+        alias="Living standards",
     )
     CopingMechanismsTag = ThirdLevelCategories(
         id="4303",
@@ -875,7 +877,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.HumanitarianConditionsTag.value, "id"),
-        alias="Coping Mechanisms"
+        alias="Coping Mechanisms",
     )
     NumberOfPeopleInNeedTag = ThirdLevelCategories(
         id="4304",
@@ -883,7 +885,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.HumanitarianConditionsTag.value, "id"),
-        alias="Number of people in need"
+        alias="Number of people in need",
     )
     # 404
     ImpactOnSystemsServicesNetworksTag = ThirdLevelCategories(
@@ -892,7 +894,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.ImpactTag.value, "id"),
-        alias="Impact on systems, services and networks"
+        alias="Impact on systems, services and networks",
     )
     DriverAggravatingFactorsTag = ThirdLevelCategories(
         id="4402",
@@ -900,7 +902,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.ImpactTag.value, "id"),
-        alias="Driver/aggravating factors"
+        alias="Driver/aggravating factors",
     )
     NumberOfPeopleAffectedTag = ThirdLevelCategories(
         id="4403",
@@ -908,7 +910,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.ImpactTag.value, "id"),
-        alias="Number of people affected"
+        alias="Number of people affected",
     )
     ImpactOnPeopleTag = ThirdLevelCategories(
         id="4404",
@@ -916,7 +918,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.ImpactTag.value, "id"),
-        alias="Impact on people"
+        alias="Impact on people",
     )
     # 405
     ExpressedByHumanitarianStaffTag = ThirdLevelCategories(
@@ -925,7 +927,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.PriorityInterventionsTag.value, "id"),
-        alias="Expressed by humanitarian staff"
+        alias="Expressed by humanitarian staff",
     )
     ExpressedByPopulationTag = ThirdLevelCategories(
         id="4502",
@@ -933,7 +935,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.PriorityInterventionsTag.value, "id"),
-        alias="Expressed by population"
+        alias="Expressed by population",
     )
     # 406
 
@@ -944,7 +946,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.DisplacedTag.value, "id"),
-        alias="Pendular"
+        alias="Pendular",
     )
     AsylumSeekersTag = ThirdLevelCategories(
         id="5102",
@@ -952,7 +954,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.DisplacedTag.value, "id"),
-        alias="Asylum seekers"
+        alias="Asylum seekers",
     )
     RefugeesTag = ThirdLevelCategories(
         id="5103",
@@ -960,7 +962,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.DisplacedTag.value, "id"),
-        alias="Refugees"
+        alias="Refugees",
     )
     RegularTag = ThirdLevelCategories(
         id="5104",
@@ -968,7 +970,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.DisplacedTag.value, "id"),
-        alias="Regular"
+        alias="Regular",
     )
     ReturneesTag = ThirdLevelCategories(
         id="5105",
@@ -976,7 +978,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.DisplacedTag.value, "id"),
-        alias="Returnees"
+        alias="Returnees",
     )
     InTransitTag = ThirdLevelCategories(
         id="5106",
@@ -984,7 +986,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.DisplacedTag.value, "id"),
-        alias="In transit"
+        alias="In transit",
     )
     OthersOfConcernTag = ThirdLevelCategories(
         id="5107",
@@ -992,7 +994,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.DisplacedTag.value, "id"),
-        alias="Others of concern"
+        alias="Others of concern",
     )
     IrregularTag = ThirdLevelCategories(
         id="5108",
@@ -1000,7 +1002,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.DisplacedTag.value, "id"),
-        alias="Irregular"
+        alias="Irregular",
     )
     IDPTag = ThirdLevelCategories(
         id="5109",
@@ -1008,7 +1010,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.DisplacedTag.value, "id"),
-        alias="Idp"
+        alias="Idp",
     )
     StatelessTag = ThirdLevelCategories(
         id="5110",
@@ -1016,7 +1018,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.DisplacedTag.value, "id"),
-        alias="Stateless"
+        alias="Stateless",
     )
     MigrantsTag = ThirdLevelCategories(
         id="5111",
@@ -1024,7 +1026,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.DisplacedTag.value, "id"),
-        alias="Migrants"
+        alias="Migrants",
     )
     # 502
     HostTag = ThirdLevelCategories(
@@ -1033,7 +1035,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.NonDisplacedTag.value, "id"),
-        alias="Host"
+        alias="Host",
     )
     NonHostTag = ThirdLevelCategories(
         id="5202",
@@ -1041,7 +1043,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.NonDisplacedTag.value, "id"),
-        alias="Non host"
+        alias="Non host",
     )
     # 503
     Age18YearsOldTag = ThirdLevelCategories(
@@ -1050,7 +1052,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.AgeTag.value, "id"),
-        alias="<18 years old"
+        alias="<18 years old",
     )
     Age2559YearsOldTag = ThirdLevelCategories(
         id="5302",
@@ -1058,7 +1060,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.AgeTag.value, "id"),
-        alias="25-59 years old"
+        alias="25-59 years old",
     )
     Age1217YearsOldTag = ThirdLevelCategories(
         id="5303",
@@ -1066,7 +1068,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.AgeTag.value, "id"),
-        alias="12-17 years old"
+        alias="12-17 years old",
     )
     Age60YearsOldTag = ThirdLevelCategories(
         id="5304",
@@ -1074,7 +1076,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.AgeTag.value, "id"),
-        alias=">60 years old"
+        alias=">60 years old",
     )
     Age5YearsOldTag = ThirdLevelCategories(
         id="5305",
@@ -1082,7 +1084,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.AgeTag.value, "id"),
-        alias="<5 years old"
+        alias="<5 years old",
     )
     Age1824YearsOldTag = ThirdLevelCategories(
         id="5306",
@@ -1090,7 +1092,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.AgeTag.value, "id"),
-        alias="18-24 years old"
+        alias="18-24 years old",
     )
     Age511YearsOldTag = ThirdLevelCategories(
         id="5307",
@@ -1098,7 +1100,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.AgeTag.value, "id"),
-        alias="5-11 years old"
+        alias="5-11 years old",
     )
     Age18YearsTag = ThirdLevelCategories(
         id="5308",
@@ -1106,7 +1108,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.AgeTag.value, "id"),
-        alias="<18 years"
+        alias="<18 years",
     )
     Age517YearsOldTag = ThirdLevelCategories(
         id="5309",
@@ -1114,7 +1116,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.AgeTag.value, "id"),
-        alias="5-17 years old"
+        alias="5-17 years old",
     )
     Age1859YearsOldTag = ThirdLevelCategories(
         id="5310",
@@ -1122,7 +1124,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.AgeTag.value, "id"),
-        alias="18-59 years old"
+        alias="18-59 years old",
     )
     # 504
     FemaleTag = ThirdLevelCategories(
@@ -1131,7 +1133,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.GenderTag.value, "id"),
-        alias="Female"
+        alias="Female",
     )
     MaleTag = ThirdLevelCategories(
         id="5402",
@@ -1139,7 +1141,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.GenderTag.value, "id"),
-        alias="Male"
+        alias="Male",
     )
     AllTag = ThirdLevelCategories(
         id="5403",
@@ -1147,7 +1149,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.GenderTag.value, "id"),
-        alias="All"
+        alias="All",
     )
     # 505
     UnreliableTag = ThirdLevelCategories(
@@ -1156,7 +1158,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.ReliabilityTag.value, "id"),
-        alias="Unreliable"
+        alias="Unreliable",
     )
     CompletelyReliableTag = ThirdLevelCategories(
         id="5502",
@@ -1164,7 +1166,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.ReliabilityTag.value, "id"),
-        alias="Completely reliable"
+        alias="Completely reliable",
     )
     CannotBeJudgedTag = ThirdLevelCategories(
         id="5503",
@@ -1172,7 +1174,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.ReliabilityTag.value, "id"),
-        alias="Cannot be judged"
+        alias="Cannot be judged",
     )
     UsuallyReliableTag = ThirdLevelCategories(
         id="5504",
@@ -1180,7 +1182,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.ReliabilityTag.value, "id"),
-        alias="Usually reliable"
+        alias="Usually reliable",
     )
     FairlyReliableTag = ThirdLevelCategories(
         id="5505",
@@ -1188,7 +1190,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.ReliabilityTag.value, "id"),
-        alias="Fairly reliable"
+        alias="Fairly reliable",
     )
     # 506
     IssueOfConcernTag = ThirdLevelCategories(
@@ -1197,7 +1199,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.SeverityTag.value, "id"),
-        alias="Issue of concern"
+        alias="Issue of concern",
     )
     SevereIssueTag = ThirdLevelCategories(
         id="5602",
@@ -1205,7 +1207,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.SeverityTag.value, "id"),
-        alias="Severe issue"
+        alias="Severe issue",
     )
     MinorIssueTag = ThirdLevelCategories(
         id="5603",
@@ -1213,7 +1215,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.SeverityTag.value, "id"),
-        alias="Minor issue"
+        alias="Minor issue",
     )
     CriticalIssueTag = ThirdLevelCategories(
         id="5604",
@@ -1221,7 +1223,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.SeverityTag.value, "id"),
-        alias="Critical issue"
+        alias="Critical issue",
     )
     NoIssueTag = ThirdLevelCategories(
         id="5605",
@@ -1229,7 +1231,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.SeverityTag.value, "id"),
-        alias="No issue"
+        alias="No issue",
     )
     # 507
     PregnantOrLactatingWomenTag = ThirdLevelCategories(
@@ -1238,7 +1240,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.SpecificNeedsGroupsTag.value, "id"),
-        alias="Pregnant or lactating women"
+        alias="Pregnant or lactating women",
     )
     SingleWomenInclWidowsTag = ThirdLevelCategories(
         id="5702",
@@ -1246,7 +1248,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.SpecificNeedsGroupsTag.value, "id"),
-        alias="Single women (including widows)"
+        alias="Single women (including widows)",
     )
     ChildHeadOfHouseholdTag = ThirdLevelCategories(
         id="5703",
@@ -1254,7 +1256,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.SpecificNeedsGroupsTag.value, "id"),
-        alias="Child head of household"
+        alias="Child head of household",
     )
     UnaccompaniedAndSeparatedChildrenTag = ThirdLevelCategories(
         id="5704",
@@ -1262,7 +1264,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.SpecificNeedsGroupsTag.value, "id"),
-        alias="Unaccompanied or/and separated children"
+        alias="Unaccompanied or/and separated children",
     )
     MinoritiesTag = ThirdLevelCategories(
         id="5705",
@@ -1270,7 +1272,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.SpecificNeedsGroupsTag.value, "id"),
-        alias="Minorities"
+        alias="Minorities",
     )
     LGBTQIATag = ThirdLevelCategories(
         id="5706",
@@ -1278,7 +1280,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.SpecificNeedsGroupsTag.value, "id"),
-        alias="Lgbtqia+"
+        alias="Lgbtqia+",
     )
     PersonsWithDisabilityTag = ThirdLevelCategories(
         id="5707",
@@ -1286,7 +1288,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.SpecificNeedsGroupsTag.value, "id"),
-        alias="Persons with disability"
+        alias="Persons with disability",
     )
     FemaleHeadOfHouseholdTag = ThirdLevelCategories(
         id="5708",
@@ -1294,7 +1296,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.SpecificNeedsGroupsTag.value, "id"),
-        alias="Female head of household"
+        alias="Female head of household",
     )
     ChronicallyIllTag = ThirdLevelCategories(
         id="5709",
@@ -1302,7 +1304,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.SpecificNeedsGroupsTag.value, "id"),
-        alias="Chronically ill"
+        alias="Chronically ill",
     )
     UnaccompaniedOrSeparatedChildrenTag = ThirdLevelCategories(
         id="5710",
@@ -1310,7 +1312,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.SpecificNeedsGroupsTag.value, "id"),
-        alias="Unaccompanied or separated children"
+        alias="Unaccompanied or separated children",
     )
     ElderlyHeadOfHouseholdTag = ThirdLevelCategories(
         id="5711",
@@ -1318,7 +1320,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.SpecificNeedsGroupsTag.value, "id"),
-        alias="Elderly head of household"
+        alias="Elderly head of household",
     )
     IndigenousPeopleTag = ThirdLevelCategories(
         id="5712",
@@ -1326,7 +1328,7 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.SpecificNeedsGroupsTag.value, "id"),
-        alias="Indigenous people"
+        alias="Indigenous people",
     )
     GBVSurvivorsTag = ThirdLevelCategories(
         id="5713",
@@ -1334,172 +1336,175 @@ class ThirdLevel(Enum):
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.SpecificNeedsGroupsTag.value, "id"),
-        alias="Gbv survivors"
+        alias="Gbv survivors",
     )
 
     @classmethod
     def third_level_lst(cls):
-        return [t.value._asdict() for t in [
-            ThirdLevel.FacilitiesAndAmenitiesTag, # 101
-            ThirdLevel.LearningEnvironmentTag,
-            ThirdLevel.TeachersAndEduPersonnelTag,
-            ThirdLevel.TeachingAndLearningTag,
-            ThirdLevel.HealthCareSystemTag, # 102
-            ThirdLevel.HealthStatusTag,
-            ThirdLevel.AssetsTag, # 103
-            ThirdLevel.ExpendituresTag,
-            ThirdLevel.IncomeTag,
-            ThirdLevel.SkillsAndQualificationsTag,
-            ThirdLevel.SupplyChainTag, # 104
-            ThirdLevel.DomesticLivingSpaceTag, # 105
-            ThirdLevel.DwellingEnvelopeTag,
-            ThirdLevel.NutritionGoodsAndServicesTag, # 106
-            ThirdLevel.NutritionalStatusTag,
-            ThirdLevel.ChildProtectionTag, # 107
-            ThirdLevel.CivilAndPoliticalRightsTag,
-            ThirdLevel.DocumentationTag,
-            ThirdLevel.FreedomOfMovementTag,
-            ThirdLevel.HousingLandAndPropertyTag,
-            ThirdLevel.HumanRightsTag,
-            ThirdLevel.JusticeAndRuleOfLawTag,
-            ThirdLevel.LibertyTag,
-            ThirdLevel.MinesTag,
-            ThirdLevel.PhysicalSafetyAndSecurityTag,
-            ThirdLevel.SexualAndGenderBasedViolenceTag,
-            ThirdLevel.HygieneTag, # 108
-            ThirdLevel.SanitationTag,
-            ThirdLevel.WaterSupplyTag,
-            ThirdLevel.WasteManagementTag,
-            ThirdLevel.VectorControlTag,
-            ThirdLevel.LivelihoodsTag, # 201
-            ThirdLevel.NutritionTag,
-            ThirdLevel.AgricultureTag,
-            ThirdLevel.CrossTag,
-            ThirdLevel.FoodSecurityTag,
-            ThirdLevel.ShelterTag,
-            ThirdLevel.EducationTag,
-            ThirdLevel.WashTag,
-            ThirdLevel.LogisticsTag,
-            ThirdLevel.HealthTag,
-            ThirdLevel.ProtectionTag,
-            ThirdLevel.DisplacementTag, # 202
-            ThirdLevel.ShockEventTag,
-            ThirdLevel.Covid19Tag,
-            ThirdLevel.InformationAndCommTag,
-            ThirdLevel.ContextTag,
-            ThirdLevel.CasualtiesTag,
-            ThirdLevel.HumanitarianAccessTag,
-            ThirdLevel.ImpactTag, # 203
-            ThirdLevel.AtRiskTag,
-            ThirdLevel.CapacitiesAndResponseTag,
-            ThirdLevel.PriorityInterventionsTag,
-            ThirdLevel.HumanitarianConditionsTag,
-            ThirdLevel.PriorityNeedsTag,
-            ThirdLevel.NonDisplacedTag, # 204
-            ThirdLevel.DisplacedTag,
-            ThirdLevel.InjuredTag, # 301
-            ThirdLevel.DeadTag,
-            ThirdLevel.MissingTag,
-            ThirdLevel.TechnologicalTag, # 302
-            ThirdLevel.LegalAndPolicyTag,
-            ThirdLevel.EconomyTag,
-            ThirdLevel.SecurityAndStabilityTag,
-            ThirdLevel.SocioCulturalTag,
-            ThirdLevel.DemographyTag,
-            ThirdLevel.PoliticsTag,
-            ThirdLevel.EnvironmentTag,
-            ThirdLevel.ContactTracingTag, # 303
-            ThirdLevel.HospitalizationAndCareTag,
-            ThirdLevel.DeathsTag,
-            ThirdLevel.CasesTag,
-            ThirdLevel.PreventionCampaignTag,
-            ThirdLevel.VaccinationTag,
-            ThirdLevel.ResearchAndOutlookTag,
-            ThirdLevel.TestingTag,
-            ThirdLevel.RestrictionMeasuresTag,
-            ThirdLevel.PushFactors, # 304
-            ThirdLevel.LocalIntegrationTag,
-            ThirdLevel.TypeNumbersMovementsTag,
-            ThirdLevel.PullFactorsTag,
-            ThirdLevel.IntentionsTag,
-            ThirdLevel.PeopleHumanitarianAccessConstraintsTag, # 305
-            ThirdLevel.PhysicalConstraintsTag,
-            ThirdLevel.SecurityConstraintsTag,
-            ThirdLevel.PopulationToReliefTag,
-            ThirdLevel.ReliefToPopulationTag,
-            ThirdLevel.InfoChallengesAndBarriersTag, # 306
-            ThirdLevel.CommMeansAndPreferencesTag,
-            ThirdLevel.KnowledgeAndInfoGapsHumTag,
-            ThirdLevel.KnowledgeAndInfoGapsPopTag,
-            ThirdLevel.MitigatingFactorsTag, # 307
-            ThirdLevel.TypeAndCharacteristicsTag,
-            ThirdLevel.HazardAndThreatsTag,
-            ThirdLevel.UnderlyingAggravatingFactorsTag,
-            ThirdLevel.RiskAndVulnerabilitiesTag, # 401
-            ThirdLevel.NumberOfPeopleAtRiskTag,
-            ThirdLevel.LocalResponseTag, # 402
-            ThirdLevel.NationalResponseTag,
-            ThirdLevel.HumanitarianCoordinationTag,
-            ThirdLevel.InternationalResponseTag,
-            ThirdLevel.RedCrossTag,
-            ThirdLevel.PeopleReachedResponseGapsTag,
-            ThirdLevel.PhysicalAndMentalWellBeingTag, # 403
-            ThirdLevel.LivingStandardsTag,
-            ThirdLevel.CopingMechanismsTag,
-            ThirdLevel.NumberOfPeopleInNeedTag,
-            ThirdLevel.ImpactOnSystemsServicesNetworksTag, # 404
-            ThirdLevel.DriverAggravatingFactorsTag,
-            ThirdLevel.NumberOfPeopleAffectedTag,
-            ThirdLevel.ImpactOnPeopleTag,
-            ThirdLevel.ExpressedByHumanitarianStaffTag, # 405
-            ThirdLevel.ExpressedByPopulationTag,
-            ThirdLevel.PendularTag, # 501
-            ThirdLevel.AsylumSeekersTag,
-            ThirdLevel.RefugeesTag,
-            ThirdLevel.RegularTag,
-            ThirdLevel.ReturneesTag,
-            ThirdLevel.InTransitTag,
-            ThirdLevel.OthersOfConcernTag,
-            ThirdLevel.IrregularTag,
-            ThirdLevel.IDPTag,
-            ThirdLevel.StatelessTag,
-            ThirdLevel.MigrantsTag,
-            ThirdLevel.HostTag, # 502
-            ThirdLevel.NonHostTag,
-            ThirdLevel.Age18YearsOldTag, # 503
-            ThirdLevel.Age2559YearsOldTag,
-            ThirdLevel.Age1217YearsOldTag,
-            ThirdLevel.Age60YearsOldTag,
-            ThirdLevel.Age5YearsOldTag,
-            ThirdLevel.Age1824YearsOldTag,
-            ThirdLevel.Age511YearsOldTag,
-            ThirdLevel.Age18YearsTag,
-            ThirdLevel.Age517YearsOldTag,
-            ThirdLevel.Age1859YearsOldTag,
-            ThirdLevel.FemaleTag, # 504
-            ThirdLevel.MaleTag,
-            ThirdLevel.AllTag,
-            ThirdLevel.UnreliableTag, # 505
-            ThirdLevel.CompletelyReliableTag,
-            ThirdLevel.CannotBeJudgedTag,
-            ThirdLevel.UsuallyReliableTag,
-            ThirdLevel.FairlyReliableTag,
-            ThirdLevel.IssueOfConcernTag, # 506
-            ThirdLevel.SevereIssueTag,
-            ThirdLevel.MinorIssueTag,
-            ThirdLevel.CriticalIssueTag,
-            ThirdLevel.NoIssueTag,
-            ThirdLevel.PregnantOrLactatingWomenTag, # 507
-            ThirdLevel.SingleWomenInclWidowsTag,
-            ThirdLevel.ChildHeadOfHouseholdTag,
-            ThirdLevel.UnaccompaniedAndSeparatedChildrenTag,
-            ThirdLevel.MinoritiesTag,
-            ThirdLevel.LGBTQIATag,
-            ThirdLevel.PersonsWithDisabilityTag,
-            ThirdLevel.FemaleHeadOfHouseholdTag,
-            ThirdLevel.ChronicallyIllTag,
-            ThirdLevel.UnaccompaniedOrSeparatedChildrenTag,
-            ThirdLevel.ElderlyHeadOfHouseholdTag,
-            ThirdLevel.IndigenousPeopleTag,
-            ThirdLevel.GBVSurvivorsTag,
-        ]]
+        return [
+            t.value._asdict()
+            for t in [
+                ThirdLevel.FacilitiesAndAmenitiesTag,  # 101
+                ThirdLevel.LearningEnvironmentTag,
+                ThirdLevel.TeachersAndEduPersonnelTag,
+                ThirdLevel.TeachingAndLearningTag,
+                ThirdLevel.HealthCareSystemTag,  # 102
+                ThirdLevel.HealthStatusTag,
+                ThirdLevel.AssetsTag,  # 103
+                ThirdLevel.ExpendituresTag,
+                ThirdLevel.IncomeTag,
+                ThirdLevel.SkillsAndQualificationsTag,
+                ThirdLevel.SupplyChainTag,  # 104
+                ThirdLevel.DomesticLivingSpaceTag,  # 105
+                ThirdLevel.DwellingEnvelopeTag,
+                ThirdLevel.NutritionGoodsAndServicesTag,  # 106
+                ThirdLevel.NutritionalStatusTag,
+                ThirdLevel.ChildProtectionTag,  # 107
+                ThirdLevel.CivilAndPoliticalRightsTag,
+                ThirdLevel.DocumentationTag,
+                ThirdLevel.FreedomOfMovementTag,
+                ThirdLevel.HousingLandAndPropertyTag,
+                ThirdLevel.HumanRightsTag,
+                ThirdLevel.JusticeAndRuleOfLawTag,
+                ThirdLevel.LibertyTag,
+                ThirdLevel.MinesTag,
+                ThirdLevel.PhysicalSafetyAndSecurityTag,
+                ThirdLevel.SexualAndGenderBasedViolenceTag,
+                ThirdLevel.HygieneTag,  # 108
+                ThirdLevel.SanitationTag,
+                ThirdLevel.WaterSupplyTag,
+                ThirdLevel.WasteManagementTag,
+                ThirdLevel.VectorControlTag,
+                ThirdLevel.LivelihoodsTag,  # 201
+                ThirdLevel.NutritionTag,
+                ThirdLevel.AgricultureTag,
+                ThirdLevel.CrossTag,
+                ThirdLevel.FoodSecurityTag,
+                ThirdLevel.ShelterTag,
+                ThirdLevel.EducationTag,
+                ThirdLevel.WashTag,
+                ThirdLevel.LogisticsTag,
+                ThirdLevel.HealthTag,
+                ThirdLevel.ProtectionTag,
+                ThirdLevel.DisplacementTag,  # 202
+                ThirdLevel.ShockEventTag,
+                ThirdLevel.Covid19Tag,
+                ThirdLevel.InformationAndCommTag,
+                ThirdLevel.ContextTag,
+                ThirdLevel.CasualtiesTag,
+                ThirdLevel.HumanitarianAccessTag,
+                ThirdLevel.ImpactTag,  # 203
+                ThirdLevel.AtRiskTag,
+                ThirdLevel.CapacitiesAndResponseTag,
+                ThirdLevel.PriorityInterventionsTag,
+                ThirdLevel.HumanitarianConditionsTag,
+                ThirdLevel.PriorityNeedsTag,
+                ThirdLevel.NonDisplacedTag,  # 204
+                ThirdLevel.DisplacedTag,
+                ThirdLevel.InjuredTag,  # 301
+                ThirdLevel.DeadTag,
+                ThirdLevel.MissingTag,
+                ThirdLevel.TechnologicalTag,  # 302
+                ThirdLevel.LegalAndPolicyTag,
+                ThirdLevel.EconomyTag,
+                ThirdLevel.SecurityAndStabilityTag,
+                ThirdLevel.SocioCulturalTag,
+                ThirdLevel.DemographyTag,
+                ThirdLevel.PoliticsTag,
+                ThirdLevel.EnvironmentTag,
+                ThirdLevel.ContactTracingTag,  # 303
+                ThirdLevel.HospitalizationAndCareTag,
+                ThirdLevel.DeathsTag,
+                ThirdLevel.CasesTag,
+                ThirdLevel.PreventionCampaignTag,
+                ThirdLevel.VaccinationTag,
+                ThirdLevel.ResearchAndOutlookTag,
+                ThirdLevel.TestingTag,
+                ThirdLevel.RestrictionMeasuresTag,
+                ThirdLevel.PushFactors,  # 304
+                ThirdLevel.LocalIntegrationTag,
+                ThirdLevel.TypeNumbersMovementsTag,
+                ThirdLevel.PullFactorsTag,
+                ThirdLevel.IntentionsTag,
+                ThirdLevel.PeopleHumanitarianAccessConstraintsTag,  # 305
+                ThirdLevel.PhysicalConstraintsTag,
+                ThirdLevel.SecurityConstraintsTag,
+                ThirdLevel.PopulationToReliefTag,
+                ThirdLevel.ReliefToPopulationTag,
+                ThirdLevel.InfoChallengesAndBarriersTag,  # 306
+                ThirdLevel.CommMeansAndPreferencesTag,
+                ThirdLevel.KnowledgeAndInfoGapsHumTag,
+                ThirdLevel.KnowledgeAndInfoGapsPopTag,
+                ThirdLevel.MitigatingFactorsTag,  # 307
+                ThirdLevel.TypeAndCharacteristicsTag,
+                ThirdLevel.HazardAndThreatsTag,
+                ThirdLevel.UnderlyingAggravatingFactorsTag,
+                ThirdLevel.RiskAndVulnerabilitiesTag,  # 401
+                ThirdLevel.NumberOfPeopleAtRiskTag,
+                ThirdLevel.LocalResponseTag,  # 402
+                ThirdLevel.NationalResponseTag,
+                ThirdLevel.HumanitarianCoordinationTag,
+                ThirdLevel.InternationalResponseTag,
+                ThirdLevel.RedCrossTag,
+                ThirdLevel.PeopleReachedResponseGapsTag,
+                ThirdLevel.PhysicalAndMentalWellBeingTag,  # 403
+                ThirdLevel.LivingStandardsTag,
+                ThirdLevel.CopingMechanismsTag,
+                ThirdLevel.NumberOfPeopleInNeedTag,
+                ThirdLevel.ImpactOnSystemsServicesNetworksTag,  # 404
+                ThirdLevel.DriverAggravatingFactorsTag,
+                ThirdLevel.NumberOfPeopleAffectedTag,
+                ThirdLevel.ImpactOnPeopleTag,
+                ThirdLevel.ExpressedByHumanitarianStaffTag,  # 405
+                ThirdLevel.ExpressedByPopulationTag,
+                ThirdLevel.PendularTag,  # 501
+                ThirdLevel.AsylumSeekersTag,
+                ThirdLevel.RefugeesTag,
+                ThirdLevel.RegularTag,
+                ThirdLevel.ReturneesTag,
+                ThirdLevel.InTransitTag,
+                ThirdLevel.OthersOfConcernTag,
+                ThirdLevel.IrregularTag,
+                ThirdLevel.IDPTag,
+                ThirdLevel.StatelessTag,
+                ThirdLevel.MigrantsTag,
+                ThirdLevel.HostTag,  # 502
+                ThirdLevel.NonHostTag,
+                ThirdLevel.Age18YearsOldTag,  # 503
+                ThirdLevel.Age2559YearsOldTag,
+                ThirdLevel.Age1217YearsOldTag,
+                ThirdLevel.Age60YearsOldTag,
+                ThirdLevel.Age5YearsOldTag,
+                ThirdLevel.Age1824YearsOldTag,
+                ThirdLevel.Age511YearsOldTag,
+                ThirdLevel.Age18YearsTag,
+                ThirdLevel.Age517YearsOldTag,
+                ThirdLevel.Age1859YearsOldTag,
+                ThirdLevel.FemaleTag,  # 504
+                ThirdLevel.MaleTag,
+                ThirdLevel.AllTag,
+                ThirdLevel.UnreliableTag,  # 505
+                ThirdLevel.CompletelyReliableTag,
+                ThirdLevel.CannotBeJudgedTag,
+                ThirdLevel.UsuallyReliableTag,
+                ThirdLevel.FairlyReliableTag,
+                ThirdLevel.IssueOfConcernTag,  # 506
+                ThirdLevel.SevereIssueTag,
+                ThirdLevel.MinorIssueTag,
+                ThirdLevel.CriticalIssueTag,
+                ThirdLevel.NoIssueTag,
+                ThirdLevel.PregnantOrLactatingWomenTag,  # 507
+                ThirdLevel.SingleWomenInclWidowsTag,
+                ThirdLevel.ChildHeadOfHouseholdTag,
+                ThirdLevel.UnaccompaniedAndSeparatedChildrenTag,
+                ThirdLevel.MinoritiesTag,
+                ThirdLevel.LGBTQIATag,
+                ThirdLevel.PersonsWithDisabilityTag,
+                ThirdLevel.FemaleHeadOfHouseholdTag,
+                ThirdLevel.ChronicallyIllTag,
+                ThirdLevel.UnaccompaniedOrSeparatedChildrenTag,
+                ThirdLevel.ElderlyHeadOfHouseholdTag,
+                ThirdLevel.IndigenousPeopleTag,
+                ThirdLevel.GBVSurvivorsTag,
+            ]
+        ]

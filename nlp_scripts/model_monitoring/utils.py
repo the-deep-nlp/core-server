@@ -1,15 +1,17 @@
 import json
+from typing import Dict, List, Tuple, Union, Optional
 import boto3
 import botocore
 from botocore.exceptions import ClientError
-from typing import Dict, List, Tuple, Union, Optional
-from constants import categories
+
+from .constants import CATEGORIES
+
 
 def get_model_info(
     endpoint_name: str,
     aws_access_key_id: str,
     aws_secret_access_key: str,
-    region_name: str="us-east-1"
+    region_name: str = "us-east-1",
 ) -> Tuple[Dict[str, str], Optional[str]]:
     """
     Gets the model information
@@ -48,7 +50,7 @@ def get_model_info(
     return model_info, err_msg
 
 
-def group_tags(tags_collection: Dict)->Dict[str, List[str]]:
+def group_tags(tags_collection: Dict) -> Dict[str, List[str]]:
     """
     Group tags into different categories
     """
@@ -58,37 +60,30 @@ def group_tags(tags_collection: Dict)->Dict[str, List[str]]:
             first_key, second_key, *_ = key.split("->")
         except ValueError:
             continue
-        if second_key.lower() in categories:
+        if second_key.lower() in CATEGORIES:
             if second_key not in tags_dict:
                 tags_dict[second_key] = []
             tags_dict[second_key].append(key)
-        if first_key.lower() in [
-            "subsectors",
-            "subpillars_1d",
-            "subpillars_2d"
-        ]:
+        if first_key.lower() in ["subsectors", "subpillars_1d", "subpillars_2d"]:
             if first_key not in tags_dict:
                 tags_dict[first_key] = []
             tags_dict[first_key].append(key)
     return tags_dict
 
+
 def invoke_model_endpoint(
     backbone_inputs: dict,
     sagemaker_model: boto3.client,
     endpoint_name: str,
-    content_type: str="application/json; format=pandas-split",
+    content_type: str = "application/json; format=pandas-split",
 ):
     """
     Invokes the sagemaker model endpoint
     """
     try:
         response = sagemaker_model.invoke_endpoint(
-            EndpointName=endpoint_name,
-            Body=backbone_inputs,
-            ContentType=content_type
+            EndpointName=endpoint_name, Body=backbone_inputs, ContentType=content_type
         )
-        return json.loads(
-            response["Body"].read().decode("ascii")
-        )
+        return json.loads(response["Body"].read().decode("ascii"))
     except ClientError as error:
-       raise Exception(error)
+        raise Exception(error)
