@@ -1,7 +1,6 @@
 import json
-from typing import Dict, List, Tuple, Union, Optional
+from typing import Dict, List, Tuple, Optional
 import boto3
-import botocore
 from botocore.exceptions import ClientError
 
 from .constants import CATEGORIES
@@ -76,7 +75,7 @@ def invoke_model_endpoint(
     sagemaker_model: boto3.client,
     endpoint_name: str,
     content_type: str = "application/json; format=pandas-split",
-):
+) -> Dict:
     """
     Invokes the sagemaker model endpoint
     """

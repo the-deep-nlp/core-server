@@ -2,8 +2,8 @@ import datetime
 import warnings
 
 from ast import literal_eval
-from tqdm import tqdm
 from typing import List, Optional
+from tqdm import tqdm
 
 import numpy as np
 import polars as pl
