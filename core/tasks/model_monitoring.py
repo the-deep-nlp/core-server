@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Any
 import datetime
 from celery import shared_task
 from django.db import transaction
@@ -69,7 +69,7 @@ def save_classification_prediction(df: pl.DataFrame):
             age=records_dict[entry.original_entry_id]["age_pred"],
             gender=records_dict[entry.original_entry_id]["gender_pred"],
             affected_groups=records_dict[entry.original_entry_id][
-                "affected_groups_pred"
+                "affected_pred"
             ],
             specific_needs_groups=records_dict[entry.original_entry_id][
                 "specific_needs_groups_pred"
@@ -115,8 +115,8 @@ def save_model_performance(df: pl.DataFrame):
 
 
 @shared_task
-def create_model_performance(combined_df):
-    save_model_performance(pl.from_dict(combined_df))
+def create_model_performance(combined_data: List[dict]):
+    save_model_performance(pl.from_dicts(combined_data))
 
 
 @shared_task
@@ -152,7 +152,7 @@ def calculate_model_metrics():
                 "excerpt_en",
                 "original_af_tags",
                 "lead__project__original_project_id",
-            )
+            )[:1]
         )
         if not newly_added_entries:
             return
@@ -188,9 +188,12 @@ def calculate_model_metrics():
         subpillar_1d = [data.get("subpillars_1d", []) for data in original_af_tags]
         subpillar_2d = [data.get("subpillars_2d", []) for data in original_af_tags]
 
-        entry_df["sectors"] = pl.Series(format_af_tags(sectors))
-        entry_df["subpillars_1d"] = pl.Series(format_af_tags(subpillar_1d))
-        entry_df["subpillars_2d"] = pl.Series(format_af_tags(subpillar_2d))
+        def _to_str_items(lst: List[List[Any]]):
+            return [str(x) for x in lst]
+
+        entry_df.with_columns(sectors=pl.Series("sectors", _to_str_items(sectors)))
+        entry_df.with_columns(subpillars_1d=pl.Series("subpillars_1d", _to_str_items(subpillar_1d)))
+        entry_df.with_columns(subpillars_2d=pl.Series("subpillars_2d", _to_str_items(subpillar_2d)))
 
         combined_df = output_df.join(entry_df, on="entry_id")
         current_df = combined_df[["project_id", "embeddings"]]

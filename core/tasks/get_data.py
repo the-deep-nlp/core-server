@@ -248,15 +248,15 @@ def _process_entries_batch(
             lead_id=lead_id,
             defaults={
                 "original_lang": "",  # TODO: I suggest to use langdetect library https://pypi.org/project/langdetect/ 
-                # i didn't get why excerpt_en. Is it suppose to be always in english? 
+                # i didn't get why excerpt_en. Is it suppose to be always in english?
                 # Original data in Deep can be of any language (it's not always translated by the users)
-                # Is there now a translator in Deep? 
+                # Is there now a translator in Deep?
                 "excerpt_en": current_entry_dict["excerpt"],
                 "original_af_tags": manual_tagged_data,
                 "nlp_tags": nlp_tags,
                 "nlp_mapping": nlp_mapping,
                 "export_data": exp_data,
-                "af_exportable_data": current_entry_dict["af_exportable_data"], # here there is an error. af_exportable_data key. Anyway, not sure if we need to save that (it's huge)
+                "af_exportable_data": current_entry_dict["af_exportable_data"],  # here there is an error. af_exportable_data key. Anyway, not sure if we need to save that (it's huge)
                 "extra": {k: current_entry_dict[k] for k in entry_extra_fields},
                 "deep_entry_created_at": current_entry_dict["created_at"],
             },

@@ -53,7 +53,7 @@ class ModelPerformance:
         """
         for category in CATEGORIES:
             if category in self.dataframe.columns:
-                self.dataframe = self.dataframe.with_columns(
+                self.dataframe.with_columns(
                     pl.col(category)
                     .apply(literal_eval)
                     .cast(pl.List(pl.Utf8))
@@ -61,7 +61,7 @@ class ModelPerformance:
                 )
             category_pred = f"{category}_pred"
             if category_pred in self.dataframe.columns:
-                self.dataframe = self.dataframe.with_columns(
+                self.dataframe.with_columns(
                     pl.col(category_pred)
                     .apply(literal_eval)
                     .cast(pl.List(pl.Utf8))

@@ -9,7 +9,8 @@ CATEGORIES = [
     "gender",
     "non displaced",
     "severity",
-    "specific_needs_groups"
+    "specific_needs_groups",
+    "affected",
 ]
 
 SECTORS_LST = [

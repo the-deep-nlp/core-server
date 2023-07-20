@@ -48,7 +48,7 @@ env = environ.Env(
     AWS_S3_BUCKET_NAME=(str, None),
     AWS_S3_REGION_NAME=(str, None),
 
-    CLASSIFICATION_MODEL_ENDPOINT=(str, "main-model-cpu"),
+    CLASSIFICATION_MODEL_ENDPOINT=(str, "main-model-cpu-new-test"),
     # ECS endpoints
     SUMMARIZATION_V2_ECS_ENDPOINT=(str, None),
     TEXTEXTRACTION_ECS_ENDPOINT=(str, None),

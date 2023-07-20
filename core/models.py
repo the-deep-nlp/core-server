@@ -238,30 +238,29 @@ class ClassificationPredictions(BaseModel):
     model = models.ForeignKey(ClassificationModel, on_delete=models.CASCADE)
     embeddings = ArrayField(models.FloatField(blank=True), blank=True, null=True)
     subpillars_1d = ArrayField(
-        models.CharField(max_length=100, blank=True),
-        blank=True,
-        null=True
+        models.CharField(max_length=500, blank=True),
+        default=list,
     )
     sectors = ArrayField(
-        models.CharField(max_length=100, blank=True), blank=True, null=True
+        models.CharField(max_length=500, blank=True), default=list,
     )
     subpillars_2d = ArrayField(
-        models.CharField(max_length=100, blank=True), blank=True, null=True
+        models.CharField(max_length=500, blank=True), default=list,
     )
     age = ArrayField(
-        models.CharField(max_length=100, blank=True), blank=True, null=True
+        models.CharField(max_length=500, blank=True), default=list,
     )
     gender = ArrayField(
-        models.CharField(max_length=100, blank=True), blank=True, null=True
+        models.CharField(max_length=500, blank=True), default=list,
     )
     affected_groups = ArrayField(
-        models.CharField(max_length=100, blank=True), blank=True, null=True
+        models.CharField(max_length=500, blank=True), default=list,
     )
     specific_needs_groups = ArrayField(
-        models.CharField(max_length=100, blank=True), blank=True, null=True
+        models.CharField(max_length=500, blank=True), default=list,
     )
     severity = ArrayField(
-        models.CharField(max_length=100, blank=True), blank=True, null=True
+        models.CharField(max_length=500, blank=True), default=list,
     )
 
     def __str__(self):

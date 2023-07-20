@@ -47,11 +47,15 @@ class ClassificationModelOutput:
             aws_secret_access_key=aws_secret_access_key,
         )
 
-    def _get_model_inputs(self, excerpt: list) -> Dict[str, Any]:
+    def _get_model_inputs(self, excerpts: list) -> Dict[str, Any]:
         """
         Build the model input data
         """
-        excerpt_df: pl.DataFrame = pl.DataFrame({"excerpt": excerpt})
+        processed_excerpts = [
+            [str(x).encode().decode("utf-8", errors="ignore") for x in excerpt]
+            for excerpt in excerpts
+        ]
+        excerpt_df: pl.DataFrame = pl.DataFrame({"excerpt": processed_excerpts})
         model_in_df = excerpt_df.with_columns(
             return_type=pl.lit(["default_analyis"]),
             analyis_framework_id=pl.lit(["all"]),
@@ -63,7 +67,7 @@ class ClassificationModelOutput:
             finetuned_task=pl.lit(["['first_level_tags']"]),
             embeddings_return_type=pl.lit(["array"]),
         )
-        return model_in_df.to_pandas().to_json(orient="split")
+        return model_in_df.to_pandas().to_json(orient="split", force_ascii=False)
 
     def get_clean_outputs(self, prediction_dict: Dict, thresholds_dict: Dict) -> Dict:
         """
@@ -119,9 +123,9 @@ class ClassificationModelOutput:
                 for batch_model_output in batch_model_pred_op:
                     grouped_tags = group_tags(batch_model_output)
                     o = {
-                        item: json.dumps(grouped_tags[item])
+                        item: grouped_tags[item]
                         if item in grouped_tags.keys()
-                        else json.dumps([])
+                        else []
                         for item in CATEGORIES
                     }
                     op_lst.append(o)
@@ -141,7 +145,6 @@ class ClassificationModelOutput:
                         ]
                     )
 
-        embeddings_df = embeddings_df.apply(str)
         prediction_df = prediction_df.rename({key: f"{key}_pred" for key in CATEGORIES})
         return pl.concat(
             [self.dataframe, prediction_df, embeddings_df], how="horizontal"
