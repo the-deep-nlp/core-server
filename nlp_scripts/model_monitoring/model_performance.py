@@ -307,21 +307,17 @@ class ModelPerformance:
 
     def _tags_matching_ratios(
         self, category, gt_embed: list, pred_embed: list
-    ) -> pl.DataFrame:
+    ) -> dict:
         """
         Calculates the ratios based on the encoding values of the tags
         """
+        completely_matched = [e1 == e2 for e1, e2 in zip(gt_embed, pred_embed)]
+        missing = [e1 > e2 for e1, e2 in zip(gt_embed, pred_embed)]
+        wrong = [e1 < e2 for e1, e2 in zip(gt_embed, pred_embed)]
         return {
-            f"completely_matched_{category}": sum(
-                [e1 == e2 for e1, e2 in zip(gt_embed, pred_embed)]
-            )
-            / len(gt_embed),
-            f"missing_{category}": sum(
-                [e1 > e2 for e1, e2 in zip(gt_embed, pred_embed)]
-            )
-            / len(gt_embed),
-            f"wrong_{category}": sum([e1 < e2 for e1, e2 in zip(gt_embed, pred_embed)])
-            / len(gt_embed),
+            f"completely_matched_{category}": sum(completely_matched) / len(gt_embed),
+            f"missing_{category}": sum(missing) / len(gt_embed),
+            f"wrong_{category}": sum(wrong) / len(gt_embed),
         }
 
     def calculate_ratios(self) -> pl.DataFrame:
@@ -338,9 +334,7 @@ class ModelPerformance:
                     map(
                         partial(self._tags_matching_ratios, category),
                         self.dataframe[f"{category}_transformed"].apply(list).to_list(),
-                        self.dataframe[f"{category}_pred_transformed"]
-                        .apply(list)
-                        .to_list(),
+                        self.dataframe[f"{category}_pred_transformed"].apply(list).to_list(),
                     )
                 )
                 final_df = pl.concat(

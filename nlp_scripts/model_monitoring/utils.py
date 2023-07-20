@@ -8,8 +8,8 @@ from .constants import CATEGORIES
 
 def get_model_info(
     endpoint_name: str,
-    aws_access_key_id: str,
-    aws_secret_access_key: str,
+    aws_access_key_id: Optional[str],
+    aws_secret_access_key: Optional[str],
     region_name: str = "us-east-1",
 ) -> Tuple[Dict[str, str], Optional[str]]:
     """

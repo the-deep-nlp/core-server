@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple, Any
 
 import boto3
 import polars as pl
@@ -20,12 +20,13 @@ class ClassificationModelOutput:
 
     def __init__(
         self,
-        dataframe: pl.dataframe.frame.DataFrame,
+        dataframe: pl.DataFrame,
         batch_size: int = 2,
         prediction_generation: bool = True,
         embeddings_generation: bool = True,
         aws_access_key_id: Optional[str] = None,
         aws_secret_access_key: Optional[str] = None,
+        endpoint_name: str = "",
         region_name: str = "us-east-1",
     ):
         # Note: AWS Creds should not be used when deployed in AWS
@@ -38,7 +39,7 @@ class ClassificationModelOutput:
         self.embeddings = []
         self.predictions = []
         self.thresholds = []
-        self.endpoint_name = "main-model-cpu-new-test"
+        self.endpoint_name = endpoint_name
         self.sagemaker_client = boto3.session.Session().client(
             "sagemaker-runtime",
             region_name=region_name,
@@ -46,11 +47,11 @@ class ClassificationModelOutput:
             aws_secret_access_key=aws_secret_access_key,
         )
 
-    def _get_model_inputs(self, excerpt: list) -> str:
+    def _get_model_inputs(self, excerpt: list) -> Dict[str, Any]:
         """
         Build the model input data
         """
-        excerpt_df = pl.DataFrame({"excerpt": excerpt})
+        excerpt_df: pl.DataFrame = pl.DataFrame({"excerpt": excerpt})
         model_in_df = excerpt_df.with_columns(
             return_type=pl.lit(["default_analyis"]),
             analyis_framework_id=pl.lit(["all"]),
@@ -75,7 +76,7 @@ class ClassificationModelOutput:
 
         return clean_predictions
 
-    def get_model_outputs(self, excerpt: list) -> tuple((list, list)):
+    def get_model_outputs(self, excerpt: list) -> Tuple[list, list]:
         """
         Get the model outputs
         """
@@ -102,7 +103,7 @@ class ClassificationModelOutput:
 
         return model_preds_output, model_embeddings_output
 
-    def generate_outputs(self) -> pl.dataframe.frame.DataFrame:
+    def generate_outputs(self) -> pl.DataFrame:
         """
         Generates the dataframe consisting of predictions and embeddings based on settings
         """
@@ -155,5 +156,5 @@ if __name__ == "__main__":
         "There are air strikes due to which people are fleeing and many have been hospitalized.",
     ]
     dff = pl.DataFrame({"excerpt": test_excerpt})
-    cm = ClassificationModelOutput(dff)
+    cm = ClassificationModelOutput(dff, endpoint_name="main-model-cpu-new-test")
     op = cm.generate_outputs()
