@@ -96,7 +96,7 @@ class EntryAdmin(admin.ModelAdmin):
         "id",
         "original_entry_id",
         "lead",
-        "excerpt_en",
+        "excerpt",
         "original_af_tags"
     ]
 

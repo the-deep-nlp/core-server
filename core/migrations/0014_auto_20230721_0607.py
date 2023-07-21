@@ -13,7 +13,7 @@ def delete_items(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0013_remove_entry_af_exportable_data_entry_nlp_mapping_and_more'),
+        ('core', '0013_rename_excerpt_en_entry_excerpt_and_more'),
     ]
 
     operations = [

@@ -149,7 +149,7 @@ def calculate_model_metrics():
             .order_by("-id")
             .values(
                 "original_entry_id",
-                "excerpt_en",
+                "excerpt",
                 "original_af_tags",
                 "lead__project__original_project_id",
             )[:1]
@@ -161,7 +161,6 @@ def calculate_model_metrics():
         df = pl.DataFrame(newly_added_entries).rename(
             mapping={
                 "original_entry_id": "entry_id",
-                "excerpt_en": "excerpt",
                 "lead__project__original_project_id": "project_id",
             }
         )

@@ -156,7 +156,7 @@ class Entry(BaseModel):
     original_entry_id = models.PositiveIntegerField(unique=True)
     lead = models.ForeignKey(Lead, on_delete=models.CASCADE)
     original_lang = models.CharField(max_length=50)
-    excerpt_en = models.TextField()
+    excerpt = models.TextField()
     # original_af_tags contains the labels manually tagged by the taggers.
     # The structure is shown after the fields declaration below
     original_af_tags = models.JSONField(default=dict)
@@ -164,7 +164,6 @@ class Entry(BaseModel):
     extra = models.JSONField(default=dict)
     deep_entry_created_at = models.DateTimeField()
 
-    # i add here other fields (review it together):
     nlp_tags = models.JSONField(default=list)
     nlp_mapping = models.JSONField(default=dict)
 
@@ -177,9 +176,10 @@ class Entry(BaseModel):
     }
     """
 
-    # it's no more like above but something like:
-    # for now i excluded the date widget (idk if related with created_at or a data that the analyst assign to the excerpt)
-    # and the mapped geolocations too. We already have the information in original_af_tags
+    # It's no more like above but something like the following:
+    # for now, the date widget has been excluded (idk if related with created_at
+    # or a data that the analyst assign to the excerpt) and the mapped
+    # geolocations too. We already have the information in original_af_tags
 
     """
     NOTE:

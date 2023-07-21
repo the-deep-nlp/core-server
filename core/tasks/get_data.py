@@ -42,6 +42,7 @@ def get_projects_later_than_date():
     try:
         return datetime.strptime("%Y-%m-%d", FETCH_DEEP_PROJECTS_AFTER)
     except ValueError:
+        # We want projects only after 2021. Projects created before 2021 are not that relevant
         return datetime(2021, 1, 1)
 
 
@@ -257,11 +258,8 @@ def _process_entries_batch(
             original_entry_id=current_entry_dict["id"],
             lead_id=lead_id,
             defaults={
-                "original_lang": "",  # TODO: I suggest to use langdetect library https://pypi.org/project/langdetect/ 
-                # i didn't get why excerpt_en. Is it suppose to be always in english?
-                # Original data in Deep can be of any language (it's not always translated by the users)
-                # Is there now a translator in Deep?
-                "excerpt_en": current_entry_dict["excerpt"],
+                "original_lang": "",
+                "excerpt": current_entry_dict["excerpt"],
                 "original_af_tags": manual_tagged_data,
                 "nlp_tags": nlp_tags,
                 "nlp_mapping": nlp_mapping,
