@@ -25,6 +25,7 @@ from .nlp_mapping import (
     get_mapping_sheet,
     get_nlp_outputs
 )
+from core_server.settings import FETCH_DEEP_PROJECTS_AFTER
 
 from celery.utils.log import get_task_logger
 
@@ -37,6 +38,13 @@ OptDictIntObj = Optional[Dict[int, T]]
 VERY_PAST_DATE = datetime(1990, 10, 10)  # Before creation of deep platform
 
 
+def get_projects_later_than_date():
+    try:
+        return datetime.strptime("%Y-%m-%d", FETCH_DEEP_PROJECTS_AFTER)
+    except ValueError:
+        return datetime(2021, 1, 1)
+
+
 @shared_task(name="core.tasks.get_data.fetch_new_projects")
 def fetch_new_projects():
     """
@@ -45,9 +53,11 @@ def fetch_new_projects():
     """
     cursor = connect_db()
     try:
-        cursor.execute(queries.new_projects_q)
+        projects_later_than_date = get_projects_later_than_date()
+        cursor.execute(queries.new_projects_q.format(projects_later_than_date))
         projects_raw = cursor.fetchall()
-    except psycopg2.ProgrammingError:
+    except psycopg2.ProgrammingError as e:
+        logger.warning(f"Failed to fetch projects. {e}")
         return
     with transaction.atomic():
         columns = [c.name for c in cursor.description]
@@ -256,7 +266,6 @@ def _process_entries_batch(
                 "nlp_tags": nlp_tags,
                 "nlp_mapping": nlp_mapping,
                 "export_data": exp_data,
-                "af_exportable_data": current_entry_dict["af_exportable_data"],  # here there is an error. af_exportable_data key. Anyway, not sure if we need to save that (it's huge)
                 "extra": {k: current_entry_dict[k] for k in entry_extra_fields},
                 "deep_entry_created_at": current_entry_dict["created_at"],
             },
@@ -415,13 +424,13 @@ def get_widget_id_to_label_dict(af: AFMapping) -> dict:
                 mapping[pp["key"]] = pp["label"]
     return mapping
 
-def format_manual_tags(total_tags: dict, id2label: dict) -> dict:
 
+def format_manual_tags(total_tags: dict, id2label: dict) -> dict:
     results = {}
     for tag in total_tags:
         d = get_tags_data_for_exportable(tag, id2label)
-        # not sure if it's possibile (at deep side) that an entry has more elements of the same widget.
-        # it will be more safe to check if "d" key is already present in "results" and
-        # exteding the corresponding value.
+        # not sure if it's possibile (at deep side) that an entry has more
+        # elements of the same widget. it will be more safe to check if "d" key
+        # is already present in "results" and exteding the corresponding value.
         results.update(d)
     return results

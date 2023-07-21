@@ -79,12 +79,7 @@ class Organization(BaseModel):
     def __str__(self):
         return self.name
 
-"""
-NOTE: 
-i think some discussion is needed here.
-NLP mapping is not something that depends on projects or related frameworks ids,
-it's a manual overall map builded by hand. 
-"""
+
 class AFMapping(BaseModel):
     af_name = models.CharField(max_length=200)
     original_af_id = models.PositiveIntegerField(unique=True)
@@ -166,7 +161,6 @@ class Entry(BaseModel):
     # The structure is shown after the fields declaration below
     original_af_tags = models.JSONField(default=dict)
     export_data = models.JSONField(default=dict)
-    af_exportable_data = models.JSONField(default=list) # it's not more like that after aggregation. it's a list (dict->list)
     extra = models.JSONField(default=dict)
     deep_entry_created_at = models.DateTimeField()
 

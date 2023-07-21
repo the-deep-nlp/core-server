@@ -93,6 +93,7 @@ select pp.id, pp.status from project_project pp
     on ll.project_id=pp.id
 where pp.is_private=false
     and pp.is_deleted=false
+    and pp.created_at >= '{}'
 group by pp.id
 having count(ll.id) > 10
 """
