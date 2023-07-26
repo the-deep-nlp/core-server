@@ -156,20 +156,55 @@ class Entry(BaseModel):
     original_entry_id = models.PositiveIntegerField(unique=True)
     lead = models.ForeignKey(Lead, on_delete=models.CASCADE)
     original_lang = models.CharField(max_length=50)
-    excerpt_en = models.TextField()
+    excerpt = models.TextField()
     # original_af_tags contains the labels manually tagged by the taggers.
     # The structure is shown after the fields declaration below
     original_af_tags = models.JSONField(default=dict)
     export_data = models.JSONField(default=dict)
-    af_exportable_data = models.JSONField(default=dict)
     extra = models.JSONField(default=dict)
     deep_entry_created_at = models.DateTimeField()
+
+    nlp_tags = models.JSONField(default=list)
+    nlp_mapping = models.JSONField(default=dict)
+
     """
     NOTE:
     original_af_tags = {
         "sectors": ["xXx"],             # might not be present
         "subpillars_1d": ["xXx"],       # might not be present
         "subpillars_2d": ["xXx"],       # might not be present
+    }
+    """
+
+    # It's no more like above but something like the following:
+    # for now, the date widget has been excluded (idk if related with created_at
+    # or a data that the analyst assign to the excerpt) and the mapped
+    # geolocations too. We already have the information in original_af_tags
+
+    """
+    NOTE:
+    original_af_tags = {
+        'matrix2dWidget': ['protection', 'impact->impact on people'],
+        'geoWidget': [659709, 659702],
+        'scaleWidget': ['usually reliable'],
+        'matrix1dWidget': ['conflict->casualties & missings'],
+        'dateRangeWidget': ['04-03-2022']
+    }
+
+    nlp_tags = [
+        'first_level_tags->pillars_2d->Impact',
+        'subpillars_2d->Impact->Impact on people',
+        'first_level_tags->sectors->Protection',
+        'secondary_tags->reliability->Usually reliable',
+        'first_level_tags->pillars_1d->Casualties'
+    ]
+
+    nlp_mapping = {
+        'protection': ['first_level_tags->sectors->Protection'],
+        'impact->impact on people': ['subpillars_2d->Impact->Impact on people',
+        'first_level_tags->pillars_2d->Impact'],
+        'usually reliable': ['secondary_tags->reliability->Usually reliable'],
+        'conflict->casualties & missings': ['first_level_tags->pillars_1d->Casualties']
     }
     """
 
@@ -197,30 +232,29 @@ class ClassificationPredictions(BaseModel):
     model = models.ForeignKey(ClassificationModel, on_delete=models.CASCADE)
     embeddings = ArrayField(models.FloatField(blank=True), blank=True, null=True)
     subpillars_1d = ArrayField(
-        models.CharField(max_length=100, blank=True),
-        blank=True,
-        null=True
+        models.CharField(max_length=500, blank=True),
+        default=list,
     )
     sectors = ArrayField(
-        models.CharField(max_length=100, blank=True), blank=True, null=True
+        models.CharField(max_length=500, blank=True), default=list,
     )
     subpillars_2d = ArrayField(
-        models.CharField(max_length=100, blank=True), blank=True, null=True
+        models.CharField(max_length=500, blank=True), default=list,
     )
     age = ArrayField(
-        models.CharField(max_length=100, blank=True), blank=True, null=True
+        models.CharField(max_length=500, blank=True), default=list,
     )
     gender = ArrayField(
-        models.CharField(max_length=100, blank=True), blank=True, null=True
+        models.CharField(max_length=500, blank=True), default=list,
     )
     affected_groups = ArrayField(
-        models.CharField(max_length=100, blank=True), blank=True, null=True
+        models.CharField(max_length=500, blank=True), default=list,
     )
     specific_needs_groups = ArrayField(
-        models.CharField(max_length=100, blank=True), blank=True, null=True
+        models.CharField(max_length=500, blank=True), default=list,
     )
     severity = ArrayField(
-        models.CharField(max_length=100, blank=True), blank=True, null=True
+        models.CharField(max_length=500, blank=True), default=list,
     )
 
     def __str__(self):

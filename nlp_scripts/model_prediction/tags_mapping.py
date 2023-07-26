@@ -12,12 +12,13 @@ class AF2NLPMapping:
     """
     Generates the AF-NLP tags mapping
     """
+
     def __init__(self, mapping_file: str = "mapping_tags_nlp2original.json"):
         self.mapping_file = Path(__file__).parent / mapping_file
         self.total_tags = [
             FirstLevel.first_level_lst(),
             SecondLevel.second_level_lst(),
-            ThirdLevel.third_level_lst()
+            ThirdLevel.third_level_lst(),
         ]
 
     def input_transform(self, inputs: List[Dict]):
@@ -26,21 +27,15 @@ class AF2NLPMapping:
         """
         result = []
         for item in inputs:
-            tag_hierarchy = "->".join(filter(
-                None,
-                [
-                    item["widget_title"],
-                    item["parent_label"],
-                    item["label"]
-                ])
+            tag_hierarchy = "->".join(
+                filter(
+                    None, [item["widget_title"], item["parent_label"], item["label"]]
+                )
             )
-            result.append({
-                "client_id": item["client_id"],
-                "input_text": tag_hierarchy
-            })
+            result.append({"client_id": item["client_id"], "input_text": tag_hierarchy})
         return result
 
-    def compute_af2nlp_tags(self, inputs, full_output: bool)->List[Dict]:
+    def compute_af2nlp_tags(self, inputs, full_output: bool) -> List[Dict]:
         """
         Computes the DEEP AF to NLP tags
         """
@@ -48,10 +43,12 @@ class AF2NLPMapping:
         temp_items = []
         for item in results.copy():
             if not item["output_text"]:
-                temp_items.append({
-                    "client_id": item["client_id"],
-                    "input_text": item["input_text"].split("->")[-1]
-                })
+                temp_items.append(
+                    {
+                        "client_id": item["client_id"],
+                        "input_text": item["input_text"].split("->")[-1],
+                    }
+                )
                 results.remove(item)
 
         partial_results = af2nlp_matching(temp_items, self.mapping_file)
@@ -67,15 +64,12 @@ class AF2NLPMapping:
                 )
         return results
 
-    def __call__(self, data_inputs: List[Dict], full_output: bool=False):
+    def __call__(self, data_inputs: List[Dict], full_output: bool = False):
         """
         Produce the mapped tags results
         """
         transformed_input_data = self.input_transform(data_inputs)
-        return self.compute_af2nlp_tags(
-            transformed_input_data,
-            full_output=full_output
-        )
+        return self.compute_af2nlp_tags(transformed_input_data, full_output=full_output)
 
 
 if __name__ == "__main__":
@@ -85,20 +79,20 @@ if __name__ == "__main__":
             "client_id": "1",
             "label": "nutritional status",
             "widget_title": None,
-            "parent_label": "nutrition->"
+            "parent_label": "nutrition->",
         },
         {
             "client_id": "2",
             "label": "!health.",
             "widget_title": None,
-            "parent_label": None
+            "parent_label": None,
         },
         {
             "client_id": 3,
             "label": "subpillars_2d->CONTEXT->Basic infrastructure and social services",
             "widget_title": None,
-            "parent_label": None
-        }
+            "parent_label": None,
+        },
     ]
 
     af2nlp_map = AF2NLPMapping()

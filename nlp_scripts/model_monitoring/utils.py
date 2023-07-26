@@ -1,10 +1,17 @@
+import json
+from typing import Dict, List, Tuple, Optional
 import boto3
 from botocore.exceptions import ClientError
-from typing import Dict, Tuple, Union
-from django.conf import settings
+
+from .constants import CATEGORIES
 
 
-def get_model_info(endpoint_name: str) -> Tuple[Dict[str, str], Union[str, None]]:
+def get_model_info(
+    endpoint_name: str,
+    aws_access_key_id: Optional[str],
+    aws_secret_access_key: Optional[str],
+    region_name: str = "us-east-1",
+) -> Tuple[Dict[str, str], Optional[str]]:
     """
     Gets the model information
     Input: Endpoint name of the deployed model
@@ -20,9 +27,9 @@ def get_model_info(endpoint_name: str) -> Tuple[Dict[str, str], Union[str, None]
 
     sg_client = boto3.client(
         "sagemaker",
-        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-        region_name="us-east-1",
+        aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_secret_access_key,
+        region_name=region_name,
     )
 
     try:
@@ -41,3 +48,41 @@ def get_model_info(endpoint_name: str) -> Tuple[Dict[str, str], Union[str, None]
 
     return model_info, err_msg
 
+
+def group_tags(tags_collection: Dict) -> Dict[str, List[str]]:
+    """
+    Group tags into different categories
+    """
+    tags_dict = {}
+    for key in tags_collection.keys():
+        try:
+            first_key, second_key, *_ = key.split("->")
+        except ValueError:
+            continue
+        if second_key.lower() in CATEGORIES:
+            if second_key not in tags_dict:
+                tags_dict[second_key] = []
+            tags_dict[second_key].append(key)
+        if first_key.lower() in ["subsectors", "subpillars_1d", "subpillars_2d"]:
+            if first_key not in tags_dict:
+                tags_dict[first_key] = []
+            tags_dict[first_key].append(key)
+    return tags_dict
+
+
+def invoke_model_endpoint(
+    backbone_inputs: dict,
+    sagemaker_model: boto3.client,
+    endpoint_name: str,
+    content_type: str = "application/json; format=pandas-split",
+) -> Dict:
+    """
+    Invokes the sagemaker model endpoint
+    """
+    try:
+        response = sagemaker_model.invoke_endpoint(
+            EndpointName=endpoint_name, Body=backbone_inputs, ContentType=content_type
+        )
+        return json.loads(response["Body"].read().decode("ascii"))
+    except ClientError as error:
+        raise Exception(error)

@@ -93,6 +93,7 @@ select pp.id, pp.status from project_project pp
     on ll.project_id=pp.id
 where pp.is_private=false
     and pp.is_deleted=false
+    and pp.created_at >= '{}'
 group by pp.id
 having count(ll.id) > 10
 """
@@ -137,6 +138,51 @@ order by e.created_at asc
 """
 
 
+entries_exportable_grouped_q = """
+select * from (
+  select
+      id,
+      min(lead_id) as lead_id,
+      min(information_date) as information_data,
+      array_agg(exportable_id) as exportable_id,
+      min(entry_type) as entry_type,
+      (array_agg(excerpt))[1] as excerpt,
+      (array_agg(excerpt_modified))[1] as excerpt_modified,
+      array_agg(export_data) as export_data,
+      array_agg(af_exportable_data) as af_exportable_data,
+      max(created_at) as created_at
+  from
+      (
+          select
+              e.id,
+              e.lead_id,
+              e.information_date,
+              ee.exportable_id,
+              e.entry_type,
+              e.excerpt,
+              e.excerpt_modified,
+              ee.data as export_data,
+              ex.data as af_exportable_data,
+              e.created_at
+          from
+              entry_entry e
+          inner join
+              entry_exportdata ee ON e.id = ee.entry_id
+          inner join
+              analysis_framework_exportable ex ON ex.id = ee.exportable_id
+          where
+              e.project_id = {} and
+              e.created_at >= '{}' and
+              e.excerpt is not NULL and
+              e.excerpt <> ''
+              
+      ) res
+  group by
+      res.id
+  ) final
+order by final.created_at asc
+"""
+
 af_q = """
 select
     af.id,
@@ -167,4 +213,9 @@ left join organization_organizationtype ot on ot.id=o.organization_type_id
 where o.verified=true and
     o.created_at >= '{}'
 order by o.created_at asc
+"""
+
+geolocation_q = """SELECT
+    id, title
+    FROM geo_geoarea
 """

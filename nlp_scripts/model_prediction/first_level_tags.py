@@ -3,7 +3,10 @@ from enum import Enum
 
 version = "1.0"
 
-FirstLevelCategories = namedtuple('FirstLevelCategories', ['id', 'key', 'version', 'has_parent', 'parent_id', 'alias'])
+FirstLevelCategories = namedtuple(
+    "FirstLevelCategories", ["id", "key", "version", "has_parent", "parent_id", "alias"]
+)
+
 
 class FirstLevel(Enum):
     SubsectorsTag = FirstLevelCategories(
@@ -12,7 +15,7 @@ class FirstLevel(Enum):
         version=version,
         has_parent=False,
         parent_id=None,
-        alias="Subsectors"
+        alias="Subsectors",
     )
     FirstLevelTag = FirstLevelCategories(
         id="2",
@@ -20,7 +23,7 @@ class FirstLevel(Enum):
         version=version,
         has_parent=False,
         parent_id=None,
-        alias="First Level Tags"
+        alias="First Level Tags",
     )
     Subpillars1DTag = FirstLevelCategories(
         id="3",
@@ -28,7 +31,7 @@ class FirstLevel(Enum):
         version=version,
         has_parent=False,
         parent_id=None,
-        alias="Subpillars 1D"
+        alias="Subpillars 1D",
     )
     Subpillars2DTag = FirstLevelCategories(
         id="4",
@@ -36,7 +39,7 @@ class FirstLevel(Enum):
         version=version,
         has_parent=False,
         parent_id=None,
-        alias="Subpillars 2D"
+        alias="Subpillars 2D",
     )
     SecondaryTags = FirstLevelCategories(
         id="5",
@@ -44,15 +47,18 @@ class FirstLevel(Enum):
         version=version,
         has_parent=False,
         parent_id=None,
-        alias="Secondary Tags"
+        alias="Secondary Tags",
     )
 
     @classmethod
     def first_level_lst(cls):
-        return [t.value._asdict() for t in [
-            FirstLevel.SubsectorsTag,
-            FirstLevel.FirstLevelTag,
-            FirstLevel.Subpillars1DTag,
-            FirstLevel.Subpillars2DTag,
-            FirstLevel.SecondaryTags
-        ]]
+        return [
+            t.value._asdict()
+            for t in [
+                FirstLevel.SubsectorsTag,
+                FirstLevel.FirstLevelTag,
+                FirstLevel.Subpillars1DTag,
+                FirstLevel.Subpillars2DTag,
+                FirstLevel.SecondaryTags,
+            ]
+        ]

@@ -1,4 +1,5 @@
 import psycopg2
+import pandas as pd
 from typing import Optional, Dict, TypeVar
 
 from datetime import datetime
@@ -19,6 +20,12 @@ from core.models import (
     DeepDataFetchTracker,
 )
 from .get_data_old import get_tags_data_for_exportable
+from .nlp_mapping import (
+    get_geolocation_dict,
+    get_mapping_sheet,
+    get_nlp_outputs
+)
+from core_server.settings import FETCH_DEEP_PROJECTS_AFTER
 
 from celery.utils.log import get_task_logger
 
@@ -31,6 +38,14 @@ OptDictIntObj = Optional[Dict[int, T]]
 VERY_PAST_DATE = datetime(1990, 10, 10)  # Before creation of deep platform
 
 
+def get_projects_later_than_date():
+    try:
+        return datetime.strptime("%Y-%m-%d", FETCH_DEEP_PROJECTS_AFTER)
+    except ValueError:
+        # We want projects only after 2021. Projects created before 2021 are not that relevant
+        return datetime(2021, 1, 1)
+
+
 @shared_task(name="core.tasks.get_data.fetch_new_projects")
 def fetch_new_projects():
     """
@@ -39,9 +54,11 @@ def fetch_new_projects():
     """
     cursor = connect_db()
     try:
-        cursor.execute(queries.new_projects_q)
+        projects_later_than_date = get_projects_later_than_date()
+        cursor.execute(queries.new_projects_q.format(projects_later_than_date))
         projects_raw = cursor.fetchall()
-    except psycopg2.ProgrammingError:
+    except psycopg2.ProgrammingError as e:
+        logger.warning(f"Failed to fetch projects. {e}")
         return
     with transaction.atomic():
         columns = [c.name for c in cursor.description]
@@ -142,7 +159,7 @@ def fetch_project_data(
 
         leads_dict = fetch_project_leads(cursor, project, orgs_dict)
         if not project.af_mapping:
-            logger.warning(f"Project with id:{project.original_project_id} doesnot have analysisframework")
+            logger.warning(f"Project with id:{project.original_project_id} does not have analysis framework")
             return
         if leads_dict:
             fetch_project_entries(cursor, project, leads_dict)
@@ -215,7 +232,12 @@ def fetch_project_leads(
 
 
 def _process_entries_batch(
-    entries_batch, leads_dict, columns, widget_id_labels: dict
+    entries_batch,
+    leads_dict,
+    columns,
+    widget_id_labels: dict,
+    geo_locations_dict: dict,
+    mapping_sheet: pd.DataFrame,
 ) -> dict:
     entry_extra_fields = [
         "entry_type",
@@ -229,16 +251,19 @@ def _process_entries_batch(
             logger.warning("no lead for lead id", current_entry_dict["lead_id"])
             continue
         exp_data = current_entry_dict["export_data"]
-        manual_tagged_data = get_tags_data_for_exportable(exp_data, widget_id_labels)
+        manual_tagged_data = format_manual_tags(exp_data, widget_id_labels)
+        nlp_tags, nlp_mapping = get_nlp_outputs(manual_tagged_data, mapping_sheet, geo_locations_dict)
+
         Entry.objects.update_or_create(
             original_entry_id=current_entry_dict["id"],
             lead_id=lead_id,
             defaults={
-                "original_lang": "",  # TODO: fill this
-                "excerpt_en": current_entry_dict["excerpt"],
+                "original_lang": "",
+                "excerpt": current_entry_dict["excerpt"],
                 "original_af_tags": manual_tagged_data,
+                "nlp_tags": nlp_tags,
+                "nlp_mapping": nlp_mapping,
                 "export_data": exp_data,
-                "af_exportable_data": current_entry_dict["export_data"],
                 "extra": {k: current_entry_dict[k] for k in entry_extra_fields},
                 "deep_entry_created_at": current_entry_dict["created_at"],
             },
@@ -255,11 +280,15 @@ def fetch_project_entries(
     # These are to convert subsectors/subpillars key to corresponding label
     # which is required by the nlp services
     widget_id_labels = get_widget_id_to_label_dict(af_mapping)
+    geo_locations_dict = get_geolocation_dict(cursor=cursor)
+
+    mapping_sheet = get_mapping_sheet()
+
     pid = project.original_project_id
     try:
         last_fetched = project.to_fetch_project.last_fetched_entry_created_at
         cursor.execute(
-            queries.entries_exportable_q.format(pid, last_fetched or VERY_PAST_DATE)
+            queries.entries_exportable_grouped_q.format(pid, last_fetched or VERY_PAST_DATE)
         )
         rows = cursor_fetch_iterator(cursor, 3000)
     except psycopg2.ProgrammingError as e:
@@ -269,6 +298,9 @@ def fetch_project_entries(
         columns = []
         batch_size = 500
         for i, row_batch in enumerate(batched(rows, batch_size)):
+            # NOTE: Although it seems like we can move columns before the loop,
+            # but since it is just an iterator, there is nothing available
+            # inside the cursor until inside this loop.
             columns = columns if columns else [c.name for c in cursor.description]
             with transaction.atomic():
                 last_entry_dict = _process_entries_batch(
@@ -276,6 +308,8 @@ def fetch_project_entries(
                     leads_dict,
                     columns,
                     widget_id_labels,
+                    geo_locations_dict,
+                    mapping_sheet
                 )
                 to_fetch = project.to_fetch_project
                 to_fetch.last_fetched_entry_created_at = last_entry_dict["created_at"]
@@ -387,3 +421,14 @@ def get_widget_id_to_label_dict(af: AFMapping) -> dict:
             for pp in p.get("subColumns", []):
                 mapping[pp["key"]] = pp["label"]
     return mapping
+
+
+def format_manual_tags(total_tags: dict, id2label: dict) -> dict:
+    results = {}
+    for tag in total_tags:
+        d = get_tags_data_for_exportable(tag, id2label)
+        # not sure if it's possibile (at deep side) that an entry has more
+        # elements of the same widget. it will be more safe to check if "d" key
+        # is already present in "results" and exteding the corresponding value.
+        results.update(d)
+    return results

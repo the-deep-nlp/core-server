@@ -137,3 +137,5 @@ dmypy.json
 
 # other
 static/
+build-push.sh
+media/

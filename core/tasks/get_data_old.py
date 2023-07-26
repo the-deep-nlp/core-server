@@ -11,6 +11,28 @@ from utils.decorators import log_time
 from core.tasks import queries
 
 
+def _clean_tags(tag):
+    if tag is None:
+        return ""
+    elif type(tag) is int:
+        return tag
+    else:
+        return (
+            tag.lower()
+            .replace("->->", "->")
+            .replace("-> ", "->")
+            .replace(" ->", "->")
+            .replace("->none", "")
+            .replace("->n/a", "")
+            .replace("\t", "")
+            .replace("•", "")
+        )
+
+
+def _flatten(t):
+    return [item for sublist in t for item in sublist]
+
+
 def _get_data(cursor, projects, query, query_type, final=True):
     total = []
     for proj in projects["id"].tolist():
@@ -123,9 +145,6 @@ def _get_id2label(frame):
     return t
 
 
-def _entry2af(entries):
-    return {k: v for k, v in zip(entries.id, entries.analysis_framework_id)}
-
 
 def _reshape_report(a):
     a = a.split("-")
@@ -145,7 +164,7 @@ def _reshape_report(a):
 
 
 # omg = 0
-def _get_values_one_row(ex, widget, id2label, only_sectors_subpillars=False):
+def _get_values_one_row(ex, widget, id2label):
     """
     * iterate through individual tags and extract content
     * pulls all the widgets from the AF. note that 1d and 2d matrices have special handling
@@ -158,11 +177,13 @@ def _get_values_one_row(ex, widget, id2label, only_sectors_subpillars=False):
     """
     key_id = ex["common"]["widget_key"]
     title = widget[widget.key == key_id].title.tolist()
-    return get_tags_data_for_exportable(ex, id2label, only_sectors_subpillars, title)
+    return get_tags_data_for_exportable(ex, id2label, title)
 
 
 def get_tags_data_for_exportable(
-    ex, id2label, only_sectors_subpillars=True, title=None
+    ex,
+    id2label,
+    title=None
 ):
     key_title = "MISSING"
 
@@ -226,16 +247,9 @@ def get_tags_data_for_exportable(
         sub_pillars = []
 
         for r in rep:
-            sub_pillars.append(f"subpillars_1d->{r[0]}->{r[1]}")
+            sub_pillars.append(f"{r[0]}->{r[1]}")
 
         output = sub_pillars
-        if only_sectors_subpillars:
-            return {
-                "sectors": [],
-                "sub_sectors": [],
-                "subpillars_1d": sub_pillars,
-                "subpillars_2d": [],
-            }
 
     elif tip in ["matrix2dWidget", "no_common_matrix2dWidget"]:
         sectors, sub_sectors, sub_pillars = [], [], []
@@ -252,8 +266,8 @@ def get_tags_data_for_exportable(
                 pill = m2widget.get(keys[1])
                 sub_pill = m2widget.get(keys[2])
 
-                sectors.append(f"sectors->{sect}")
-                sub_pillars.append(f"subpillars_2d->{pill}->{sub_pill}")
+                sectors.append(sect)
+                sub_pillars.append(f"{pill}->{sub_pill}")
 
             elif len(keys) == 4:
                 # if there's a subsector
@@ -262,18 +276,17 @@ def get_tags_data_for_exportable(
                 pill = m2widget.get(keys[2])
                 sub_pill = m2widget.get(keys[3])
 
-                sectors.append(f"sectors->{sect}")
-                sub_sectors.append(f"subsectors->{sect}->{sub_sect}")
-                sub_pillars.append(f"subpillars_2d->{pill}->{sub_pill}")
+                sectors.append(sect)
+                sub_sectors.append(f"{sect}->{sub_sect}")
+                sub_pillars.append(f"{pill}->{sub_pill}")
 
         output = sectors + sub_sectors + sub_pillars
-        if only_sectors_subpillars:
-            return {
-                "sectors": sectors,
-                "sub_sectors": sub_sectors,
-                "subpillars_2d": sub_pillars,
-                "subpillars_1d": [],
-            }
+        """
+        it's not correct at this point -translating widget tags into raw tags- to infer these keys.
+        The reason is that (probably except only for the sectors) our mapping sometimes doesn't reflect
+        the widgets "classification" (especially in less common AFs).
+        For example a matrix2dwidget tag in one AF can be considered as a (sub)pillar-1d in the NLP AF.
+        """
 
     elif key_title == "MISSING":
         output = ["MISSING"]
@@ -285,7 +298,6 @@ def get_tags_data_for_exportable(
         output = ex["excel"]["values"]
 
     else:
-        print(ex)
         raise Exception("widget not found!")
 
     if output is None:
@@ -295,17 +307,27 @@ def get_tags_data_for_exportable(
     if type(output) is not list:
         output = [output.strip()] if type(output) is str else [output]
 
-    # output dict if value is not emtpy and empty list if value is empty
-    output = {tip: output} if len(output) > 0 else []
+    # some cleaning
+    if len(output) > 0:
+        output = _flatten(output) if type(output[0]) is list else output
+        output = [_clean_tags(one_output) for one_output in output]
+        output = [
+            one_output
+            for one_output in output
+            if one_output not in ["nan", "none", "", "n/a"]
+        ]
 
-    if not only_sectors_subpillars:
-        return {
-            "sectors": [],
-            "sub_sectors": [],
-            "subpillars_1d": [],
-            "subpillars_2d": [],
-        }
-    return {"outputs": output}
+        # output dict if value is not emtpy and empty list if value is empty
+        output = {tip: output}
+    else:
+        output = []
+
+    """
+    Proposal: keeping "tip" (the widget type name) always as keys of the output also
+    for primary tags
+    """
+
+    return output
 
 
 def get_values(exports, widgets):

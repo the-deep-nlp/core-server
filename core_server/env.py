@@ -35,6 +35,7 @@ env = environ.Env(
     DEEP_DB_USER=str,
     DEEP_DB_PORT=int,
     DEEP_DB_HOST=str,
+    FETCH_DEEP_PROJECTS_AFTER=(str, "2021-01-01"),
 
     # SENTRY
     SENTRY_DSN=str,
@@ -48,7 +49,8 @@ env = environ.Env(
     AWS_S3_BUCKET_NAME=(str, None),
     AWS_S3_REGION_NAME=(str, None),
 
-    # ECS endpoints
+    # ECS
+    CLASSIFICATION_MODEL_ENDPOINT=(str, "main-model-cpu"),
     SUMMARIZATION_V2_ECS_ENDPOINT=(str, None),
     TEXTEXTRACTION_ECS_ENDPOINT=(str, None),
 )

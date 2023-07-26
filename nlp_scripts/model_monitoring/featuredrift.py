@@ -1,14 +1,14 @@
 import datetime
 import warnings
 
-import pandas as pd
-import numpy as np
 from ast import literal_eval
+from typing import List, Optional
 from tqdm import tqdm
-from typing import List
 
+import numpy as np
+import polars as pl
 from evidently.report import Report
-from evidently.metrics import DatasetDriftMetric, DataDriftTable
+from evidently.metrics import DatasetDriftMetric
 
 warnings.filterwarnings("ignore")
 
@@ -16,55 +16,42 @@ warnings.filterwarnings("ignore")
 class FeatureDrift:
     """
     Calculates per project feature drift of excerpts
-    Input: DataFrame with columns 'project_id', 'embeddings'
-    Output: DataFrame containing columns 'reference_project_id', 'current_project_id',
-            'reference_dataset_len', 'current_dataset_len', 'drift_share', 'number_of_columns',
-            'number_of_drifted_columns', 'share_of_drifted_columns', 'dataset_drift'
+    Input: Dataframe with columns 'project_id', 'embeddings'
+    Output: Dataframe containing columns
     """
 
-    def __init__(self, ref_df: pd.DataFrame, cur_df: pd.DataFrame):
+    def __init__(self, ref_df: pl.DataFrame, cur_df: pl.DataFrame) -> None:
         self.reference_df = ref_df
         self.current_df = cur_df
-
         self.data_drift_dataset_report = Report(metrics=[DatasetDriftMetric()])
 
-    def _process_embeddings(self, embeddings: pd.Series) -> List[float]:
+    def _process_embeddings(self, embeddings: pl.Series) -> List:
         """
         Reads the embeddings and gets the list
-        Input: Embedding Series
-        Output: Embedding List
+        Input: Embeddings Series
+        Output: Embeddings List
         """
-        if isinstance(embeddings.iloc[0], list):
+        if isinstance(embeddings[0], list):
             return embeddings.apply(np.array).to_list()
         return embeddings.apply(literal_eval).apply(np.array).to_list()
 
     def _project_id_based_mask(
-        self, df: pd.DataFrame, project_id: int = None
-    ) -> pd.DataFrame:
-        """
-        Input: DataFrame with column 'project_id'
-        Output: Filtered DataFrame if 'project_id' is passed in argument
-        """
+        self, dataframe: pl.DataFrame, project_id: Optional[int] = None
+    ) -> pl.DataFrame:
         if project_id:
-            mask = df["project_id"] == project_id
-            return df[mask]
-
-        return df
+            dataframe = dataframe.filter(pl.col("project_id") == project_id)
+        return dataframe
 
     def compute_feature_drift(
         self,
         ref_n_samples: int = 500,
         cur_n_samples: int = 500,
         random_state: int = 5432,
-    ) -> pd.DataFrame:
+    ) -> pl.DataFrame:
         """
-        Computes the feature drift based on feature embeddings
-        Input: DataFrame containing columns 'project_id', 'embeddings'
-        Output: DataFrame containing columns 'reference_project_id', 'current_project_id',
-                'reference_dataset_len', 'current_dataset_len', 'drift_share', 'number_of_columns',
-                'number_of_drifted_columns', 'share_of_drifted_columns', 'dataset_drift'
+        Computes the Feature drift on the excerpts embeddings at project level
         """
-        final_result = list()
+        final_result = []
         reference_project_ids = list(self.reference_df["project_id"].unique())
         current_project_ids = list(self.current_df["project_id"].unique())
 
@@ -94,15 +81,20 @@ class FeatureDrift:
                         else cur_n_samples
                     )
 
-                    reference_df = pd.DataFrame(reference_embedding_lst).sample(
-                        n=ref_n_samples, random_state=random_state
+                    reference_df = (
+                        pl.DataFrame(reference_embedding_lst)
+                        .transpose()
+                        .sample(n=ref_n_samples, seed=random_state)
                     )
-                    current_df = pd.DataFrame(current_embedding_lst).sample(
-                        n=cur_n_samples, random_state=random_state
+                    current_df = (
+                        pl.DataFrame(current_embedding_lst)
+                        .transpose()
+                        .sample(n=cur_n_samples, seed=random_state)
                     )
 
                     self.data_drift_dataset_report.run(
-                        reference_data=reference_df, current_data=current_df
+                        reference_data=reference_df.to_pandas(),
+                        current_data=current_df.to_pandas(),
                     )
 
                     temp_result = {}
@@ -130,19 +122,19 @@ class FeatureDrift:
                         "drift_share"
                     ] = data_drift_report["metrics"][0]["result"]["dataset_drift"]
                     temp_result["generated_at"] = datetime.date.today()
-
                     final_result.append(temp_result)
 
-        return pd.DataFrame.from_records(final_result)
+        return pl.DataFrame._from_records(final_result)
 
 
 if __name__ == "__main__":
-    reference_data_path = "csvfiles/data_with_embeddings_22000.csv"
-    current_data_path = "csvfiles/sampled_data_with_embeddings_testset.csv"
+    reference_data_path = "/home/rsh/projects/deepl/model-monitoring/csvfiles/data_with_embeddings_22000.csv"
+    current_data_path = "/home/rsh/projects/deepl/model-monitoring/csvfiles/sampled_data_with_embeddings_testset.csv"
 
-    reference_data_df = pd.read_csv(reference_data_path)
-    current_data_df = pd.read_csv(current_data_path)
+    reference_data_df = pl.read_csv(reference_data_path)
+    current_data_df = pl.read_csv(current_data_path)
 
     feature_drift = FeatureDrift(reference_data_df, current_data_df)
-    df = feature_drift.compute_feature_drift(ref_n_samples=10, cur_n_samples=10)
+    df = feature_drift.compute_feature_drift(ref_n_samples=5, cur_n_samples=5)
     print(df)
+    print(df.columns)

@@ -1,10 +1,12 @@
+from typing import List, Any
 import datetime
 from celery import shared_task
-import pandas as pd
 from django.db import transaction
 import django
 import django.utils.timezone as timezone
 from django.conf import settings
+
+import polars as pl
 
 from utils.core import format_af_tags
 
@@ -19,6 +21,11 @@ from core.models import (
     TagWisePerfMetrics,
     ComputedFeatureDrift,
 )
+from core_server.settings import (
+    AWS_ACCESS_KEY_ID,
+    AWS_SECRET_ACCESS_KEY,
+    CLASSIFICATION_MODEL_ENDPOINT,
+)
 from nlp_scripts.model_monitoring.utils import get_model_info
 from nlp_scripts.model_monitoring.generate_outputs import ClassificationModelOutput
 from nlp_scripts.model_monitoring.model_performance import ModelPerformance
@@ -29,28 +36,27 @@ from celery.utils.log import get_task_logger
 logger = get_task_logger(__name__)
 
 
-def save_classification_prediction(df):
+def save_classification_prediction(df: pl.DataFrame):
     logger.info("Saving classification predictions")
-    classification_rows = df.to_dict("records")
-    model_info = get_model_info("main-model-cpu")[0]
+    classification_rows = df.to_dicts()
+    model_info = get_model_info(
+        CLASSIFICATION_MODEL_ENDPOINT, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
+    )[0]
     model, created = ClassificationModel.objects.get_or_create(
         name=model_info["name"],
         version=model_info["version"],
         model_uri=model_info["model_uri"],
         defaults={
             "description": model_info["description"],
-            "train_data_uri": model_info["reference_train_data"]
-        }
+            "train_data_uri": model_info["reference_train_data"],
+        },
     )
-    entry_ids = [record['entry_id'] for record in classification_rows]
-    entries = Entry.objects.filter(
-        original_entry_id__in=entry_ids
-    ).prefetch_related('lead', 'lead__project')
+    entry_ids = [record["entry_id"] for record in classification_rows]
+    entries = Entry.objects.filter(original_entry_id__in=entry_ids).prefetch_related(
+        "lead", "lead__project"
+    )
 
-    records_dict = {
-        record["entry_id"]: record
-        for record in classification_rows
-    }
+    records_dict = {record["entry_id"]: record for record in classification_rows}
     model_instances = [
         ClassificationPredictions(
             entry=entry,
@@ -62,8 +68,12 @@ def save_classification_prediction(df):
             subpillars_2d=records_dict[entry.original_entry_id]["subpillars_2d_pred"],
             age=records_dict[entry.original_entry_id]["age_pred"],
             gender=records_dict[entry.original_entry_id]["gender_pred"],
-            affected_groups=records_dict[entry.original_entry_id]["affected_groups_pred"],
-            specific_needs_groups=records_dict[entry.original_entry_id]["specific_needs_groups_pred"],
+            affected_groups=records_dict[entry.original_entry_id][
+                "affected_pred"
+            ],
+            specific_needs_groups=records_dict[entry.original_entry_id][
+                "specific_needs_groups_pred"
+            ],
             severity=records_dict[entry.original_entry_id]["severity_pred"],
         )
         for entry in entries
@@ -74,24 +84,26 @@ def save_classification_prediction(df):
     return predictions
 
 
-def save_dataframe_to_model(dataframe: pd.DataFrame, model_class: django.db.models.Model):
-    for row in dataframe.itertuples(index=False):
+def save_dataframe_to_model(
+    dataframe: pl.DataFrame, model_class: django.db.models.Model
+):
+    for row in dataframe.iter_rows():
         model_instance = model_class()
         for field in dataframe.columns:
             setattr(model_instance, field, getattr(row, field))
         model_instance.save()
 
 
-def save_model_performance(df):
+def save_model_performance(df: pl.DataFrame):
     logger.info("Saving Model Performance")
     modelperf = ModelPerformance(df)
-    df1 = modelperf.project_wise_perf_metrics()
+    df1 = modelperf.projectwise_perf_metrics()
     save_dataframe_to_model(df1, ProjectWisePerfMetrics)
 
     df2 = modelperf.per_tag_perf_metrics()
     save_dataframe_to_model(df2, TagWisePerfMetrics)
 
-    df3 = modelperf.all_projects_perf_metrics()
+    df3 = modelperf.overall_projects_perf_metrics()
     save_dataframe_to_model(df3, AllProjectPerfMetrics)
 
     df4 = modelperf.calculate_ratios()
@@ -102,28 +114,24 @@ def save_model_performance(df):
     logger.info("Saving Model Performance Done")
 
 
-def set_project_id(row, dict):
-    return dict[row["entry_id"]]
+@shared_task
+def create_model_performance(combined_data: List[dict]):
+    save_model_performance(pl.from_dicts(combined_data))
 
 
 @shared_task
-def create_model_performance(combined_df):
-    save_model_performance(pd.DataFrame.from_dict(combined_df))
-
-
-@shared_task
-def create_feature_drift(current_df, entry_len):
+def create_feature_drift(current_data: dict, entry_len: int):
     logger.info("Saving Feature Drift")
-    current_df = pd.DataFrame.from_dict(current_df)
+    current_df = pl.from_dict(current_data)
     reference_data_path = (
         ClassificationModel.objects.order_by("-id").first().train_data_uri
     )
-    reference_data_df = pd.read_csv(reference_data_path)
+    reference_data_df = pl.read_csv(reference_data_path)
     feature_drift = FeatureDrift(reference_data_df, current_df)
     feature_drift_df = feature_drift.compute_feature_drift(
         ref_n_samples=len(reference_data_df), cur_n_samples=len(current_df)
     )
-    feature_drift_df['entry_count'] = entry_len
+    feature_drift_df["entry_count"] = entry_len
     save_dataframe_to_model(feature_drift_df, ComputedFeatureDrift)
     logger.info("Saving Feature Drift Done")
 
@@ -132,40 +140,42 @@ def create_feature_drift(current_df, entry_len):
 def calculate_model_metrics():
     with transaction.atomic():
         yesterday = timezone.now() - datetime.timedelta(days=1)
-        newly_added_entries = list(
+        newly_added_entries: List[dict] = list(
             Entry.objects.filter(
                 classificationpredictions__isnull=True,
                 deep_entry_created_at__gte=yesterday,
-                deep_entry_created_at__lt=timezone.now()
+                deep_entry_created_at__lt=timezone.now(),
             )
             .order_by("-id")
-            .values("original_entry_id", "excerpt_en", "original_af_tags", "lead__project__original_project_id")
+            .values(
+                "original_entry_id",
+                "excerpt",
+                "original_af_tags",
+                "lead__project__original_project_id",
+            )[:1]
         )
         if not newly_added_entries:
             return
-        # create a data frame
-        df = pd.DataFrame(newly_added_entries).rename(
-            columns={"original_entry_id": "entry_id", "excerpt_en": "excerpt"}
-        )
 
-        # save project id
-        entry_project_id_dict = {
-            entry["original_entry_id"]: entry["lead__project__original_project_id"]
-            for entry in newly_added_entries
-        }
-        df["project_id"] = df.apply(set_project_id, axis=1, args=(entry_project_id_dict,))
+        # Create a data frame
+        df = pl.DataFrame(newly_added_entries).rename(
+            mapping={
+                "original_entry_id": "entry_id",
+                "lead__project__original_project_id": "project_id",
+            }
+        )
 
         # save into classification prediction
         entry_df = df.drop(columns=["original_af_tags"])
         model_output = ClassificationModelOutput(
             entry_df,
-            endpoint_name="main-model-cpu",
-            aws_region="us-east-1",
+            region_name="us-east-1",
             batch_size=1,
-            prediction_required=True,
-            embeddings_required=True,
+            prediction_generation=True,
+            embeddings_generation=True,
             aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            endpoint_name=CLASSIFICATION_MODEL_ENDPOINT,
         )
         output_df = model_output.generate_outputs()
         save_classification_prediction(output_df)
@@ -177,15 +187,20 @@ def calculate_model_metrics():
         subpillar_1d = [data.get("subpillars_1d", []) for data in original_af_tags]
         subpillar_2d = [data.get("subpillars_2d", []) for data in original_af_tags]
 
-        entry_df["sectors"] = pd.Series(format_af_tags(sectors))
-        entry_df["subpillars_1d"] = pd.Series(format_af_tags(subpillar_1d))
-        entry_df["subpillars_2d"] = pd.Series(format_af_tags(subpillar_2d))
+        def _to_str_items(lst: List[List[Any]]):
+            return [str(x) for x in lst]
 
-        combined_df = output_df.merge(entry_df, on="entry_id")
+        entry_df.with_columns(sectors=pl.Series("sectors", _to_str_items(sectors)))
+        entry_df.with_columns(subpillars_1d=pl.Series("subpillars_1d", _to_str_items(subpillar_1d)))
+        entry_df.with_columns(subpillars_2d=pl.Series("subpillars_2d", _to_str_items(subpillar_2d)))
+
+        combined_df = output_df.join(entry_df, on="entry_id")
         current_df = combined_df[["project_id", "embeddings"]]
 
         # save model performance data
-        create_model_performance.delay(combined_df.to_dict("records"))
+        create_model_performance.delay(combined_df.to_dicts())
 
         # save feature drift data
-        create_feature_drift.delay(current_df.to_dict("records"), len(newly_added_entries))
+        create_feature_drift.delay(
+            current_df.to_dicts(), len(newly_added_entries)
+        )
