@@ -3,13 +3,15 @@ import datetime
 import warnings
 import json
 
-from typing import List, Dict
+from typing import List, Dict, Optional
 from functools import partial
 from ast import literal_eval
 
 import polars as pl
 from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.metrics import precision_recall_fscore_support
+
+from .utils import try_literal_eval
 
 from .constants import (
     CATEGORIES,
@@ -63,7 +65,7 @@ class ModelPerformance:
             if category_pred in self.dataframe.columns:
                 self.dataframe.with_columns(
                     pl.col(category_pred)
-                    .apply(literal_eval)
+                    .apply(try_literal_eval)
                     .cast(pl.List(pl.Utf8))
                     .alias(category_pred)
                 )
@@ -219,7 +221,7 @@ class ModelPerformance:
 
     def overall_projects_perf_metrics(
         self, metrics_average_type: str = "macro"
-    ) -> pl.DataFrame:
+    ) -> Optional[pl.DataFrame]:
         """
         Calculates the overall performance metrics irrespective of the projects
         Categories: ["sectors", "pillars_1d", "pillars_2d", "subpillars_1d", "subpillars_2d", "age", "displaced", "gender", "non displaced", "severity", "specific_needs_groups"]
@@ -249,9 +251,11 @@ class ModelPerformance:
                     "f1score": f1score,
                     "generated_at": datetime.date.today(),
                 }
+        if not all_projects_perf_metrics:
+            return None
         return pl.DataFrame(list(all_projects_perf_metrics.values()))
 
-    def per_tag_perf_metrics(self) -> pl.DataFrame:
+    def per_tag_perf_metrics(self) -> Optional[pl.DataFrame]:
         """
         Calculates the performance metrics per tag
         Categories: ["sectors", "pillars_1d", "pillars_2d", "subpillars_1d", "subpillars_2d", "age", "displaced", "gender", "non displaced", "severity", "specific_needs_groups"]
@@ -265,7 +269,9 @@ class ModelPerformance:
 
         def generate_df_with_extra_cols(
             tags_scores_dict: dict, metrics_type: str
-        ) -> pl.DataFrame:
+        ) -> Optional[pl.DataFrame]:
+            if not tags_scores_dict:
+                return None
             df_temp = pl.DataFrame(tags_scores_dict).transpose(
                 include_header=True, header_name="tags", column_names=["scores"]
             )
@@ -303,6 +309,8 @@ class ModelPerformance:
         recall_df = generate_df_with_extra_cols(tag_recall_perf_metrics, "recall")
         f1score_df = generate_df_with_extra_cols(tag_f1score_perf_metrics, "f1score")
 
+        if precision_df is None or recall_df is None or f1score_df is None:
+            return None
         return pl.concat([precision_df, recall_df, f1score_df], how="vertical")
 
     def _tags_matching_ratios(
@@ -320,7 +328,7 @@ class ModelPerformance:
             f"wrong_{category}": sum(wrong) / len(gt_embed),
         }
 
-    def calculate_ratios(self) -> pl.DataFrame:
+    def calculate_ratios(self) -> Optional[pl.DataFrame]:
         """
         Calculate the ratios of the categories
         Categories: ["sectors", "pillars_1d", "pillars_2d", "subpillars_1d", "subpillars_2d", "age", "displaced", "gender", "non displaced", "severity", "specific_needs_groups"]
@@ -337,16 +345,20 @@ class ModelPerformance:
                         self.dataframe[f"{category}_pred_transformed"].apply(list).to_list(),
                     )
                 )
+                if not temp_lst:
+                    continue
                 final_df = pl.concat(
                     [final_df, pl.DataFrame(temp_lst)], how="horizontal"
                 )
 
+        if len(final_df) == 0:
+            return None
         return final_df.with_columns(
             self.dataframe["project_id"].alias("project_id"),
             pl.lit(datetime.date.today()).alias("generated_at"),
         )
 
-    def per_project_calc_ratios(self) -> pl.DataFrame:
+    def per_project_calc_ratios(self) -> Optional[pl.DataFrame]:
         """
         Calculates the per project ratio of the categories
         Categories: ["sectors", "pillars_1d", "pillars_2d", "subpillars_1d", "subpillars_2d", "age", "displaced", "gender", "non displaced", "severity", "specific_needs_groups"]
@@ -354,6 +366,8 @@ class ModelPerformance:
         Output Dataframe: project_id, completely_matched_{category}_mean, missing_{category}_mean, wrong_{category}_mean, generated_at
         """
         ratios_df = self.calculate_ratios()
+        if ratios_df is None:
+            return None
         final_df = pl.DataFrame()
         for project_grp in ratios_df.groupby("project_id", maintain_order=True):
             temp_df = pl.DataFrame()
@@ -379,11 +393,16 @@ class ModelPerformance:
                         )
                     )
 
+            if len(temp_df) == 0:
+                continue
             temp_df = temp_df.with_columns(
                 pl.lit(project_id).alias("project_id"),
                 pl.lit(datetime.date.today()).alias("generated_at"),
             )
             final_df = pl.concat([final_df, temp_df], how="vertical")
+
+        if len(final_df) == 0:
+            return None
         return final_df
 
 

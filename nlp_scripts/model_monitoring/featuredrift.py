@@ -1,14 +1,15 @@
 import datetime
 import warnings
 
-from ast import literal_eval
-from typing import List, Optional
+from typing import List, Optional, Any
 from tqdm import tqdm
 
 import numpy as np
 import polars as pl
 from evidently.report import Report
 from evidently.metrics import DatasetDriftMetric
+
+from .utils import try_literal_eval
 
 warnings.filterwarnings("ignore")
 
@@ -33,7 +34,7 @@ class FeatureDrift:
         """
         if isinstance(embeddings[0], list):
             return embeddings.apply(np.array).to_list()
-        return embeddings.apply(literal_eval).apply(np.array).to_list()
+        return embeddings.apply(try_literal_eval).apply(np.array).to_list()
 
     def _project_id_based_mask(
         self, dataframe: pl.DataFrame, project_id: Optional[int] = None
@@ -47,7 +48,7 @@ class FeatureDrift:
         ref_n_samples: int = 500,
         cur_n_samples: int = 500,
         random_state: int = 5432,
-    ) -> pl.DataFrame:
+    ) -> Optional[pl.DataFrame]:
         """
         Computes the Feature drift on the excerpts embeddings at project level
         """
@@ -124,6 +125,8 @@ class FeatureDrift:
                     temp_result["generated_at"] = datetime.date.today()
                     final_result.append(temp_result)
 
+        if not final_result:
+            return None
         return pl.DataFrame._from_records(final_result)
 
 

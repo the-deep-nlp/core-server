@@ -1,4 +1,4 @@
-from typing import List, Any
+from typing import List, Any, Optional
 import datetime
 from celery import shared_task
 from django.db import transaction
@@ -8,7 +8,6 @@ from django.conf import settings
 
 import polars as pl
 
-from utils.core import format_af_tags
 
 from core.models import (
     Entry,
@@ -42,7 +41,7 @@ def save_classification_prediction(df: pl.DataFrame):
     model_info = get_model_info(
         CLASSIFICATION_MODEL_ENDPOINT, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
     )[0]
-    model, created = ClassificationModel.objects.get_or_create(
+    model, _ = ClassificationModel.objects.get_or_create(
         name=model_info["name"],
         version=model_info["version"],
         model_uri=model_info["model_uri"],
@@ -87,10 +86,10 @@ def save_classification_prediction(df: pl.DataFrame):
 def save_dataframe_to_model(
     dataframe: pl.DataFrame, model_class: django.db.models.Model
 ):
-    for row in dataframe.iter_rows():
+    for row in dataframe.iter_rows(named=True):
         model_instance = model_class()
         for field in dataframe.columns:
-            setattr(model_instance, field, getattr(row, field))
+            setattr(model_instance, field, row.get(field))
         model_instance.save()
 
 
@@ -101,16 +100,29 @@ def save_model_performance(df: pl.DataFrame):
     save_dataframe_to_model(df1, ProjectWisePerfMetrics)
 
     df2 = modelperf.per_tag_perf_metrics()
-    save_dataframe_to_model(df2, TagWisePerfMetrics)
+    if df2 is not None:
+        save_dataframe_to_model(df2, TagWisePerfMetrics)
+    else:
+        logger.info("Empty tag performance data")
 
     df3 = modelperf.overall_projects_perf_metrics()
-    save_dataframe_to_model(df3, AllProjectPerfMetrics)
+    if df3 is not None:
+        save_dataframe_to_model(df3, AllProjectPerfMetrics)
+    else:
+        logger.info("Empty project performance data")
 
     df4 = modelperf.calculate_ratios()
-    save_dataframe_to_model(df4, CategoryWiseMatchRatios)
+    if df4 is not None:
+        save_dataframe_to_model(df4, CategoryWiseMatchRatios)
+    else:
+        logger.info("Empty ratio data")
 
     df5 = modelperf.per_project_calc_ratios()
-    save_dataframe_to_model(df5, ProjectWiseMatchRatios)
+    if df5 is not None:
+        save_dataframe_to_model(df5, ProjectWiseMatchRatios)
+    else:
+        logger.info("Empty per project ratio data")
+
     logger.info("Saving Model Performance Done")
 
 
@@ -131,20 +143,30 @@ def create_feature_drift(current_data: dict, entry_len: int):
     feature_drift_df = feature_drift.compute_feature_drift(
         ref_n_samples=len(reference_data_df), cur_n_samples=len(current_df)
     )
-    feature_drift_df["entry_count"] = entry_len
+    if feature_drift_df is None:
+        return
+    feature_drift_df = feature_drift_df.with_columns(entry_count=pl.lit(entry_len))
     save_dataframe_to_model(feature_drift_df, ComputedFeatureDrift)
     logger.info("Saving Feature Drift Done")
 
 
 @shared_task
-def calculate_model_metrics():
+def calculate_model_metrics(is_daily_calculation=True, batch_size: Optional[int] = None):
+    """
+    This function is supposed to run on a daily basis. But sometimes, due to db
+    reset or refetching/updating of all the entries, everything might be needed
+    to calculate.
+    """
+    yesterday = timezone.now() - datetime.timedelta(days=1)
+    entry_filter = {
+        "deep_entry_created_at__gte": yesterday,
+        "deep_entry_created_at__lt": timezone.now(),
+    } if is_daily_calculation else {}
     with transaction.atomic():
-        yesterday = timezone.now() - datetime.timedelta(days=1)
-        newly_added_entries: List[dict] = list(
+        entries_qs = (
             Entry.objects.filter(
                 classificationpredictions__isnull=True,
-                deep_entry_created_at__gte=yesterday,
-                deep_entry_created_at__lt=timezone.now(),
+                **entry_filter
             )
             .order_by("-id")
             .values(
@@ -152,8 +174,12 @@ def calculate_model_metrics():
                 "excerpt",
                 "original_af_tags",
                 "lead__project__original_project_id",
-            )[:1]
+            )
         )
+        newly_added_entries: list[dict] = list(entries_qs) if batch_size is None \
+            else list(entries_qs[:batch_size])
+
+        logger.info(f"Obtained {len(newly_added_entries)} entries to calculate model metrics")
         if not newly_added_entries:
             return
 
@@ -202,5 +228,5 @@ def calculate_model_metrics():
 
         # save feature drift data
         create_feature_drift.delay(
-            current_df.to_dicts(), len(newly_added_entries)
+            current_df.to_dict(as_series=False), len(newly_added_entries)
         )

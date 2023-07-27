@@ -1,5 +1,6 @@
 import json
-from typing import Dict, List, Tuple, Optional
+from ast import literal_eval
+from typing import Dict, List, Tuple, Optional, Any
 import boto3
 from botocore.exceptions import ClientError
 
@@ -86,3 +87,10 @@ def invoke_model_endpoint(
         return json.loads(response["Body"].read().decode("ascii"))
     except ClientError as error:
         raise Exception(error)
+
+
+def try_literal_eval(x: Any) -> Any:
+    try:
+        return literal_eval(x)
+    except ValueError:
+        return x
