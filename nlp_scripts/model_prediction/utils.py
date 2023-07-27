@@ -4,6 +4,7 @@ from .first_level_tags import FirstLevel
 from .second_level_tags import SecondLevel
 from .third_level_tags import ThirdLevel
 
+
 def find_tag_path(total_tags, tagid, idx=0):
     """
     Generates the Tags path
@@ -28,9 +29,11 @@ def get_tag_ids(total_tags, taglist, idx=0):
                 )
     return [None]
 
+
 def get_vf_list() -> Dict[str, Dict[str, Union[str, bool]]]:
     """
-    Returns the NLP framework tags with their corresponding details
+    Returns the NLP framework tags, also called virtual framework(vf) with
+    their corresponding details
     """
     vf_tags_dict = {}
 
@@ -51,6 +54,3 @@ def get_vf_list() -> Dict[str, Dict[str, Union[str, bool]]]:
             "parent_id": item["parent_id"]
         }
     return vf_tags_dict
-
-
-

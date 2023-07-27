@@ -10,6 +10,7 @@ from analysis_module.serializers import TagsMappingRequestSerializer, Prediction
 from analysis_module.mockserver import MOCK_ENTRY_CLASSIFICATION
 from nlp_scripts.model_prediction.tags_mapping import AF2NLPMapping
 from nlp_scripts.model_prediction.model_prediction import ModelTagsPrediction
+from nlp_scripts.model_prediction.utils import get_vf_list
 
 import logging
 
@@ -45,6 +46,12 @@ def tags_mapping(request: Request):
         nlp_request.status = NLPRequest.RequestStatus.SUCCESS
     nlp_request.save(update_fields=['status'])
     return Response({"tags_mapping": resp_data})
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def nlp_tags(request: Request):
+    return Response(get_vf_list())
 
 
 @api_view(["POST"])
