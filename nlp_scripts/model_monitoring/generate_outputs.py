@@ -130,9 +130,20 @@ class ClassificationModelOutput:
                     }
                     op_lst.append(o)
                 if prediction_df.is_empty():
+                    # Cast all cols to list of strings, otherwise empty list will
+                    # be treated as list of nulls
                     prediction_df = pl.DataFrame(op_lst)
+                    prediction_df = prediction_df.select(
+                        *[pl.col(x).cast(pl.List(pl.Utf8)) for x in prediction_df.columns]
+                    )
                 else:
-                    prediction_df = pl.concat([prediction_df, pl.DataFrame(op_lst)])
+                    # Cast all cols to list of strings, otherwise empty list will
+                    # be treated as list of nulls
+                    new_df = pl.DataFrame(op_lst)
+                    new_df = new_df.select(
+                        *[pl.col(x).cast(pl.List(pl.Utf8)) for x in new_df.columns]
+                    )
+                    prediction_df = pl.concat([prediction_df, new_df])
 
             if self.embeddings_generation:
                 if embeddings_df.is_empty():

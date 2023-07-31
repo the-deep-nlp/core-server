@@ -593,3 +593,21 @@ class TestTextExtractionAPI(BaseTestCase):
         process_mock.assert_called_once()
 
         assert req_object is None, "NLP request should not be created for mock request"
+
+
+class TestNLPTags(BaseTestCase):
+    URL = "/api/v1/nlp-tags/"
+
+    def test_get_nlp_tags_unauthenticated(self):
+        resp = self.client.get(self.URL)
+        assert resp.status_code == 401
+
+    def test_get_nlp_tags(self):
+        self.set_credentials()
+        resp = self.client.get(self.URL)
+        assert resp.status_code == 200
+        for tagname, detail in resp.json().items():
+            assert "label" in detail
+            assert "group" in detail
+            assert "is_category" in detail
+            assert "parent_id" in detail
