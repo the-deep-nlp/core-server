@@ -447,30 +447,30 @@ class ModelPerformance:
         missing_{category}_mean, wrong_{category}_mean, generated_at
         """
         ratios_df = self.calculate_ratios()
-        if ratios_df is None:
-            return None
+        if ratios_df.is_empty():
+            return ratios_df
         final_df = pl.DataFrame()
         for project_grp in ratios_df.groupby("project_id", maintain_order=True):
             temp_df = pl.DataFrame()
             project_id = project_grp[0]
             project_grp_df = project_grp[1]
             for category in CATEGORIES:
-                if f"completely_matched_{category}" in project_grp_df.columns:
+                if f"{category}_completely_matched" in project_grp_df.columns:
                     temp_df = temp_df.with_columns(
                         pl.lit(
-                            project_grp_df[f"completely_matched_{category}"].mean()
-                        ).alias(f"completely_matched_{category}_mean")
+                            project_grp_df[f"{category}_completely_matched"].mean()
+                        ).alias(f"{category}_completely_matched_mean")
                     )
-                if f"missing_{category}" in project_grp_df.columns:
+                if f"{category}_missing" in project_grp_df.columns:
                     temp_df = temp_df.with_columns(
-                        pl.lit(project_grp_df[f"missing_{category}"].mean()).alias(
-                            f"missing_{category}_mean"
+                        pl.lit(project_grp_df[f"{category}_missing"].mean()).alias(
+                            f"{category}_missing_mean"
                         )
                     )
-                if f"wrong_{category}" in project_grp_df.columns:
+                if f"{category}_wrong" in project_grp_df.columns:
                     temp_df = temp_df.with_columns(
-                        pl.lit(project_grp_df[f"wrong_{category}"].mean()).alias(
-                            f"wrong_{category}_mean"
+                        pl.lit(project_grp_df[f"{category}_wrong"].mean()).alias(
+                            f"{category}_wrong_mean"
                         )
                     )
 
@@ -481,9 +481,6 @@ class ModelPerformance:
                 pl.lit(datetime.date.today()).alias("generated_at"),
             )
             final_df = pl.concat([final_df, temp_df], how="vertical")
-
-        if len(final_df) == 0:
-            return None
         return final_df
 
 
