@@ -140,6 +140,7 @@ class ProjectWisePerfMetricsAdmin(admin.ModelAdmin):
         "subpillars_1d_precision",
         "subpillars_1d_recall",
         "subpillars_1d_support",
+        "generated_at",
     ]
 
 
