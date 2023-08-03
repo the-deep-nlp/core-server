@@ -158,6 +158,7 @@ class CategoryWiseMatchRatiosAdmin(admin.ModelAdmin):
         "subpillars_2d_completely_matched",
         "subpillars_2d_missing",
         "subpillars_2d_wrong",
+        "generated_at",
     ]
 
 
