@@ -97,30 +97,33 @@ def save_model_performance(df: pl.DataFrame):
     logger.info("Saving Model Performance")
     modelperf = ModelPerformance(df)
     modelperf.label_transform()
-    
+
     df1 = modelperf.projectwise_perf_metrics()
-    save_dataframe_to_model(df1, ProjectWisePerfMetrics)
+    if not df1.is_empty():
+        save_dataframe_to_model(df1, ProjectWisePerfMetrics)
+    else:
+        logger.info("Empty project wise performance data")
 
     df2 = modelperf.per_tag_perf_metrics()
-    if df2 is not None:
-        save_dataframe_to_model(df2, TagWisePerfMetrics)
+    if not df2.is_empty():
+       save_dataframe_to_model(df2, TagWisePerfMetrics)
     else:
-        logger.info("Empty tag performance data")
+       logger.info("Empty tag performance data")
 
     df3 = modelperf.overall_projects_perf_metrics()
-    if df3 is not None:
+    if not df3.is_empty():
         save_dataframe_to_model(df3, AllProjectPerfMetrics)
     else:
         logger.info("Empty project performance data")
 
     df4 = modelperf.calculate_ratios()
-    if df4 is not None:
+    if not df4.is_empty():
         save_dataframe_to_model(df4, CategoryWiseMatchRatios)
     else:
         logger.info("Empty ratio data")
 
     df5 = modelperf.per_project_calc_ratios()
-    if df5 is not None:
+    if not df5.is_empty():
         save_dataframe_to_model(df5, ProjectWiseMatchRatios)
     else:
         logger.info("Empty per project ratio data")
