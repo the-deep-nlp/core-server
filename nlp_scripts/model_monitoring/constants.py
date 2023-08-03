@@ -7,7 +7,7 @@ CATEGORIES = [
     "age",
     "displaced",
     "gender",
-    "non displaced",
+    "non_displaced",
     "severity",
     "specific_needs_groups",
     "affected",
@@ -206,3 +206,9 @@ SUBSECTORS_LST = [
     "subsectors->Wash->Waste management",
     "subsectors->Wash->Water supply"
 ]
+
+AFFECTED_LST = [
+    "first_level_tags->Affected->Displaced",
+    "first_level_tags->Affected->Non displaced"
+]
+

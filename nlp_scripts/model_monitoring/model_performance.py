@@ -27,6 +27,7 @@ from .constants import (
     SEVERITY_LST,
     SPECIFIC_NEEDS_GROUPS_LST,
     SUBSECTORS_LST,
+    AFFECTED_LST,
 )
 
 warnings.filterwarnings("ignore")
@@ -100,6 +101,7 @@ class ModelPerformance:
             SEVERITY_LST,
             SPECIFIC_NEEDS_GROUPS_LST,
             SUBSECTORS_LST,
+            AFFECTED_LST
         ]
         return dict(zip(CATEGORIES, all_tags))
 
@@ -145,6 +147,9 @@ class ModelPerformance:
         self.mlb_subsectors = MultiLabelBinarizer()
         self.mlb_subsectors.fit_transform([[s] for s in SUBSECTORS_LST])
 
+        self.mlb_affected = MultiLabelBinarizer()
+        self.mlb_affected.fit_transform([[s] for s in AFFECTED_LST])
+
     def _category_to_mlb(self):
         """
         Mapping between the category and multi-label binarizer objects
@@ -162,6 +167,7 @@ class ModelPerformance:
             "severity": self.mlb_severity,
             "specific_needs_groups": self.mlb_specific_needs_groups,
             "subsectors": self.mlb_subsectors,
+            "affected": self.mlb_affected
         }
 
     def label_transform(self):
@@ -179,8 +185,9 @@ class ModelPerformance:
                 )
             if f"{category}_pred" in self.dataframe.columns:
                 cat_name = f"{category}_pred_transformed"
+                cat_pred_name = f"{category}_pred"
                 self.dataframe = self.dataframe.with_columns(
-                    pl.col(f"{category}_pred")
+                    pl.col(cat_pred_name)
                     .apply(lambda x: cat_to_mlb[category].transform([x])[0])
                     .alias(cat_name)
                 )
@@ -208,7 +215,7 @@ class ModelPerformance:
         """
         project_perf_metrics: dict = {}
         for category in CATEGORIES:
-            if category in self.dataframe.columns:
+            if all(item in self.dataframe.columns for item in [f"{category}_transformed", f"{category}_pred_transformed"]):
                 for project_grp in self.dataframe.groupby(
                     "project_id", maintain_order=True
                 ):

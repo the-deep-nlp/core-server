@@ -96,6 +96,8 @@ def save_dataframe_to_model(
 def save_model_performance(df: pl.DataFrame):
     logger.info("Saving Model Performance")
     modelperf = ModelPerformance(df)
+    modelperf.label_transform()
+    
     df1 = modelperf.projectwise_perf_metrics()
     save_dataframe_to_model(df1, ProjectWisePerfMetrics)
 
@@ -216,9 +218,9 @@ def calculate_model_metrics(is_daily_calculation=True, batch_size: Optional[int]
         def _to_str_items(lst: List[List[Any]]):
             return [str(x) for x in lst]
 
-        entry_df.with_columns(sectors=pl.Series("sectors", _to_str_items(sectors)))
-        entry_df.with_columns(subpillars_1d=pl.Series("subpillars_1d", _to_str_items(subpillar_1d)))
-        entry_df.with_columns(subpillars_2d=pl.Series("subpillars_2d", _to_str_items(subpillar_2d)))
+        entry_df = entry_df.with_columns(sectors=pl.Series("sectors", _to_str_items(sectors)))
+        entry_df = entry_df.with_columns(subpillars_1d=pl.Series("subpillars_1d", _to_str_items(subpillar_1d)))
+        entry_df = entry_df.with_columns(subpillars_2d=pl.Series("subpillars_2d", _to_str_items(subpillar_2d)))
 
         combined_df = output_df.join(entry_df, on="entry_id")
         current_df = combined_df[["project_id", "embeddings"]]
