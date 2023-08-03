@@ -359,7 +359,7 @@ class ModelPerformance:
                     tag_f1score_perf_metrics[tag] = metricval
 
         precision_df = generate_df_with_extra_cols(
-            tag_precision_perf_metrics, "sectors"
+            tag_precision_perf_metrics, "precision"
         )
         recall_df = generate_df_with_extra_cols(tag_recall_perf_metrics, "recall")
         f1score_df = generate_df_with_extra_cols(tag_f1score_perf_metrics, "f1score")
