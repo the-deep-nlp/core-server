@@ -283,10 +283,8 @@ class ProjectWisePerfMetrics(models.Model):
 
 class TagWisePerfMetrics(models.Model):
     tags = models.CharField(max_length=250, blank=True)
-    precision = models.FloatField(blank=True, null=True)
-    recall = models.FloatField(blank=True, null=True)
-    f1score = models.FloatField(blank=True, null=True)
-    support = models.IntegerField(blank=True, null=True)
+    scores = models.FloatField(blank=True, null=True)
+    metrics = models.CharField(max_length=250, blank=True, null=True)
     generated_at = models.DateTimeField()
 
     def __str__(self):
@@ -294,7 +292,7 @@ class TagWisePerfMetrics(models.Model):
 
 
 class AllProjectPerfMetrics(models.Model):
-    categories = models.CharField(max_length=250, blank=True)
+    category = models.CharField(max_length=250, blank=True)
     precision = models.FloatField(blank=True, null=True)
     recall = models.FloatField(blank=True, null=True)
     f1score = models.FloatField(blank=True, null=True)

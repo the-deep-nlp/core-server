@@ -104,7 +104,7 @@ class EntryAdmin(admin.ModelAdmin):
 class AllProjectMetricsAdmin(admin.ModelAdmin):
     list_display = [
         "id",
-        "categories",
+        "category",
         "precision",
         "recall",
         "support",
@@ -165,10 +165,8 @@ class TagWisePerfMetricsAdmin(admin.ModelAdmin):
     list_display = [
         "id",
         "tags",
-        "precision",
-        "recall",
-        "f1score",
-        "support",
+        "scores",
+        "metrics",
         "generated_at",
     ]
 
