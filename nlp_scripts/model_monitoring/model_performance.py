@@ -378,12 +378,12 @@ class ModelPerformance:
         missing = [e1 > e2 for e1, e2 in zip(gt_embed, pred_embed)]
         wrong = [e1 < e2 for e1, e2 in zip(gt_embed, pred_embed)]
         return {
-            f"completely_matched_{category}": sum(completely_matched) / len(gt_embed),
-            f"missing_{category}": sum(missing) / len(gt_embed),
-            f"wrong_{category}": sum(wrong) / len(gt_embed),
+            f"{category}_completely_matched": sum(completely_matched) / len(gt_embed),
+            f"{category}_missing": sum(missing) / len(gt_embed),
+            f"{category}_wrong": sum(wrong) / len(gt_embed),
         }
 
-    def calculate_ratios(self) -> Optional[pl.DataFrame]:
+    def calculate_ratios(self) -> pl.DataFrame:
         """
         Calculate the ratios of the categories
         Categories: [
@@ -419,8 +419,9 @@ class ModelPerformance:
                 )
 
         if len(final_df) == 0:
-            return None
+            return final_df
         return final_df.with_columns(
+            self.dataframe["entry_id"].alias("entry_id"),
             self.dataframe["project_id"].alias("project_id"),
             pl.lit(datetime.date.today()).alias("generated_at"),
         )
