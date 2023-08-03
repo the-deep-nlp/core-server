@@ -252,7 +252,7 @@ class ModelPerformance:
 
     def overall_projects_perf_metrics(
         self, metrics_average_type: str = "macro"
-    ) -> Optional[pl.DataFrame]:
+    ) -> pl.DataFrame:
         """
         Calculates the overall performance metrics irrespective of the projects
         Categories: [
@@ -295,7 +295,7 @@ class ModelPerformance:
                     "generated_at": datetime.date.today(),
                 }
         if not all_projects_perf_metrics:
-            return None
+            return pl.DataFrame()
         return pl.DataFrame(list(all_projects_perf_metrics.values()))
 
     def per_tag_perf_metrics(self) -> Optional[pl.DataFrame]:
@@ -364,8 +364,8 @@ class ModelPerformance:
         recall_df = generate_df_with_extra_cols(tag_recall_perf_metrics, "recall")
         f1score_df = generate_df_with_extra_cols(tag_f1score_perf_metrics, "f1score")
 
-        if precision_df is None or recall_df is None or f1score_df is None:
-            return None
+        if precision_df.is_empty() or recall_df.is_empty() or f1score_df.is_empty():
+            return pl.DataFrame()
         return pl.concat([precision_df, recall_df, f1score_df], how="vertical")
 
     def _tags_matching_ratios(
@@ -426,7 +426,7 @@ class ModelPerformance:
             pl.lit(datetime.date.today()).alias("generated_at"),
         )
 
-    def per_project_calc_ratios(self) -> Optional[pl.DataFrame]:
+    def per_project_calc_ratios(self) -> pl.DataFrame:
         """
         Calculates the per project ratio of the categories
         Categories: [
