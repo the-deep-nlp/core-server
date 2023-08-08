@@ -82,16 +82,8 @@ class FeatureDrift:
                         else cur_n_samples
                     )
 
-                    reference_df = (
-                        pl.DataFrame(reference_embedding_lst)
-                        .transpose()
-                        .sample(n=ref_n_samples, seed=random_state)
-                    )
-                    current_df = (
-                        pl.DataFrame(current_embedding_lst)
-                        .transpose()
-                        .sample(n=cur_n_samples, seed=random_state)
-                    )
+                    reference_df = pl.DataFrame(reference_embedding_lst).transpose().sample(n=ref_n_samples, seed=random_state)
+                    current_df = pl.DataFrame(current_embedding_lst).transpose().sample(n=cur_n_samples, seed=random_state)
 
                     self.data_drift_dataset_report.run(
                         reference_data=reference_df.to_pandas(),
@@ -126,7 +118,7 @@ class FeatureDrift:
                     final_result.append(temp_result)
 
         if not final_result:
-            return None
+            return pl.DataFrame()
         return pl.DataFrame._from_records(final_result)
 
 

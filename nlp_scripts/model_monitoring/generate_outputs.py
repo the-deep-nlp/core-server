@@ -62,7 +62,7 @@ class ClassificationModelOutput:
             ratio_interpreted_labels=pl.lit([0.5]),
             return_prediction_labels=pl.lit([self.prediction_generation]),
             output_backbone_embeddings=pl.lit([self.embeddings_generation]),
-            pooling_type=pl.lit(["['mean_pooling']"]),
+            pooling_type=pl.lit(["['cls', 'mean_pooling']"]),
             finetuned_task=pl.lit(["['first_level_tags']"]),
             embeddings_return_type=pl.lit(["array"]),
         )
@@ -120,7 +120,7 @@ class ClassificationModelOutput:
             )
             if self.prediction_generation:
                 for batch_model_output in batch_model_pred_op:
-                    grouped_tags = group_tags(batch_model_output)
+                    grouped_tags = group_tags(batch_model_output)[0]
                     o = {
                         item: grouped_tags[item]
                         if item in grouped_tags.keys()

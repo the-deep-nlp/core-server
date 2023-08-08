@@ -8,6 +8,7 @@ from functools import partial
 from ast import literal_eval
 
 import polars as pl
+import numpy as np
 from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.metrics import precision_recall_fscore_support
 
@@ -35,6 +36,8 @@ warnings.filterwarnings("ignore")
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
+ROUNDOFF_DIGITS = 3
 
 class ModelPerformance:
     """
@@ -70,7 +73,7 @@ class ModelPerformance:
             if category in self.dataframe.columns:
                 self.dataframe.with_columns(
                     pl.col(category)
-                    .apply(literal_eval)
+                    .apply(try_literal_eval)
                     .cast(pl.List(pl.Utf8))
                     .alias(category)
                 )
@@ -236,16 +239,16 @@ class ModelPerformance:
                     if project_id not in project_perf_metrics:
                         project_perf_metrics[project_id] = {
                             "project_id": project_id,
-                            f"{category}_precision": precision,
-                            f"{category}_recall": recall,
-                            f"{category}_f1score": f1score,
+                            f"{category}_precision": np.round(precision, ROUNDOFF_DIGITS),
+                            f"{category}_recall": np.round(recall, ROUNDOFF_DIGITS),
+                            f"{category}_f1score": np.round(f1score, ROUNDOFF_DIGITS),
                             "generated_at": datetime.date.today(),
                         }
                     project_perf_metrics[project_id].update(
                         {
-                            f"{category}_precision": precision,
-                            f"{category}_recall": recall,
-                            f"{category}_f1score": f1score,
+                            f"{category}_precision": np.round(precision, ROUNDOFF_DIGITS),
+                            f"{category}_recall": np.round(recall, ROUNDOFF_DIGITS),
+                            f"{category}_f1score": np.round(f1score, ROUNDOFF_DIGITS),
                         }
                     )
         return pl.DataFrame(list(project_perf_metrics.values()))
@@ -289,9 +292,9 @@ class ModelPerformance:
                 )
                 all_projects_perf_metrics[category] = {
                     "category": category,
-                    "precision": precision,
-                    "recall": recall,
-                    "f1score": f1score,
+                    "precision": np.round(precision, ROUNDOFF_DIGITS),
+                    "recall": np.round(recall, ROUNDOFF_DIGITS),
+                    "f1score": np.round(f1score, ROUNDOFF_DIGITS),
                     "generated_at": datetime.date.today(),
                 }
         if not all_projects_perf_metrics:
@@ -352,15 +355,13 @@ class ModelPerformance:
                     zero_division=0,
                 )
                 for tag, metricval in zip(cat_to_tags[category], precision):
-                    tag_precision_perf_metrics[tag] = metricval
+                    tag_precision_perf_metrics[tag] = np.round(metricval, ROUNDOFF_DIGITS)
                 for tag, metricval in zip(cat_to_tags[category], recall):
-                    tag_recall_perf_metrics[tag] = metricval
+                    tag_recall_perf_metrics[tag] = np.round(metricval, ROUNDOFF_DIGITS)
                 for tag, metricval in zip(cat_to_tags[category], f1score):
-                    tag_f1score_perf_metrics[tag] = metricval
+                    tag_f1score_perf_metrics[tag] = np.round(metricval, ROUNDOFF_DIGITS)
 
-        precision_df = generate_df_with_extra_cols(
-            tag_precision_perf_metrics, "precision"
-        )
+        precision_df = generate_df_with_extra_cols(tag_precision_perf_metrics, "precision")
         recall_df = generate_df_with_extra_cols(tag_recall_perf_metrics, "recall")
         f1score_df = generate_df_with_extra_cols(tag_f1score_perf_metrics, "f1score")
 
@@ -378,9 +379,9 @@ class ModelPerformance:
         missing = [e1 > e2 for e1, e2 in zip(gt_embed, pred_embed)]
         wrong = [e1 < e2 for e1, e2 in zip(gt_embed, pred_embed)]
         return {
-            f"{category}_completely_matched": sum(completely_matched) / len(gt_embed),
-            f"{category}_missing": sum(missing) / len(gt_embed),
-            f"{category}_wrong": sum(wrong) / len(gt_embed),
+            f"{category}_completely_matched": round(sum(completely_matched) / len(gt_embed), ROUNDOFF_DIGITS),
+            f"{category}_missing": round(sum(missing) / len(gt_embed), ROUNDOFF_DIGITS),
+            f"{category}_wrong": round(sum(wrong) / len(gt_embed), ROUNDOFF_DIGITS),
         }
 
     def calculate_ratios(self) -> pl.DataFrame:
@@ -458,18 +459,18 @@ class ModelPerformance:
                 if f"{category}_completely_matched" in project_grp_df.columns:
                     temp_df = temp_df.with_columns(
                         pl.lit(
-                            project_grp_df[f"{category}_completely_matched"].mean()
+                            np.round(project_grp_df[f"{category}_completely_matched"].mean(), ROUNDOFF_DIGITS)
                         ).alias(f"{category}_completely_matched_mean")
                     )
                 if f"{category}_missing" in project_grp_df.columns:
                     temp_df = temp_df.with_columns(
-                        pl.lit(project_grp_df[f"{category}_missing"].mean()).alias(
+                        pl.lit(np.round(project_grp_df[f"{category}_missing"].mean(), ROUNDOFF_DIGITS)).alias(
                             f"{category}_missing_mean"
                         )
                     )
                 if f"{category}_wrong" in project_grp_df.columns:
                     temp_df = temp_df.with_columns(
-                        pl.lit(project_grp_df[f"{category}_wrong"].mean()).alias(
+                        pl.lit(np.round(project_grp_df[f"{category}_wrong"].mean(), ROUNDOFF_DIGITS)).alias(
                             f"{category}_wrong_mean"
                         )
                     )
