@@ -97,7 +97,9 @@ class EntryAdmin(admin.ModelAdmin):
         "original_entry_id",
         "lead",
         "excerpt",
-        "original_af_tags"
+        "original_af_tags",
+        "nlp_tags",
+        "deep_entry_created_at",
     ]
 
 

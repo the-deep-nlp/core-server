@@ -1,6 +1,6 @@
 import json
 from ast import literal_eval
-from typing import Dict, List, Tuple, Optional, Any
+from typing import Dict, List, Tuple, Optional, Union, Any
 import boto3
 from botocore.exceptions import ClientError
 
@@ -50,25 +50,37 @@ def get_model_info(
     return model_info, err_msg
 
 
-def group_tags(tags_collection: Dict) -> Dict[str, List[str]]:
+def group_tags(tags_collection: Union[Dict, List]) -> Dict[str, List[str]]:
     """
     Group tags into different categories
     """
-    tags_dict = {}
-    for key in tags_collection.keys():
-        try:
-            first_key, second_key, *_ = key.split("->")
-        except ValueError:
-            continue
-        if second_key.lower() in CATEGORIES:
-            if second_key not in tags_dict:
-                tags_dict[second_key] = []
-            tags_dict[second_key].append(key)
-        if first_key.lower() in ["subsectors", "subpillars_1d", "subpillars_2d"]:
-            if first_key not in tags_dict:
-                tags_dict[first_key] = []
-            tags_dict[first_key].append(key)
-    return tags_dict
+    tags_lst = []
+    if isinstance(tags_collection, dict):
+        tags_items = [list(tags_collection.keys())]
+    elif isinstance(tags_collection, list):
+        if isinstance(tags_collection[0], dict):
+            tags_items = [list(i.keys()) for i in tags_collection]
+        else:
+            tags_items = tags_collection
+    else:
+        return [[]]
+    for items in tags_items:
+        tags_dict = {}
+        for key in items:
+            try:
+                first_key, second_key, *_ = key.split("->")
+            except ValueError:
+                continue
+            if second_key.lower() in CATEGORIES:
+                if second_key not in tags_dict:
+                    tags_dict[second_key] = []
+                tags_dict[second_key].append(key)
+            if first_key.lower() in ["subsectors", "subpillars_1d", "subpillars_2d"]:
+                if first_key not in tags_dict:
+                    tags_dict[first_key] = []
+                tags_dict[first_key].append(key)
+        tags_lst.append(tags_dict)
+    return tags_lst
 
 
 def invoke_model_endpoint(

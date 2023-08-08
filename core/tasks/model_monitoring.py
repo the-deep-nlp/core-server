@@ -25,7 +25,7 @@ from core_server.settings import (
     AWS_SECRET_ACCESS_KEY,
     CLASSIFICATION_MODEL_ENDPOINT,
 )
-from nlp_scripts.model_monitoring.utils import get_model_info
+from nlp_scripts.model_monitoring.utils import get_model_info, group_tags
 from nlp_scripts.model_monitoring.generate_outputs import ClassificationModelOutput
 from nlp_scripts.model_monitoring.model_performance import ModelPerformance
 from nlp_scripts.model_monitoring.featuredrift import FeatureDrift
@@ -97,7 +97,6 @@ def save_model_performance(df: pl.DataFrame):
     logger.info("Saving Model Performance")
     modelperf = ModelPerformance(df)
     modelperf.label_transform()
-
     df1 = modelperf.projectwise_perf_metrics()
     if not df1.is_empty():
         save_dataframe_to_model(df1, ProjectWisePerfMetrics)
@@ -148,7 +147,8 @@ def create_feature_drift(current_data: dict, entry_len: int):
     feature_drift_df = feature_drift.compute_feature_drift(
         ref_n_samples=len(reference_data_df), cur_n_samples=len(current_df)
     )
-    if feature_drift_df is None:
+    if feature_drift_df.is_empty():
+        logger.warning("Feature drift output dataframe is empty.")
         return
     feature_drift_df = feature_drift_df.with_columns(entry_count=pl.lit(entry_len))
     save_dataframe_to_model(feature_drift_df, ComputedFeatureDrift)
@@ -179,6 +179,7 @@ def calculate_model_metrics(is_daily_calculation=True, batch_size: Optional[int]
                 "excerpt",
                 "original_af_tags",
                 "lead__project__original_project_id",
+                "nlp_tags",
             )
         )
         newly_added_entries: list[dict] = list(entries_qs) if batch_size is None \
@@ -212,19 +213,21 @@ def calculate_model_metrics(is_daily_calculation=True, batch_size: Optional[int]
         save_classification_prediction(output_df)
 
         # prepare dataframe for model performance
-        original_af_tags = df["original_af_tags"]
+        nlp_tags = df["nlp_tags"].to_list()
+        nlp_tagss = [v["nlp_tags"] for v in nlp_tags]
+        grouped_tags = group_tags(nlp_tagss)
 
-        sectors = [data.get("sectors", []) for data in original_af_tags]
-        subpillar_1d = [data.get("subpillars_1d", []) for data in original_af_tags]
-        subpillar_2d = [data.get("subpillars_2d", []) for data in original_af_tags]
+        sectors = [data.get("sectors", []) for data in grouped_tags]
+        subpillar_1d = [data.get("subpillars_1d", []) for data in grouped_tags]
+        subpillar_2d = [data.get("subpillars_2d", []) for data in grouped_tags]
 
         def _to_str_items(lst: List[List[Any]]):
             return [str(x) for x in lst]
 
-        entry_df = entry_df.with_columns(sectors=pl.Series("sectors", _to_str_items(sectors)))
-        entry_df = entry_df.with_columns(subpillars_1d=pl.Series("subpillars_1d", _to_str_items(subpillar_1d)))
-        entry_df = entry_df.with_columns(subpillars_2d=pl.Series("subpillars_2d", _to_str_items(subpillar_2d)))
-
+        entry_df = entry_df.with_columns(sectors=pl.Series("sectors", sectors))
+        entry_df = entry_df.with_columns(subpillars_1d=pl.Series("subpillars_1d", subpillar_1d))
+        entry_df = entry_df.with_columns(subpillars_2d=pl.Series("subpillars_2d", subpillar_2d))
+        
         combined_df = output_df.join(entry_df, on="entry_id")
         current_df = combined_df[["project_id", "embeddings"]]
 
@@ -233,5 +236,5 @@ def calculate_model_metrics(is_daily_calculation=True, batch_size: Optional[int]
 
         # save feature drift data
         create_feature_drift.delay(
-            current_df.to_dict(as_series=False), len(newly_added_entries)
+           current_df.to_dict(as_series=False), len(newly_added_entries)
         )
