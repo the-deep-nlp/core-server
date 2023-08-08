@@ -15,6 +15,7 @@ from sklearn.metrics import precision_recall_fscore_support
 from .utils import try_literal_eval
 
 from .constants import (
+    ROUNDOFF_DIGITS,
     CATEGORIES,
     SECTORS_LST,
     PILLARS_1D_LST,
@@ -35,9 +36,6 @@ warnings.filterwarnings("ignore")
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-
-ROUNDOFF_DIGITS = 3
 
 class ModelPerformance:
     """
