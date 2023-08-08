@@ -8,7 +8,6 @@ from django.conf import settings
 
 import polars as pl
 
-
 from core.models import (
     Entry,
     ClassificationPredictions,
@@ -25,6 +24,7 @@ from core_server.settings import (
     AWS_SECRET_ACCESS_KEY,
     CLASSIFICATION_MODEL_ENDPOINT,
 )
+from nlp_scripts.model_monitoring.constants import CATEGORIES
 from nlp_scripts.model_monitoring.utils import get_model_info, group_tags
 from nlp_scripts.model_monitoring.generate_outputs import ClassificationModelOutput
 from nlp_scripts.model_monitoring.model_performance import ModelPerformance
@@ -217,16 +217,16 @@ def calculate_model_metrics(is_daily_calculation=True, batch_size: Optional[int]
         nlp_tagss = [v["nlp_tags"] for v in nlp_tags]
         grouped_tags = group_tags(nlp_tagss)
 
-        sectors = [data.get("sectors", []) for data in grouped_tags]
-        subpillar_1d = [data.get("subpillars_1d", []) for data in grouped_tags]
-        subpillar_2d = [data.get("subpillars_2d", []) for data in grouped_tags]
+        categories_data = {}
+        for category in CATEGORIES:
+            categories_data[category] = [data.get(category, []) for data in grouped_tags]
 
         def _to_str_items(lst: List[List[Any]]):
             return [str(x) for x in lst]
 
-        entry_df = entry_df.with_columns(sectors=pl.Series("sectors", sectors))
-        entry_df = entry_df.with_columns(subpillars_1d=pl.Series("subpillars_1d", subpillar_1d))
-        entry_df = entry_df.with_columns(subpillars_2d=pl.Series("subpillars_2d", subpillar_2d))
+        for category in CATEGORIES:
+            entry_df = entry_df.with_columns(x=pl.Series(f"{category}", categories_data[category]))
+            entry_df = entry_df.rename({"x": category})
         
         combined_df = output_df.join(entry_df, on="entry_id")
         current_df = combined_df[["project_id", "embeddings"]]
