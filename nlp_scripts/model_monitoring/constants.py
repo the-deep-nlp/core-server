@@ -1,3 +1,5 @@
+ROUNDOFF_DIGITS = 3
+
 CATEGORIES = [
     "sectors",
     "pillars_1d",
