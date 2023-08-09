@@ -300,7 +300,6 @@ class ProjectWisePerfMetrics(models.Model):
     affected_precision = models.FloatField(blank=True, null=True)
     affected_recall = models.FloatField(blank=True, null=True)
 
-
     generated_at = models.DateTimeField()
 
     def __str__(self):
@@ -309,9 +308,9 @@ class ProjectWisePerfMetrics(models.Model):
 
 class TagWisePerfMetrics(models.Model):
     tags = models.CharField(max_length=250, blank=True)
-    scores = models.FloatField(blank=True, null=True)
-    metrics = models.CharField(max_length=250, blank=True, null=True)
     generated_at = models.DateTimeField()
+    score = models.FloatField(blank=True, null=True)
+    metric = models.CharField(max_length=250, blank=True, null=True)
 
     def __str__(self):
         return self.tags
