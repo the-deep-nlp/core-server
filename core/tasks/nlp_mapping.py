@@ -146,9 +146,8 @@ def get_nlp_outputs(
                                 second_last_item = all_items[-2]
                                 mapping_row = hum_mapping_sheet[
                                     hum_mapping_sheet.apply(
-                                        lambda x: second_last_item
-                                        == x["Original first level"]
-                                        and last_item == x["Original second level"],
+                                        lambda x: second_last_item == x["Original first level"] and
+                                        last_item == x["Original second level"],
                                         axis=1,
                                     )
                                 ].copy()
@@ -175,10 +174,8 @@ def get_nlp_outputs(
                                 else:
                                     first_level_mapped_row = hum_mapping_sheet[
                                         hum_mapping_sheet.apply(
-                                            lambda x: x["Original first level"]
-                                            == last_item
-                                            and str(x["Original second level"])
-                                            == "nan",
+                                            lambda x: x["Original first level"] == last_item and
+                                            str(x["Original second level"]) == "nan",
                                             axis=1,
                                         )
                                     ].copy()

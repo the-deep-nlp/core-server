@@ -492,7 +492,7 @@ class TestTextExtractionAPI(BaseTestCase):
         """
         documents = [
             {"url": "someurl", "client_id": self.CLIENT_ID},
-            {"url": "anothersomeurl", "client_id": self.CLIENT_ID+"1"},
+            {"url": "anothersomeurl", "client_id": self.CLIENT_ID + "1"},
         ]
         data = {
             "documents": documents,
@@ -529,7 +529,7 @@ class TestTextExtractionAPI(BaseTestCase):
         """
         documents = [
             {"url": "someurl", "client_id": self.CLIENT_ID},
-            {"url": "anothersomeurl", "client_id": self.CLIENT_ID+"1"},
+            {"url": "anothersomeurl", "client_id": self.CLIENT_ID + "1"},
         ]
         data = {
             "documents": documents,

@@ -145,7 +145,6 @@ def _get_id2label(frame):
     return t
 
 
-
 def _reshape_report(a):
     a = a.split("-")
     real = []

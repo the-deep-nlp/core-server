@@ -1,8 +1,6 @@
 import pandas as pd
 
-from .generate_outputs import ClassificationModelOutput
-
-from core.models import Entry, ClassificationModel
+from core.models import Entry
 from utils.transformations import batched
 
 

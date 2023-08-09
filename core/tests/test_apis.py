@@ -1,5 +1,4 @@
 from core_server.base_test import BaseTestCase
-from rest_framework.authtoken.models import Token
 
 
 class TestApiAuth(BaseTestCase):
