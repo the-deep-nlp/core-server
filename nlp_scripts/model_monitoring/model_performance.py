@@ -5,7 +5,6 @@ import json
 
 from typing import List, Dict, Optional
 from functools import partial
-from ast import literal_eval
 
 import polars as pl
 import numpy as np
@@ -36,6 +35,7 @@ warnings.filterwarnings("ignore")
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
 
 class ModelPerformance:
     """

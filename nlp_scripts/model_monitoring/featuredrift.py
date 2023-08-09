@@ -82,8 +82,12 @@ class FeatureDrift:
                         else cur_n_samples
                     )
 
-                    reference_df = pl.DataFrame(reference_embedding_lst).transpose().sample(n=ref_n_samples, seed=random_state)
-                    current_df = pl.DataFrame(current_embedding_lst).transpose().sample(n=cur_n_samples, seed=random_state)
+                    reference_df = pl.DataFrame(
+                        reference_embedding_lst
+                    ).transpose().sample(n=ref_n_samples, seed=random_state)
+                    current_df = pl.DataFrame(
+                        current_embedding_lst
+                    ).transpose().sample(n=cur_n_samples, seed=random_state)
 
                     self.data_drift_dataset_report.run(
                         reference_data=reference_df.to_pandas(),
@@ -123,8 +127,8 @@ class FeatureDrift:
 
 
 if __name__ == "__main__":
-    reference_data_path = "/home/rsh/projects/deepl/model-monitoring/csvfiles/data_with_embeddings_22000.csv"
-    current_data_path = "/home/rsh/projects/deepl/model-monitoring/csvfiles/sampled_data_with_embeddings_testset.csv"
+    reference_data_path = "data_with_embeddings_22000.csv"
+    current_data_path = "sampled_data_with_embeddings_testset.csv"
 
     reference_data_df = pl.read_csv(reference_data_path)
     current_data_df = pl.read_csv(current_data_path)
