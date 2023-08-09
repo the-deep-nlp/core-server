@@ -196,8 +196,8 @@ class TagWisePerfMetricsAdmin(admin.ModelAdmin):
     list_display = [
         "id",
         "tags",
-        "scores",
-        "metrics",
+        "score",
+        "metric",
         "generated_at",
     ]
 

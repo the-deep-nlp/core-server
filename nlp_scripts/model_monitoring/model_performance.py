@@ -316,10 +316,10 @@ class ModelPerformance:
             "specific_needs_groups"
         ]
         Input Dataframe: {category}_transformed, {category}_pred_transformed
-        Output Dataframe: tags, scores, metrics(type), generated_at
+        Output Dataframe: tags, score, metric(type), generated_at
         tags refer to list of tags
-        scores refer to the score of the performance metric (0-1)
-        metrics refer to precision, recall or f1score
+        score refer to the score of the performance metric (0-1)
+        metric refer to precision, recall or f1score
         generated_at refer to the date.
         """
 
@@ -329,10 +329,10 @@ class ModelPerformance:
             if not tags_scores_dict:
                 return None
             df_temp = pl.DataFrame(tags_scores_dict).transpose(
-                include_header=True, header_name="tags", column_names=["scores"]
+                include_header=True, header_name="tags", column_names=["score"]
             )
             return df_temp.with_columns(
-                pl.lit(metrics_type).alias("metrics"),
+                pl.lit(metrics_type).alias("metric"),
                 pl.lit(datetime.date.today()).alias("generated_at"),
             )
 
