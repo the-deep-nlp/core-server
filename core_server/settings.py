@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
+from celery.schedules import crontab
 
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
@@ -200,3 +201,38 @@ sentry_sdk.init(
     # django.contrib.auth) you may enable sending PII data.
     send_default_pii=True
 )
+
+CELERY_BEAT_SCHEDULE = {
+    "fetch_deep_data": {
+        "task": "core.tasks.get_data.fetch_deep_data",
+        "schedule": crontab(
+            minute=env("CRON_DEEP_FETCH_MINUTE"),
+            hour=env("CRON_DEEP_FETCH_HOUR"),
+        ),  # defaults to every day at 12:00 AM
+    },
+    "calculate_model_metrics": {
+        "task": "core.tasks.model_monitoring.calculate_model_metrics",
+        "schedule": crontab(
+            minute="*/1",
+        ),
+    },
+    "fetch_new_projects": {
+        "task": "core.tasks.get_data.fetch_new_projects",
+        "schedule": crontab(
+            hour="*/12",  # Do it every 12 hours
+            minute="0",
+        ),
+    },
+    "retry_failed_callbacks": {
+        "task": "core.tasks.resend_failed_callbacks",
+        "schedule": crontab(
+            minute=env("CRON_FAILED_CALLBACK_SCHEDULE"),
+        ),
+    },
+    "process_pending_nlp_requests": {
+        "task": "analysis_module.tasks.process_pending_nlp_requests",
+        "schedule": crontab(
+            minute=env("CRON_RESEND_ECS_REQUEST_MINUTES"),
+        ),
+    },
+}
