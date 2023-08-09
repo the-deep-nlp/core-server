@@ -50,7 +50,7 @@ def get_model_info(
     return model_info, err_msg
 
 
-def group_tags(tags_collection: Union[Dict, List]) -> Dict[str, List[str]]:
+def group_tags(tags_collection: Union[Dict, List]) -> List[Dict[str, List[str]]]:
     """
     Group tags into different categories
     """
@@ -63,7 +63,7 @@ def group_tags(tags_collection: Union[Dict, List]) -> Dict[str, List[str]]:
         else:
             tags_items = tags_collection
     else:
-        return [[]]
+        return [{}]
     for items in tags_items:
         tags_dict = {}
         for key in items:
