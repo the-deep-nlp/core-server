@@ -105,9 +105,9 @@ def save_model_performance(df: pl.DataFrame):
 
     df2 = modelperf.per_tag_perf_metrics()
     if not df2.is_empty():
-       save_dataframe_to_model(df2, TagWisePerfMetrics)
+        save_dataframe_to_model(df2, TagWisePerfMetrics)
     else:
-       logger.info("Empty tag performance data")
+        logger.info("Empty tag performance data")
 
     df3 = modelperf.overall_projects_perf_metrics()
     if not df3.is_empty():
@@ -227,7 +227,7 @@ def calculate_model_metrics(is_daily_calculation=True, batch_size: Optional[int]
         for category in CATEGORIES:
             entry_df = entry_df.with_columns(x=pl.Series(f"{category}", categories_data[category]))
             entry_df = entry_df.rename({"x": category})
-        
+
         combined_df = output_df.join(entry_df, on="entry_id")
         current_df = combined_df[["project_id", "embeddings"]]
 
@@ -235,6 +235,4 @@ def calculate_model_metrics(is_daily_calculation=True, batch_size: Optional[int]
         create_model_performance.delay(combined_df.to_dicts())
 
         # save feature drift data
-        create_feature_drift.delay(
-           current_df.to_dict(as_series=False), len(newly_added_entries)
-        )
+        create_feature_drift.delay(current_df.to_dict(as_series=False), len(newly_added_entries))

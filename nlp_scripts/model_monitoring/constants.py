@@ -213,4 +213,3 @@ AFFECTED_LST = [
     "first_level_tags->Affected->Displaced",
     "first_level_tags->Affected->Non displaced"
 ]
-
