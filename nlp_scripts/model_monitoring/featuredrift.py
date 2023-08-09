@@ -1,7 +1,7 @@
 import datetime
 import warnings
 
-from typing import List, Optional, Any
+from typing import List, Optional
 from tqdm import tqdm
 
 import numpy as np

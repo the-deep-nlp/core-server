@@ -42,7 +42,19 @@ class ModelPerformance:
 
     def __init__(self, dataframe: pl.DataFrame):
         """
-        Categories: ["sectors", "pillars_1d", "pillars_2d", "subpillars_1d", "subpillars_2d", "age", "displaced", "gender", "non displaced", "severity", "specific_needs_groups"]
+        Categories: [
+            "sectors",
+            "pillars_1d",
+            "pillars_2d",
+            "subpillars_1d",
+            "subpillars_2d",
+            "age",
+            "displaced",
+            "gender",
+            "non displaced",
+            "severity",
+            "specific_needs_groups"
+        ]
         Input Dataframe: project_id, {category}
         """
         self.dataframe = dataframe
@@ -178,7 +190,19 @@ class ModelPerformance:
     ) -> pl.DataFrame:
         """
         Calculates the project wise performance metrics
-        Categories: ["sectors", "pillars_1d", "pillars_2d", "subpillars_1d", "subpillars_2d", "age", "displaced", "gender", "non displaced", "severity", "specific_needs_groups"]
+        Categories: [
+            "sectors",
+            "pillars_1d",
+            "pillars_2d",
+            "subpillars_1d",
+            "subpillars_2d",
+            "age",
+            "displaced",
+            "gender",
+            "non displaced",
+            "severity",
+            "specific_needs_groups"
+        ]
         Input Dataframe: project_id, {category}_transformed, {category}_pred_transformed
         Output Dataframe: project_id, {category}_precision, {category}_recall, {category}_f1score, generated_at
         """
@@ -224,7 +248,19 @@ class ModelPerformance:
     ) -> Optional[pl.DataFrame]:
         """
         Calculates the overall performance metrics irrespective of the projects
-        Categories: ["sectors", "pillars_1d", "pillars_2d", "subpillars_1d", "subpillars_2d", "age", "displaced", "gender", "non displaced", "severity", "specific_needs_groups"]
+        Categories: [
+            "sectors",
+            "pillars_1d",
+            "pillars_2d",
+            "subpillars_1d",
+            "subpillars_2d",
+            "age",
+            "displaced",
+            "gender",
+            "non displaced",
+            "severity",
+            "specific_needs_groups"
+        ]
         Input Dataframe: {category}_transformed, {category}_pred_transformed
         Output Dataframe: category, precision, recall, f1score, generated_at
         category: List of group as mentioned above
@@ -258,7 +294,19 @@ class ModelPerformance:
     def per_tag_perf_metrics(self) -> Optional[pl.DataFrame]:
         """
         Calculates the performance metrics per tag
-        Categories: ["sectors", "pillars_1d", "pillars_2d", "subpillars_1d", "subpillars_2d", "age", "displaced", "gender", "non displaced", "severity", "specific_needs_groups"]
+        Categories: [
+            "sectors",
+            "pillars_1d",
+            "pillars_2d",
+            "subpillars_1d",
+            "subpillars_2d",
+            "age",
+            "displaced",
+            "gender",
+            "non displaced",
+            "severity",
+            "specific_needs_groups"
+        ]
         Input Dataframe: {category}_transformed, {category}_pred_transformed
         Output Dataframe: tags, scores, metrics(type), generated_at
         tags refer to list of tags
@@ -331,7 +379,19 @@ class ModelPerformance:
     def calculate_ratios(self) -> Optional[pl.DataFrame]:
         """
         Calculate the ratios of the categories
-        Categories: ["sectors", "pillars_1d", "pillars_2d", "subpillars_1d", "subpillars_2d", "age", "displaced", "gender", "non displaced", "severity", "specific_needs_groups"]
+        Categories: [
+            "sectors",
+            "pillars_1d",
+            "pillars_2d",
+            "subpillars_1d",
+            "subpillars_2d",
+            "age",
+            "displaced",
+            "gender",
+            "non displaced",
+            "severity",
+            "specific_needs_groups"
+        ]
         Input Dataframe: project_id, {category}_transformed, {category}_pred_transformed
         Output Dataframe: project_id, completely_matched_{category}, missing_{category}, wrong_{category}, generated_at
         """
@@ -361,9 +421,22 @@ class ModelPerformance:
     def per_project_calc_ratios(self) -> Optional[pl.DataFrame]:
         """
         Calculates the per project ratio of the categories
-        Categories: ["sectors", "pillars_1d", "pillars_2d", "subpillars_1d", "subpillars_2d", "age", "displaced", "gender", "non displaced", "severity", "specific_needs_groups"]
+        Categories: [
+            "sectors",
+            "pillars_1d",
+            "pillars_2d",
+            "subpillars_1d",
+            "subpillars_2d",
+            "age",
+            "displaced",
+            "gender",
+            "non displaced",
+            "severity",
+            "specific_needs_groups"
+        ]
         Input Dataframe: project_id, completely_matched_{category}, missing_{category}, wrong_{category},
-        Output Dataframe: project_id, completely_matched_{category}_mean, missing_{category}_mean, wrong_{category}_mean, generated_at
+        Output Dataframe: project_id, completely_matched_{category}_mean,\
+        missing_{category}_mean, wrong_{category}_mean, generated_at
         """
         ratios_df = self.calculate_ratios()
         if ratios_df is None:

@@ -17,7 +17,6 @@ from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
 
-from core_server.tasks_settings import CELERY_BEAT_SCHEDULE
 from core_server.env import env
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.

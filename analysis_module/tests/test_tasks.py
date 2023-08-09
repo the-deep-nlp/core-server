@@ -51,14 +51,7 @@ class TestFailedCallback(BaseTestCase):
         assert failed_callback.status == FailedCallback.Status.FAILED
 
     def test_get_failed_callbacks(self):
-        successful_callback = self.create_failed_callback(
-            status=FailedCallback.Status.SUCCESS
-        )
         now = datetime.now()
-        retry_maxed_callback = self.create_failed_callback(
-            status=FailedCallback.Status.RETRY_MAXED_OUT,
-            created_at=now - timedelta(hours=20),
-        )
         old_callback = self.create_failed_callback(
             status=FailedCallback.Status.RETRYING,
         )

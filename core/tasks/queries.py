@@ -175,7 +175,6 @@ select * from (
               e.created_at >= '{}' and
               e.excerpt is not NULL and
               e.excerpt <> ''
-              
       ) res
   group by
       res.id

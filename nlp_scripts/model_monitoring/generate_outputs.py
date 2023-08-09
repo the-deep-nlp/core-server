@@ -1,4 +1,3 @@
-import json
 import logging
 from typing import Dict, Optional, Tuple, Any
 
@@ -93,9 +92,9 @@ class ClassificationModelOutput:
             endpoint_name=self.endpoint_name,
         )
         if (
-            self.prediction_generation
-            and "raw_predictions" in outputs
-            and "thresholds" in outputs
+            self.prediction_generation and
+            "raw_predictions" in outputs and
+            "thresholds" in outputs
         ):
             predictions = outputs["raw_predictions"]
             thresholds = outputs["thresholds"]
