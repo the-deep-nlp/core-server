@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 import warnings
 
 from typing import List, Optional
@@ -118,7 +118,7 @@ class FeatureDrift:
                     temp_result["dataset_drift"] = temp_result[
                         "drift_share"
                     ] = data_drift_report["metrics"][0]["result"]["dataset_drift"]
-                    temp_result["generated_at"] = datetime.date.today()
+                    temp_result["generated_at"] = datetime.now()
                     final_result.append(temp_result)
 
         if not final_result:

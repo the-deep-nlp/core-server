@@ -1,5 +1,5 @@
 import logging
-import datetime
+from datetime import datetime
 import warnings
 import json
 
@@ -60,6 +60,7 @@ class ModelPerformance:
         Input Dataframe: project_id, {category}
         """
         self.dataframe = dataframe
+        self.datetime_now = datetime.now()
         self._preprocess_data()
         self._create_mlb_mappings()
 
@@ -240,7 +241,7 @@ class ModelPerformance:
                             f"{category}_precision": np.round(precision, ROUNDOFF_DIGITS),
                             f"{category}_recall": np.round(recall, ROUNDOFF_DIGITS),
                             f"{category}_f1score": np.round(f1score, ROUNDOFF_DIGITS),
-                            "generated_at": datetime.date.today(),
+                            "generated_at": self.datetime_now,
                         }
                     project_perf_metrics[project_id].update(
                         {
@@ -293,7 +294,7 @@ class ModelPerformance:
                     "precision": np.round(precision, ROUNDOFF_DIGITS),
                     "recall": np.round(recall, ROUNDOFF_DIGITS),
                     "f1score": np.round(f1score, ROUNDOFF_DIGITS),
-                    "generated_at": datetime.date.today(),
+                    "generated_at": self.datetime_now,
                 }
         if not all_projects_perf_metrics:
             return pl.DataFrame()
@@ -333,7 +334,7 @@ class ModelPerformance:
             )
             return df_temp.with_columns(
                 pl.lit(metrics_type).alias("metric"),
-                pl.lit(datetime.date.today()).alias("generated_at"),
+                pl.lit(self.datetime_now).alias("generated_at"),
             )
 
         cat_to_tags: Dict[str, List[str]] = self._category_to_tags()
@@ -422,7 +423,7 @@ class ModelPerformance:
         return final_df.with_columns(
             self.dataframe["entry_id"].alias("entry_id"),
             self.dataframe["project_id"].alias("project_id"),
-            pl.lit(datetime.date.today()).alias("generated_at"),
+            pl.lit(self.datetime_now).alias("generated_at"),
         )
 
     def per_project_calc_ratios(self) -> pl.DataFrame:
@@ -477,7 +478,7 @@ class ModelPerformance:
                 continue
             temp_df = temp_df.with_columns(
                 pl.lit(project_id).alias("project_id"),
-                pl.lit(datetime.date.today()).alias("generated_at"),
+                pl.lit(self.datetime_now).alias("generated_at"),
             )
             final_df = pl.concat([final_df, temp_df], how="vertical")
         return final_df
