@@ -215,7 +215,7 @@ def fetch_project_leads(
     else:
         columns = []
         # fetched in asc order
-        batch_size = 500
+        batch_size = 1
         for i, row_batch in enumerate(batched(rows, batch_size)):
             columns = (
                 columns if columns else [c.name for c in cursor.description]
@@ -296,7 +296,7 @@ def fetch_project_entries(
         return
     else:
         columns = []
-        batch_size = 500
+        batch_size = 20
         for i, row_batch in enumerate(batched(rows, batch_size)):
             # NOTE: Although it seems like we can move columns before the loop,
             # but since it is just an iterator, there is nothing available
