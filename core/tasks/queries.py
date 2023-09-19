@@ -111,7 +111,7 @@ FROM
 LEFT JOIN lead_leadpreview lp on lp.lead_id = ll.id
 WHERE
     ll.project_id={} and
-    ll.created_at >= '{}'
+    ll.created_at > '{}'
 order by ll.created_at asc
 """
 
@@ -172,7 +172,7 @@ select * from (
               analysis_framework_exportable ex ON ex.id = ee.exportable_id
           where
               e.project_id = {} and
-              e.created_at >= '{}' and
+              e.created_at > '{}' and
               e.excerpt is not NULL and
               e.excerpt <> ''
       ) res
