@@ -45,6 +45,8 @@ x-server: &base-server-config
     # ECS endpoints
     SUMMARIZATION_V2_ECS_ENDPOINT: ${SUMMARIZATION_V2_ECS_ENDPOINT:?Provide summarization v2 endpoint}
     TEXTEXTRACTION_ECS_ENDPOINT: ${TEXTEXTRACTION_ECS_ENDPOINT:?Provide text extraction endpoint}
+    ENTRYEXTRACTION_ECS_ENDPOINT: ${ENTRYEXTRACTION_ECS_ENDPOINT:?Provide entry extraction endpoint}
+
 
   tty: true
   depends_on:

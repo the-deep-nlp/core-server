@@ -451,6 +451,7 @@ class NLPRequest(BaseModel):
         TAGS_MAPPING = "tags-mapping", "Tags Mapping"
         ENTRY_CLASSIFICATION = "entry-classification", "Entry Classification"
         TEXT_EXTRACTION = "text-extraction", "Text Extraction"
+        ENTRY_EXTRACTION = "entry-extraction-classification", "Entry Extraction Classification"
 
     client_id = models.CharField(max_length=50)
     status = models.IntegerField(choices=RequestStatus.choices, default=RequestStatus.INITIATED)

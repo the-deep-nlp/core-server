@@ -90,3 +90,57 @@ class TextExtractionSerializer(serializers.Serializer):
         default=ExtractionRequestTypeChoices.SYSTEM,
     )
     mock = serializers.BooleanField(default=False)
+
+
+class DocumentURLSerializer(serializers.Serializer):
+    
+    url = serializers.URLField()
+    client_id = serializers.CharField()
+
+
+class DocumentTextExtractionIdSerializer(serializers.Serializer):
+   
+    text_extraction_id = serializers.CharField()
+    client_id = serializers.CharField()
+
+
+class DocumentEntryExtractionUnionField(serializers.ListField):
+
+    def to_internal_value(self, data):
+        
+        data = super().to_internal_value(data)
+
+        result = []
+        for item in data:
+
+            url_serializer = DocumentURLSerializer(data=item)
+            text_extraction_serializer = DocumentTextExtractionIdSerializer(data=item)
+            
+            if url_serializer.is_valid():
+                result.append(url_serializer.validated_data)
+            elif text_extraction_serializer.is_valid():
+                result.append(text_extraction_serializer.validated_data)
+            else:
+                errors = {}
+                errors.update(url_serializer.errors)
+                errors.update(text_extraction_serializer.errors)
+                raise serializers.ValidationError(errors)
+                
+        return result
+
+    def to_representation(self, value):
+        return [
+            DocumentURLSerializer(item).data if 'url' in item
+            else DocumentTextExtractionIdSerializer(item).data
+            for item in value
+        ]
+
+class EntryExtractionSerializer(serializers.Serializer):
+    
+    documents = DocumentEntryExtractionUnionField()
+    callback_url = serializers.CharField()
+    request_type = serializers.ChoiceField(
+        choices=ExtractionRequestTypeChoices,
+        default=ExtractionRequestTypeChoices.SYSTEM,
+    )
+    mock = serializers.BooleanField(default=False)

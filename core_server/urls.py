@@ -29,6 +29,10 @@ from analysis_module.views.predictions import (
     entry_classification,
     nlp_tags,
 )
+
+from analysis_module.views.entry_extraction import (
+    entry_extraction
+)
 from analysis_module.views.text_extraction import text_extraction
 from core.views import token_auth_dummy_view
 
@@ -37,6 +41,7 @@ urlpatterns = [
     path("api/v1/topicmodel/", topic_modeling),
     path("api/v1/summarization/", summarization),
     path("api/v1/text-extraction/", text_extraction),
+    path("api/v1/entry-extraction-classification", entry_extraction),
     path("api/v1/ngrams/", ngrams),
     path("api/v1/geolocation/", geolocation),
     path("api/v1/tags-mapping/", tags_mapping),
