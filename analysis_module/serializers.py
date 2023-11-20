@@ -93,13 +93,13 @@ class TextExtractionSerializer(serializers.Serializer):
 
 
 class DocumentURLSerializer(serializers.Serializer):
-    
+
     url = serializers.URLField()
     client_id = serializers.CharField()
 
 
 class DocumentTextExtractionIdSerializer(serializers.Serializer):
-   
+
     text_extraction_id = serializers.CharField()
     client_id = serializers.CharField()
 
@@ -107,7 +107,7 @@ class DocumentTextExtractionIdSerializer(serializers.Serializer):
 class DocumentEntryExtractionUnionField(serializers.ListField):
 
     def to_internal_value(self, data):
-        
+
         data = super().to_internal_value(data)
 
         result = []
@@ -115,7 +115,7 @@ class DocumentEntryExtractionUnionField(serializers.ListField):
 
             url_serializer = DocumentURLSerializer(data=item)
             text_extraction_serializer = DocumentTextExtractionIdSerializer(data=item)
-            
+
             if url_serializer.is_valid():
                 result.append(url_serializer.validated_data)
             elif text_extraction_serializer.is_valid():
@@ -125,7 +125,7 @@ class DocumentEntryExtractionUnionField(serializers.ListField):
                 errors.update(url_serializer.errors)
                 errors.update(text_extraction_serializer.errors)
                 raise serializers.ValidationError(errors)
-                
+
         return result
 
     def to_representation(self, value):
@@ -135,8 +135,9 @@ class DocumentEntryExtractionUnionField(serializers.ListField):
             for item in value
         ]
 
+
 class EntryExtractionSerializer(serializers.Serializer):
-    
+
     documents = DocumentEntryExtractionUnionField()
     callback_url = serializers.CharField()
     request_type = serializers.ChoiceField(

@@ -168,7 +168,7 @@ def send_ecs_http_request(nlp_request: NLPRequest):
         if not ecs_id_param_name \
         else {
             **nlp_request.request_params,
-            ecs_id_param_name: str(nlp_request.unique_id), # insert dinamically the unique id and respective task key 
+            ecs_id_param_name: str(nlp_request.unique_id),  # insert dinamically the unique id and respective task key
         }
     try:
         response = requests.post(
@@ -193,7 +193,7 @@ def get_ecs_id_param_name(request_type: NLPRequest.FeaturesType):
     if request_type == NLPRequest.FeaturesType.TEXT_EXTRACTION:
         return "textextraction_id"
     if request_type == NLPRequest.FeaturesType.TEXT_EXTRACTION:
-        return "entryextraction_id" # not needed probably, just to be in line with the rest. 
+        return "entryextraction_id"  # not needed probably, just to be in line with the rest.
     return None
 
 

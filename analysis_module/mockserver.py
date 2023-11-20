@@ -288,7 +288,7 @@ def process_extraction_mock(body) -> Any:
         )
         # TODO: image_path key, val shall be added later when requested
         callback_data = {
-            "text_path": filepath, 
+            "text_path": filepath,
             "total_pages": 1,
             "total_words_count": 1,
             "extraction_status": 1,
@@ -314,7 +314,7 @@ def entry_extraction_mock(body) -> Any:
 @shared_task
 def process_entry_extraction_mock(body) -> Any:
     documents = body.get("documents") or []
-    
+
     callback_url = body.get("callback_url")
     if not documents or not callback_url:
         return
@@ -322,7 +322,7 @@ def process_entry_extraction_mock(body) -> Any:
     for document in documents:
         client_id = document["client_id"]
         text_extraction_id = document["text_extraction_id"]
-        #random_extracted_text = "This is some random entry extracted text"
+        # random_extracted_text = "This is some random entry extracted text"
         random_entry_extraction_classification = MOCK_ENTRY_CLASSIFICATION_FORMATTED
         random_entry_extraction_classification.update({
             "client_id": client_id,
@@ -334,10 +334,10 @@ def process_entry_extraction_mock(body) -> Any:
         )
 
         """
-        the text_extraction_id is not something easy to retrieve in case the request is 
-        set with the "url". In both cases, with the url, or the textextractionid, the text 
+        the text_extraction_id is not something easy to retrieve in case the request is
+        set with the "url". In both cases, with the url, or the textextractionid, the text
         was already extracted, and it's not (easily) to retrieve the id from the presigned url.
-        In the case of a request with the id, is instead possible to get the right document. 
+        In the case of a request with the id, is instead possible to get the right document.
         """
         callback_data = {
             "client_id": client_id,

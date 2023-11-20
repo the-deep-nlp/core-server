@@ -19,7 +19,7 @@ def entry_extraction(request: Request):
     serializer = EntryExtractionSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
 
-    data = deepcopy(serializer.validated_data) 
+    data = deepcopy(serializer.validated_data)
     items = data.pop("documents")
     if not items:
         return Response(

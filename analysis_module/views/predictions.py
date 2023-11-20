@@ -60,7 +60,7 @@ def entry_classification(request: Request):
     serializer = PredictionRequestSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     if serializer.validated_data.get("mock") or IS_MOCKSERVER:
-        return Response(MOCK_ENTRY_CLASSIFICATION)
+        return Response(MOCK_ENTRY_CLASSIFICATION_FORMATTED)
     entries = serializer.validated_data["entries"]
     if not entries:
         return Response({"classifications": []})
