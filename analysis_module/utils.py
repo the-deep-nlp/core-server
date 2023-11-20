@@ -14,7 +14,7 @@ from core.models import NLPRequest
 from core_server.settings import (
     SUMMARIZATION_V2_ECS_ENDPOINT,
     TEXT_EXTRACTION_ECS_ENDPOINT,
-    ENTRY_EXTRACTION_ECS_ENDPOINT
+    ENTRYEXTRACTION_ECS_ENDPOINT
 )
 import logging
 
@@ -203,5 +203,5 @@ def get_ecs_url(request_type: NLPRequest.FeaturesType):
     elif request_type == NLPRequest.FeaturesType.TEXT_EXTRACTION:
         return urljoin(TEXT_EXTRACTION_ECS_ENDPOINT, "/extract_document")
     elif request_type == NLPRequest.FeaturesType.ENTRY_EXTRACTION:
-        return urljoin(ENTRY_EXTRACTION_ECS_ENDPOINT, "/extract_entries")
+        return urljoin(ENTRYEXTRACTION_ECS_ENDPOINT, "/extract_entries")
     return None
