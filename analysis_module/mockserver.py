@@ -375,7 +375,7 @@ def process_mock_request(request: dict, request_type: str):
 
     if code == 200:
         resp = {
-            "client_id": [item["client_id"] for item in request["documents"]],
+            "client_id": request["documents"][0].get("client_id", ""),
             "type": request_type,
             "message": "Request has been successfully processed",
         }
