@@ -121,7 +121,7 @@ class ThirdLevel(Enum):
     )
     DwellingEnvelopeTag = ThirdLevelCategories(
         id="1502",
-        key="Dwelling enveloppe", # wrongly tag in tagging sheet and model as well. "Dwelling enveloppe"
+        key="Dwelling enveloppe",  # wrongly tag in tagging sheet and model as well. "Dwelling enveloppe"
         version=version,
         has_parent=True,
         parent_id=getattr(SecondLevel.ShelterTag.value, "id"),
