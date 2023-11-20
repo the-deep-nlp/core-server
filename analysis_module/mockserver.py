@@ -17,7 +17,7 @@ from rest_framework import status
 
 from core.models import NLPRequest
 from core_server.settings import ENDPOINT_NAME
-from .mock_templates import MOCK_ENTRY_CLASSIFICATION, MOCK_GEOLOCATION
+from .mock_templates import MOCK_ENTRY_CLASSIFICATION_FORMATTED, MOCK_GEOLOCATION
 from .utils import send_callback_url_request
 
 
@@ -286,9 +286,9 @@ def process_extraction_mock(body) -> Any:
         filepath = save_data_local_and_get_url(
             "extraction", client_id, random_extracted_text
         )
+        # TODO: image_path key, val shall be added later when requested
         callback_data = {
-            "text_path": filepath,
-            "images_path": [],
+            "text_path": filepath, 
             "total_pages": 1,
             "total_words_count": 1,
             "extraction_status": 1,
@@ -313,18 +313,24 @@ def entry_extraction_mock(body) -> Any:
 
 @shared_task
 def process_entry_extraction_mock(body) -> Any:
-    
     documents = body.get("documents") or []
-    text_extraction_id = body.get("text_extraction_id", "")
+    
     callback_url = body.get("callback_url")
     if not documents or not callback_url:
         return
 
     for document in documents:
         client_id = document["client_id"]
-        random_entry_extraction_classification = MOCK_ENTRY_CLASSIFICATION 
+        text_extraction_id = document["text_extraction_id"]
+        #random_extracted_text = "This is some random entry extracted text"
+        random_entry_extraction_classification = MOCK_ENTRY_CLASSIFICATION_FORMATTED
+        random_entry_extraction_classification.update({
+            "client_id": client_id,
+            "text_extraction_id": text_extraction_id,
+            "status": 2
+        })
         filepath = save_data_local_and_get_url(
-            "entry_extraction", client_id, random_extracted_text
+            "entry_extraction", client_id, random_entry_extraction_classification
         )
 
         """
@@ -369,7 +375,7 @@ def process_mock_request(request: dict, request_type: str):
 
     if code == 200:
         resp = {
-            "client_id": request.get("client_id"),
+            "client_id": [item["client_id"] for item in request["documents"]],
             "type": request_type,
             "message": "Request has been successfully processed",
         }

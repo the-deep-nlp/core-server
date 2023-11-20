@@ -7,7 +7,7 @@ from rest_framework import status
 from core_server.settings import IS_MOCKSERVER
 from core.models import NLPRequest
 from analysis_module.serializers import TagsMappingRequestSerializer, PredictionRequestSerializer
-from analysis_module.mockserver import MOCK_ENTRY_CLASSIFICATION
+from analysis_module.mockserver import MOCK_ENTRY_CLASSIFICATION_FORMATTED
 from nlp_scripts.model_prediction.tags_mapping import AF2NLPMapping
 from nlp_scripts.model_prediction.model_prediction import ModelTagsPrediction
 from nlp_scripts.model_prediction.utils import get_vf_list

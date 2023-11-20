@@ -41,7 +41,7 @@ urlpatterns = [
     path("api/v1/topicmodel/", topic_modeling),
     path("api/v1/summarization/", summarization),
     path("api/v1/text-extraction/", text_extraction),
-    path("api/v1/entry-extraction-classification", entry_extraction),
+    path("api/v1/entry-extraction-classification/", entry_extraction),
     path("api/v1/ngrams/", ngrams),
     path("api/v1/geolocation/", geolocation),
     path("api/v1/tags-mapping/", tags_mapping),
