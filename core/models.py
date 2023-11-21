@@ -451,12 +451,13 @@ class NLPRequest(BaseModel):
         TAGS_MAPPING = "tags-mapping", "Tags Mapping"
         ENTRY_CLASSIFICATION = "entry-classification", "Entry Classification"
         TEXT_EXTRACTION = "text-extraction", "Text Extraction"
+        ENTRY_EXTRACTION = "entry-extraction-classification", "Entry Extraction Classification"
 
     client_id = models.CharField(max_length=50)
     status = models.IntegerField(choices=RequestStatus.choices, default=RequestStatus.INITIATED)
     unique_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     result_data = models.JSONField(default=dict)
-    type = models.CharField(choices=FeaturesType.choices, max_length=20)
+    type = models.CharField(choices=FeaturesType.choices, max_length=50)
     # To capture the original request params
     request_params = models.JSONField(null=True, blank=True)
     process_attempts = models.PositiveIntegerField(default=0)

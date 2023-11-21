@@ -14,6 +14,7 @@ from core.models import NLPRequest
 from core_server.settings import (
     SUMMARIZATION_V2_ECS_ENDPOINT,
     TEXT_EXTRACTION_ECS_ENDPOINT,
+    ENTRYEXTRACTION_ECS_ENDPOINT
 )
 import logging
 
@@ -167,7 +168,7 @@ def send_ecs_http_request(nlp_request: NLPRequest):
         if not ecs_id_param_name \
         else {
             **nlp_request.request_params,
-            ecs_id_param_name: str(nlp_request.unique_id),
+            ecs_id_param_name: str(nlp_request.unique_id),  # insert dinamically the unique id and respective task key
         }
     try:
         response = requests.post(
@@ -191,6 +192,8 @@ def get_ecs_id_param_name(request_type: NLPRequest.FeaturesType):
         return "summarization_id"
     if request_type == NLPRequest.FeaturesType.TEXT_EXTRACTION:
         return "textextraction_id"
+    if request_type == NLPRequest.FeaturesType.ENTRY_EXTRACTION:
+        return "entryextraction_id"  # not needed probably, just to be in line with the rest.
     return None
 
 
@@ -199,4 +202,6 @@ def get_ecs_url(request_type: NLPRequest.FeaturesType):
         return urljoin(SUMMARIZATION_V2_ECS_ENDPOINT, "/generate_report")
     elif request_type == NLPRequest.FeaturesType.TEXT_EXTRACTION:
         return urljoin(TEXT_EXTRACTION_ECS_ENDPOINT, "/extract_document")
+    elif request_type == NLPRequest.FeaturesType.ENTRY_EXTRACTION:
+        return urljoin(ENTRYEXTRACTION_ECS_ENDPOINT, "/extract_entries")
     return None

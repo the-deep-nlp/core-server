@@ -17,255 +17,12 @@ from rest_framework import status
 
 from core.models import NLPRequest
 from core_server.settings import ENDPOINT_NAME
+from .mock_templates import MOCK_ENTRY_CLASSIFICATION, MOCK_ENTRY_CLASSIFICATION_FORMATTED, MOCK_GEOLOCATION  # noqa
 from .utils import send_callback_url_request
 
 
 logger = logging.getLogger("__name__")
 logger.setLevel(logging.INFO)
-
-
-MOCK_GEOLOCATION: List = [
-    {
-        "ent": "Cauca",
-        "offset_start": 0,
-        "offset_end": 0,
-        "geoids": [
-            {
-                "match": "Departamento del Cauca",
-                "geonameid": 3687029,
-                "latitude": 2.5,
-                "longitude": -76.83333,
-                "featurecode": "ADM1",
-                "contrycode": "CO",
-            }
-        ],
-    },
-    {
-        "ent": "Amazonas",
-        "offset_start": 0,
-        "offset_end": 0,
-        "geoids": [
-            {
-                "match": "Amazonas",
-                "geonameid": 3689982,
-                "latitude": -1.16667,
-                "longitude": -71.5,
-                "featurecode": "ADM1",
-                "contrycode": "CO",
-            }
-        ],
-    },
-    {
-        "ent": "Huila",
-        "offset_start": 0,
-        "offset_end": 0,
-        "geoids": [
-            {
-                "match": "Departamento del Huila",
-                "geonameid": 3680692,
-                "latitude": 2.5,
-                "longitude": -75.58333,
-                "featurecode": "ADM1",
-                "contrycode": "CO",
-            }
-        ],
-    },
-    {
-        "ent": "Putumayo",
-        "offset_start": 0,
-        "offset_end": 0,
-        "geoids": [
-            {
-                "match": "Departamento del Putumayo",
-                "geonameid": 3671178,
-                "latitude": 0.5,
-                "longitude": -76.0,
-                "featurecode": "ADM1",
-                "contrycode": "CO",
-            }
-        ],
-    },
-]
-
-MOCK_ENTRY_CLASSIFICATION = {
-    "classifications": [
-        {
-            "client_id": "5",
-            "model_preds": {
-                "2": {
-                    "204": {
-                        "2402": {
-                            "prediction": 0.4069949281240046,
-                            "threshold": 0.489,
-                            "is_selected": False,
-                        },
-                        "2401": {
-                            "prediction": 0.27091098129102825,
-                            "threshold": 0.461,
-                            "is_selected": False,
-                        },
-                    }
-                }
-            },
-        },
-        {
-            "client_id": "7",
-            "model_preds": {
-                "2": {
-                    "204": {
-                        "2402": {
-                            "prediction": 0.5442236220665992,
-                            "threshold": 0.489,
-                            "is_selected": True,
-                        },
-                        "2401": {
-                            "prediction": 0.4262570897824335,
-                            "threshold": 0.461,
-                            "is_selected": False,
-                        },
-                    },
-                    "202": {
-                        "2206": {
-                            "prediction": 0.25068859880169236,
-                            "threshold": 0.576,
-                            "is_selected": False,
-                        },
-                        "2201": {
-                            "prediction": 0.5456802809044823,
-                            "threshold": 0.431,
-                            "is_selected": True,
-                        },
-                    },
-                },
-                "5": {
-                    "503": {
-                        "5303": {
-                            "prediction": 0.12105567270217965,
-                            "threshold": 0.438,
-                            "is_selected": False,
-                        },
-                        "5306": {
-                            "prediction": 0.0934217669913229,
-                            "threshold": 0.424,
-                            "is_selected": False,
-                        },
-                        "5310": {
-                            "prediction": 0.2706523782039786,
-                            "threshold": 0.478,
-                            "is_selected": False,
-                        },
-                        "5302": {
-                            "prediction": 0.10373815047470006,
-                            "threshold": 0.44,
-                            "is_selected": False,
-                        },
-                        "5307": {
-                            "prediction": 0.10675184680643865,
-                            "threshold": 0.414,
-                            "is_selected": False,
-                        },
-                        "5309": {
-                            "prediction": 0.15713495668023825,
-                            "threshold": 0.512,
-                            "is_selected": False,
-                        },
-                        "5308": {
-                            "prediction": 0.2450807941587348,
-                            "threshold": 0.475,
-                            "is_selected": False,
-                        },
-                        "5301": {
-                            "prediction": 0.16692731163052263,
-                            "threshold": 0.488,
-                            "is_selected": False,
-                        },
-                        "5305": {
-                            "prediction": 0.09886651321893601,
-                            "threshold": 0.508,
-                            "is_selected": False,
-                        },
-                        "5304": {
-                            "prediction": 0.18824445637496742,
-                            "threshold": 0.444,
-                            "is_selected": False,
-                        },
-                    },
-                    "501": {
-                        "5102": {
-                            "prediction": 0.21789910171917756,
-                            "threshold": 0.541,
-                            "is_selected": False,
-                        },
-                        "5109": {
-                            "prediction": 0.3480727123794051,
-                            "threshold": 0.454,
-                            "is_selected": False,
-                        },
-                        "5106": {
-                            "prediction": 0.23486564947864202,
-                            "threshold": 0.381,
-                            "is_selected": False,
-                        },
-                        "5108": {
-                            "prediction": 0.05966722541108756,
-                            "threshold": 0.527,
-                            "is_selected": False,
-                        },
-                        "5111": {
-                            "prediction": 0.46915922655621894,
-                            "threshold": 0.447,
-                            "is_selected": True,
-                        },
-                        "5107": {
-                            "prediction": 0.3090465321041693,
-                            "threshold": 0.449,
-                            "is_selected": False,
-                        },
-                        "5101": {
-                            "prediction": 0.015221919587000888,
-                            "threshold": 0.47,
-                            "is_selected": False,
-                        },
-                        "5103": {
-                            "prediction": 0.3523940058170018,
-                            "threshold": 0.482,
-                            "is_selected": False,
-                        },
-                        "5104": {
-                            "prediction": 0.003284739766450025,
-                            "threshold": 0.786,
-                            "is_selected": False,
-                        },
-                        "5105": {
-                            "prediction": 0.22805604930227613,
-                            "threshold": 0.534,
-                            "is_selected": False,
-                        },
-                        "5110": {
-                            "prediction": 0.20070979371666908,
-                            "threshold": 0.05,
-                            "is_selected": True,
-                        },
-                    },
-                },
-                "4": {
-                    "401": {
-                        "4102": {
-                            "prediction": 0.004212768160319299,
-                            "threshold": 0.814,
-                            "is_selected": False,
-                        },
-                        "4101": {
-                            "prediction": 0.4228575605351778,
-                            "threshold": 0.422,
-                            "is_selected": True,
-                        },
-                    }
-                },
-            },
-        },
-    ]
-}
 
 
 def get_entries_data(url: str) -> Any:
@@ -525,6 +282,7 @@ def process_extraction_mock(body) -> Any:
 
     for document in documents:
         client_id = document["client_id"]
+        text_extraction_id = "12345"
         random_extracted_text = "This is some random extracted text"
         filepath = save_data_local_and_get_url(
             "extraction", client_id, random_extracted_text
@@ -534,8 +292,9 @@ def process_extraction_mock(body) -> Any:
             "images_path": [],
             "total_pages": 1,
             "total_words_count": 1,
-            "extraction_status": 1,
+            "status": 1,
             "client_id": client_id,
+            "text_extraction_id": text_extraction_id
         }
         try:
             requests.post(
@@ -543,6 +302,59 @@ def process_extraction_mock(body) -> Any:
                 json=callback_data,
                 timeout=30,
             )
+            logger.info("Successfully send data on callback url for text extraction.")
+        except Exception:
+            logger.error("Could not send data to callback url", exc_info=True)
+
+
+def entry_extraction_mock(body) -> Any:
+    process_entry_extraction_mock.apply_async(
+        args=(body,), countdown=2
+    )  # Trigger task after 2 seconds
+    return json.dumps({"status": "Successfully received the request."}), 200
+
+
+@shared_task
+def process_entry_extraction_mock(body) -> Any:
+    documents = body.get("documents") or []
+
+    callback_url = body.get("callback_url")
+    if not documents or not callback_url:
+        return
+
+    for document in documents:
+        client_id = document["client_id"]
+        text_extraction_id = document["text_extraction_id"]
+        # random_extracted_text = "This is some random entry extracted text"
+        random_entry_extraction_classification = MOCK_ENTRY_CLASSIFICATION_FORMATTED
+        random_entry_extraction_classification.update({
+            "client_id": client_id,
+            "text_extraction_id": text_extraction_id,
+            "status": 2
+        })
+        filepath = save_data_local_and_get_url(
+            "entry_extraction", client_id, random_entry_extraction_classification
+        )
+
+        """
+        the text_extraction_id is not something easy to retrieve in case the request is
+        set with the "url". In both cases, with the url, or the textextractionid, the text
+        was already extracted, and it's not (easily) to retrieve the id from the presigned url.
+        In the case of a request with the id, is instead possible to get the right document.
+        """
+        callback_data = {
+            "client_id": client_id,
+            "entry_extraction_classification_path": filepath,
+            "text_extraction_id": text_extraction_id,
+            "status": 1
+        }
+        try:
+            requests.post(
+                callback_url,
+                json=callback_data,
+                timeout=30,
+            )
+            logger.info("Successfully send data on callback url for entry extraction.")
         except Exception:
             logger.error("Could not send data to callback url", exc_info=True)
 
@@ -554,6 +366,7 @@ TYPE_ACTIONS_MOCK = {
     "ngrams": ngrams_mock_model,
     "geolocation": geolocation_mock_model,
     "text-extraction": text_extraction_mock,
+    "entry-extraction-classification": entry_extraction_mock
 }
 
 
@@ -566,7 +379,8 @@ def process_mock_request(request: dict, request_type: str):
 
     if code == 200:
         resp = {
-            "client_id": request.get("client_id"),
+            "client_id": request["documents"][0].get("client_id", "")
+            if "documents" in request else request.get("client_id", ""),
             "type": request_type,
             "message": "Request has been successfully processed",
         }
