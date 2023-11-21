@@ -192,7 +192,7 @@ def get_ecs_id_param_name(request_type: NLPRequest.FeaturesType):
         return "summarization_id"
     if request_type == NLPRequest.FeaturesType.TEXT_EXTRACTION:
         return "textextraction_id"
-    if request_type == NLPRequest.FeaturesType.TEXT_EXTRACTION:
+    if request_type == NLPRequest.FeaturesType.ENTRY_EXTRACTION:
         return "entryextraction_id"  # not needed probably, just to be in line with the rest.
     return None
 

@@ -17,7 +17,7 @@ from rest_framework import status
 
 from core.models import NLPRequest
 from core_server.settings import ENDPOINT_NAME
-from .mock_templates import MOCK_ENTRY_CLASSIFICATION, MOCK_ENTRY_CLASSIFICATION_FORMATTED, MOCK_GEOLOCATION
+from .mock_templates import MOCK_ENTRY_CLASSIFICATION, MOCK_ENTRY_CLASSIFICATION_FORMATTED, MOCK_GEOLOCATION  # noqa
 from .utils import send_callback_url_request
 
 

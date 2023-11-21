@@ -142,6 +142,6 @@ class EntryExtractionSerializer(serializers.Serializer):
     callback_url = serializers.CharField()
     request_type = serializers.ChoiceField(
         choices=ExtractionRequestTypeChoices,
-        default=ExtractionRequestTypeChoices.SYSTEM,
+        default=ExtractionRequestTypeChoices.USER,
     )
     mock = serializers.BooleanField(default=False)
