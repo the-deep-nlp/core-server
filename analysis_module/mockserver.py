@@ -282,17 +282,19 @@ def process_extraction_mock(body) -> Any:
 
     for document in documents:
         client_id = document["client_id"]
+        text_extraction_id = "12345"
         random_extracted_text = "This is some random extracted text"
         filepath = save_data_local_and_get_url(
             "extraction", client_id, random_extracted_text
         )
-        # TODO: image_path key, val shall be added later when requested
         callback_data = {
             "text_path": filepath,
+            "images_path": [],
             "total_pages": 1,
             "total_words_count": 1,
-            "extraction_status": 1,
+            "status": 1,
             "client_id": client_id,
+            "text_extraction_id": text_extraction_id
         }
         try:
             requests.post(
@@ -300,6 +302,7 @@ def process_extraction_mock(body) -> Any:
                 json=callback_data,
                 timeout=30,
             )
+            logger.info("Successfully send data on callback url for text extraction.")
         except Exception:
             logger.error("Could not send data to callback url", exc_info=True)
 
@@ -351,6 +354,7 @@ def process_entry_extraction_mock(body) -> Any:
                 json=callback_data,
                 timeout=30,
             )
+            logger.info("Successfully send data on callback url for entry extraction.")
         except Exception:
             logger.error("Could not send data to callback url", exc_info=True)
 
