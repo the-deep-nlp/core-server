@@ -420,11 +420,11 @@ class TestPredictionAPI(BaseTestCase):
         for item in predictions:
             assert "client_id" in item
             assert "model_preds" in item
-        assert NLPRequest.objects.filter(
+        assert not NLPRequest.objects.filter(
             client_id=self.CLIENT_ID,
             created_by=self.user,
             status=NLPRequest.RequestStatus.SUCCESS,
-        ).exists(), "NLP request should be created with success status"
+        ).exists(), "No nlp request should be created"
 
     @patch("analysis_module.views.predictions.ModelTagsPrediction")
     def test_prediction_mock(self, model_prediction_class):

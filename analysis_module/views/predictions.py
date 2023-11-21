@@ -7,7 +7,7 @@ from rest_framework import status
 from core_server.settings import IS_MOCKSERVER
 from core.models import NLPRequest
 from analysis_module.serializers import TagsMappingRequestSerializer, PredictionRequestSerializer
-from analysis_module.mockserver import MOCK_ENTRY_CLASSIFICATION_FORMATTED
+from analysis_module.mockserver import MOCK_ENTRY_CLASSIFICATION
 from nlp_scripts.model_prediction.tags_mapping import AF2NLPMapping
 from nlp_scripts.model_prediction.model_prediction import ModelTagsPrediction
 from nlp_scripts.model_prediction.utils import get_vf_list
@@ -60,7 +60,7 @@ def entry_classification(request: Request):
     serializer = PredictionRequestSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     if serializer.validated_data.get("mock") or IS_MOCKSERVER:
-        return Response(MOCK_ENTRY_CLASSIFICATION_FORMATTED)
+        return Response(MOCK_ENTRY_CLASSIFICATION)
     entries = serializer.validated_data["entries"]
     if not entries:
         return Response({"classifications": []})
