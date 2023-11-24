@@ -328,9 +328,13 @@ def process_entry_extraction_mock(body) -> Any:
         # random_extracted_text = "This is some random entry extracted text"
         random_entry_extraction_classification = MOCK_ENTRY_CLASSIFICATION_FORMATTED
         random_entry_extraction_classification.update({
+            "classification_model_info": {
+                "name": "all_tags_model",
+                "version": "1.0.0"
+            },
             "client_id": client_id,
-            "text_extraction_id": text_extraction_id,
-            "status": 2
+            "entry_extraction_id": "73f9ca13-deb2-4f39-8e86-a856490bfc0d", # random
+            "text_extraction_id": text_extraction_id
         })
         filepath = save_data_local_and_get_url(
             "entry_extraction", client_id, random_entry_extraction_classification
