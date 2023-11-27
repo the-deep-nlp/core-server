@@ -268,6 +268,7 @@ MOCK_ENTRY_CLASSIFICATION_FORMATTED: Dict = {
                     "led to moderate drought conditions this year that lasted till late April",
             "textOrder": 1,
             "relevant": True,
+            "prediction_status": True,
             "classification": {
                 "1": {
                     "101": {
@@ -785,6 +786,7 @@ MOCK_ENTRY_CLASSIFICATION_FORMATTED: Dict = {
                     "crop damage to varying degrees across the country (IFRC EPoA 07/10/2019).",
             "textOrder": 2,
             "relevant": True,
+            "prediction_status": True,
             "classification": {
                 "1": {
                     "101": {
@@ -1297,6 +1299,7 @@ MOCK_ENTRY_CLASSIFICATION_FORMATTED: Dict = {
             "text": "This is a non-relevant text",
             "textOrder": 3,
             "relevant": False,
+            "prediction_status": False,
             "classification": None
         }
     ]
