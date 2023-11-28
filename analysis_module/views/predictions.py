@@ -10,7 +10,7 @@ from analysis_module.serializers import TagsMappingRequestSerializer, Prediction
 from analysis_module.mockserver import MOCK_ENTRY_CLASSIFICATION
 from nlp_scripts.model_prediction.tags_mapping import AF2NLPMapping
 from nlp_scripts.model_prediction.model_prediction import ModelTagsPrediction
-from nlp_scripts.model_prediction.utils import get_vf_list
+from nlp_scripts.model_prediction.all_tags_mapping import get_vf_list
 
 import logging
 
