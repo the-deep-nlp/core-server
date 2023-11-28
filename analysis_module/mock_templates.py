@@ -1300,7 +1300,7 @@ MOCK_ENTRY_CLASSIFICATION_FORMATTED: Dict = {
             "textOrder": 3,
             "relevant": False,
             "prediction_status": False,
-            "classification": None
+            "classification": {}
         }
     ]
 }
