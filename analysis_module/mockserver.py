@@ -333,7 +333,7 @@ def process_entry_extraction_mock(body) -> Any:
                 "version": "1.0.0"
             },
             "client_id": client_id,
-            "entry_extraction_id": "73f9ca13-deb2-4f39-8e86-a856490bfc0d", # random
+            "entry_extraction_id": "73f9ca13-deb2-4f39-8e86-a856490bfc0d",  # random
             "text_extraction_id": text_extraction_id
         })
         filepath = save_data_local_and_get_url(

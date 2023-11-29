@@ -254,31 +254,36 @@ class Tags(Enum):
                                                         version=SUBPILLARS_1D_VERSION,
                                                         is_category=False,
                                                         category_id=getattr(Categories.SUBPILLARS_1D.value, "id"))
-    HUMANITARIAN_ACCESS_GAPS = MainTags(id="223",
-                                        key="Humanitarian Access->Number Of People Facing Humanitarian Access Constraints/Humanitarian Access Gaps",
-                                        version=SUBPILLARS_1D_VERSION,
-                                        is_category=False,
-                                        category_id=getattr(Categories.SUBPILLARS_1D.value, "id"))
-    INFORMATION_AND_COMMUNICATION_MEANS_AND_PREFERENCES = MainTags(id="224",
-                                                                   key="Information And Communication->Communication Means And Preferences",
-                                                                   version=SUBPILLARS_1D_VERSION,
-                                                                   is_category=False,
-                                                                   category_id=getattr(Categories.SUBPILLARS_1D.value, "id"))
-    INFORMATION_AND_COMMUNICATION_INFO_CHALLENGES_AND_BARRIERS = MainTags(id="225",
-                                                                          key="Information And Communication->Information Challenges And Barriers",
-                                                                          version=SUBPILLARS_1D_VERSION,
-                                                                          is_category=False,
-                                                                          category_id=getattr(Categories.SUBPILLARS_1D.value, "id"))
-    INFORMATION_AND_COMMUNICATION_KNOWLEDGE_AND_INFO_GAPS_POP = MainTags(id="226",
-                                                                         key="Information And Communication->Knowledge And Info Gaps (Pop)",
-                                                                         version=SUBPILLARS_1D_VERSION,
-                                                                         is_category=False,
-                                                                         category_id=getattr(Categories.SUBPILLARS_1D.value, "id"))
-    INFORMATION_AND_COMMUNICATION_KNOWLEDGE_AND_INFO_GAPS_HUM = MainTags(id="227",
-                                                                         key="Information And Communication->Knowledge And Info Gaps (Hum)",
-                                                                         version=SUBPILLARS_1D_VERSION,
-                                                                         is_category=False,
-                                                                         category_id=getattr(Categories.SUBPILLARS_1D.value, "id"))
+    HUMANITARIAN_ACCESS_GAPS = MainTags(
+        id="223",
+        key="Humanitarian Access->Number Of People Facing Humanitarian Access Constraints/Humanitarian Access Gaps",
+        version=SUBPILLARS_1D_VERSION,
+        is_category=False,
+        category_id=getattr(Categories.SUBPILLARS_1D.value, "id"))
+    INFORMATION_AND_COMMUNICATION_MEANS_AND_PREFERENCES = MainTags(
+        id="224",
+        key="Information And Communication->Communication Means And Preferences",
+        version=SUBPILLARS_1D_VERSION,
+        is_category=False,
+        category_id=getattr(Categories.SUBPILLARS_1D.value, "id"))
+    INFORMATION_AND_COMMUNICATION_INFO_CHALLENGES_AND_BARRIERS = MainTags(
+        id="225",
+        key="Information And Communication->Information Challenges And Barriers",
+        version=SUBPILLARS_1D_VERSION,
+        is_category=False,
+        category_id=getattr(Categories.SUBPILLARS_1D.value, "id"))
+    INFORMATION_AND_COMMUNICATION_KNOWLEDGE_AND_INFO_GAPS_POP = MainTags(
+        id="226",
+        key="Information And Communication->Knowledge And Info Gaps (Pop)",
+        version=SUBPILLARS_1D_VERSION,
+        is_category=False,
+        category_id=getattr(Categories.SUBPILLARS_1D.value, "id"))
+    INFORMATION_AND_COMMUNICATION_KNOWLEDGE_AND_INFO_GAPS_HUM = MainTags(
+        id="227",
+        key="Information And Communication->Knowledge And Info Gaps (Hum)",
+        version=SUBPILLARS_1D_VERSION,
+        is_category=False,
+        category_id=getattr(Categories.SUBPILLARS_1D.value, "id"))
     COVID_19_CASES = MainTags(id="228",
                               key="Covid-19->Cases",
                               version=SUBPILLARS_1D_VERSION,
@@ -315,22 +320,23 @@ class Tags(Enum):
                                     is_category=False,
                                     category_id=getattr(Categories.SUBPILLARS_1D.value, "id"))
     CONTEXT_TECHNOLOGICAL = MainTags(id="235",
-                                    key="Context->Technological",
-                                    version=SUBPILLARS_1D_VERSION,
-                                    is_category=False,
-                                    category_id=getattr(Categories.SUBPILLARS_1D.value, "id")) #
+                                     key="Context->Technological",
+                                     version=SUBPILLARS_1D_VERSION,
+                                     is_category=False,
+                                     category_id=getattr(Categories.SUBPILLARS_1D.value, "id"))  #
     COVID_19_PREVENTION_CAMPAIGN = MainTags(id="236",
-                                        key="Covid-19->Prevention campaign",
-                                        version=SUBPILLARS_1D_VERSION,
-                                        is_category=False,
-                                        category_id=getattr(Categories.SUBPILLARS_1D.value, "id")) #
-    COVID_19_RESEARCH_OUTLOOK = MainTags(id="237",
-                                         key="Covid-19->Research and outlook",
-                                         version=SUBPILLARS_1D_VERSION,
-                                         is_category=False,
-                                         category_id=getattr(Categories.SUBPILLARS_1D.value, "id")) #
+                                            key="Covid-19->Prevention campaign",
+                                            version=SUBPILLARS_1D_VERSION,
+                                            is_category=False,
+                                            category_id=getattr(Categories.SUBPILLARS_1D.value, "id"))  #
+    COVID_19_RESEARCH_OUTLOOK = MainTags(
+        id="237",
+        key="Covid-19->Research and outlook",
+        version=SUBPILLARS_1D_VERSION,
+        is_category=False,
+        category_id=getattr(Categories.SUBPILLARS_1D.value, "id"))  #
 
-    # 2D SubPillars
+    #  2D SubPillars
     AT_RISK_NUMBER_OF_PEOPLE = MainTags(id="301",
                                         key="At Risk->Number Of People At Risk",
                                         version=SUBPILLARS_2D_VERSION,
@@ -421,20 +427,20 @@ class Tags(Enum):
                                                       is_category=False,
                                                       category_id=getattr(Categories.SUBPILLARS_2D.value, "id"))
     CAPACITIES_RESPONSE_HUMANITARIAN_COORDINATION = MainTags(id="319",
-                                                       key="Capacities & response->Humanitarian coordination",
-                                                       version=SUBPILLARS_2D_VERSION,
-                                                       is_category=False,
-                                                       category_id=getattr(Categories.SUBPILLARS_2D.value, "id")) #
+                                                             key="Capacities & response->Humanitarian coordination",
+                                                             version=SUBPILLARS_2D_VERSION,
+                                                             is_category=False,
+                                                             category_id=getattr(Categories.SUBPILLARS_2D.value, "id"))  #
     CAPACITIES_RESPONSE_PEOPLE_REACHED_RESPONSE_GAPS = MainTags(id="320",
-                                                       key="Capacities & response->People reached/response gaps",
-                                                       version=SUBPILLARS_2D_VERSION,
-                                                       is_category=False,
-                                                       category_id=getattr(Categories.SUBPILLARS_2D.value, "id")) #
+                                                                key="Capacities & response->People reached/response gaps",
+                                                                version=SUBPILLARS_2D_VERSION,
+                                                                is_category=False,
+                                                                category_id=getattr(Categories.SUBPILLARS_2D.value, "id"))  #
     CAPACITIES_RESPONSE_RED_CROSS_RED_CRESCENT = MainTags(id="321",
-                                                        key="Capacities & response->Red cross/red crescent",
-                                                        version=SUBPILLARS_2D_VERSION,
-                                                        is_category=False,
-                                                        category_id=getattr(Categories.SUBPILLARS_2D.value, "id")) #
+                                                          key="Capacities & response->Red cross/red crescent",
+                                                          version=SUBPILLARS_2D_VERSION,
+                                                          is_category=False,
+                                                          category_id=getattr(Categories.SUBPILLARS_2D.value, "id"))  #
 
     # Specific Needs Group
     CHILD_HEAD_OF_HOUSEHOLD = MainTags(id="401",
@@ -498,15 +504,15 @@ class Tags(Enum):
                                                    is_category=False,
                                                    category_id=getattr(Categories.SPECIFIC_NEEDS_GROUP.value, "id"))
     LGBTQIA_PLUS = MainTags(id="413",
-                        key="Lgbtqia+",
-                        version=SPECIFIC_NEEDS_GROUP_VERSION,
-                        is_category=False,
-                        category_id=getattr(Categories.SPECIFIC_NEEDS_GROUP.value, "id"))
+                            key="Lgbtqia+",
+                            version=SPECIFIC_NEEDS_GROUP_VERSION,
+                            is_category=False,
+                            category_id=getattr(Categories.SPECIFIC_NEEDS_GROUP.value, "id"))
     UNACCOMPANIED_OR_AND_SEPARATED_CHILDREN = MainTags(id="414",
-                                                    key="Unaccompanied or/and separated children",
-                                                    version=SPECIFIC_NEEDS_GROUP_VERSION,
-                                                    is_category=False,
-                                                    category_id=getattr(Categories.SPECIFIC_NEEDS_GROUP.value, "id"))
+                                                       key="Unaccompanied or/and separated children",
+                                                       version=SPECIFIC_NEEDS_GROUP_VERSION,
+                                                       is_category=False,
+                                                       category_id=getattr(Categories.SPECIFIC_NEEDS_GROUP.value, "id"))
 
     # Gender
     FEMALE = MainTags(id="501",
@@ -550,59 +556,60 @@ class Tags(Enum):
                                       key="12-17 years old",
                                       version=AGE_VERSION,
                                       is_category=False,
-                                      category_id=getattr(Categories.AGE.value, "id")) #
+                                      category_id=getattr(Categories.AGE.value, "id"))  #
     EIGHTEEN_TWENTYFOUR_YEARS = MainTags(id="606",
-                                        key="18-24 years old",
-                                        version=AGE_VERSION,
-                                        is_category=False,
-                                        category_id=getattr(Categories.AGE.value, "id")) #
+                                         key="18-24 years old",
+                                         version=AGE_VERSION,
+                                         is_category=False,
+                                         category_id=getattr(Categories.AGE.value, "id"))  #
     EIGHTEEN_FIFTYNINE_YEARS = MainTags(id="607",
                                         key="18-59 years old",
                                         version=AGE_VERSION,
                                         is_category=False,
-                                        category_id=getattr(Categories.AGE.value, "id")) #
+                                        category_id=getattr(Categories.AGE.value, "id"))  #
     TWENTYFIVE_FIFTYNINE_YEARS = MainTags(id="608",
                                           key="25-59 years old",
                                           version=AGE_VERSION,
                                           is_category=False,
-                                          category_id=getattr(Categories.AGE.value, "id")) #
+                                          category_id=getattr(Categories.AGE.value, "id"))  #
     FIVE_ELEVEN_YEARS = MainTags(id="609",
                                  key="5-11 years old",
                                  version=AGE_VERSION,
                                  is_category=False,
-                                 category_id=getattr(Categories.AGE.value, "id")) #
+                                 category_id=getattr(Categories.AGE.value, "id"))  #
     FIVE_SEVENTEEN_YEARS = MainTags(id="610",
-                                key="5-17 years old",
-                                version=AGE_VERSION,
-                                is_category=False,
-                                category_id=getattr(Categories.AGE.value, "id")) #
-    LESS_THAN_EIGHTEEN_YEARS = MainTags(id="611",
-                                    key="<18 years",
+                                    key="5-17 years old",
                                     version=AGE_VERSION,
                                     is_category=False,
-                                    category_id=getattr(Categories.AGE.value, "id")) #
-    LESS_THAN_EIGHTEEN_YEARS_OLD = MainTags(id="612",
-                                        key="<18 years old",
+                                    category_id=getattr(Categories.AGE.value, "id"))  #
+    LESS_THAN_EIGHTEEN_YEARS = MainTags(id="611",
+                                        key="<18 years",
                                         version=AGE_VERSION,
                                         is_category=False,
-                                        category_id=getattr(Categories.AGE.value, "id")) #
+                                        category_id=getattr(Categories.AGE.value, "id"))  #
+    LESS_THAN_EIGHTEEN_YEARS_OLD = MainTags(id="612",
+                                            key="<18 years old",
+                                            version=AGE_VERSION,
+                                            is_category=False,
+                                            category_id=getattr(Categories.AGE.value, "id"))  #
     LESS_THAN_FIVE_YEARS = MainTags(id="613",
                                     key="<5 years old",
                                     version=AGE_VERSION,
                                     is_category=False,
-                                    category_id=getattr(Categories.AGE.value, "id")) #
+                                    category_id=getattr(Categories.AGE.value, "id"))  #
     GREATER_THAN_SIXTY_YEARS = MainTags(id="614",
-                                    key=">60 years old",
-                                    version=AGE_VERSION,
-                                    is_category=False,
-                                    category_id=getattr(Categories.AGE.value, "id")) #
+                                        key=">60 years old",
+                                        version=AGE_VERSION,
+                                        is_category=False,
+                                        category_id=getattr(Categories.AGE.value, "id"))  #
 
     # Demographic Groups
-    D_GRP_INFANTS_TODDLERS_LESS_THAN_5_YEARS = MainTags(id="901",
-                                                        key="Infants/Toddlers (<5 years old) ",
-                                                        version=DEMOGRAPHIC_GROUP_VERSION,
-                                                        is_category=False,
-                                                        category_id=getattr(Categories.DEMOGRAPHIC_GROUP.value, "id"))  # check this with 603
+    D_GRP_INFANTS_TODDLERS_LESS_THAN_5_YEARS = MainTags(
+        id="901",
+        key="Infants/Toddlers (<5 years old) ",
+        version=DEMOGRAPHIC_GROUP_VERSION,
+        is_category=False,
+        category_id=getattr(Categories.DEMOGRAPHIC_GROUP.value, "id"))  # check this with 603
     D_GRP_FEMALE_CHILDREN_YOUTH_5_TO_17 = MainTags(id="902",
                                                    key="Female Children/Youth (5 to 17 years old)",
                                                    version=DEMOGRAPHIC_GROUP_VERSION,
@@ -661,30 +668,30 @@ class Tags(Enum):
                           is_category=False,
                           category_id=getattr(Categories.SEVERITY.value, "id"))
     CRITICAL_ISSUE = MainTags(id="706",
-                            key="Critical issue",
-                            version=SEVERITY_VERSION,
-                            is_category=False,
-                            category_id=getattr(Categories.SEVERITY.value, "id")) #
+                              key="Critical issue",
+                              version=SEVERITY_VERSION,
+                              is_category=False,
+                              category_id=getattr(Categories.SEVERITY.value, "id"))  #
     ISSUE_OF_CONCERN = MainTags(id="707",
-                            key="Issue of concern",
+                                key="Issue of concern",
+                                version=SEVERITY_VERSION,
+                                is_category=False,
+                                category_id=getattr(Categories.SEVERITY.value, "id"))  #
+    MINOR_ISSUE = MainTags(id="708",
+                           key="Minor issue",
+                           version=SEVERITY_VERSION,
+                           is_category=False,
+                           category_id=getattr(Categories.SEVERITY.value, "id"))  #
+    NO_ISSUE = MainTags(id="709",
+                        key="No issue",
+                        version=SEVERITY_VERSION,
+                        is_category=False,
+                        category_id=getattr(Categories.SEVERITY.value, "id"))  #
+    SEVERE_ISSUE = MainTags(id="710",
+                            key="Severe issue",
                             version=SEVERITY_VERSION,
                             is_category=False,
-                            category_id=getattr(Categories.SEVERITY.value, "id")) #
-    MINOR_ISSUE = MainTags(id="708",
-                        key="Minor issue",
-                        version=SEVERITY_VERSION,
-                        is_category=False,
-                        category_id=getattr(Categories.SEVERITY.value, "id")) #
-    NO_ISSUE = MainTags(id="709",
-                    key="No issue",
-                    version=SEVERITY_VERSION,
-                    is_category=False,
-                    category_id=getattr(Categories.SEVERITY.value, "id")) #
-    SEVERE_ISSUE = MainTags(id="710",
-                        key="Severe issue",
-                        version=SEVERITY_VERSION,
-                        is_category=False,
-                        category_id=getattr(Categories.SEVERITY.value, "id")) #
+                            category_id=getattr(Categories.SEVERITY.value, "id"))  #
 
     # Affected Groups
     ASYLUM_SEEKERS = MainTags(id="801",
@@ -792,9 +799,9 @@ class Tags(Enum):
             Tags.COVID_19_RESTRICTION_MEASURES,
             Tags.COVID_19_TESTING,
             Tags.COVID_19_VACCINATION,
-            Tags.CONTEXT_TECHNOLOGICAL, #
-            Tags.COVID_19_PREVENTION_CAMPAIGN, #
-            Tags.COVID_19_RESEARCH_OUTLOOK #
+            Tags.CONTEXT_TECHNOLOGICAL,  #
+            Tags.COVID_19_PREVENTION_CAMPAIGN,  #
+            Tags.COVID_19_RESEARCH_OUTLOOK  #
         ]]
 
     @classmethod
@@ -818,9 +825,9 @@ class Tags(Enum):
             Tags.PRIORITY_INTERVENTIONS_EXPRESSED_BY_POPULATION,
             Tags.PRIORITY_NEEDS_EXPRESSED_BY_HUMANITARIAN_STAFF,
             Tags.PRIORITY_NEEDS_EXPRESSED_BY_POPULATION,
-            Tags.CAPACITIES_RESPONSE_HUMANITARIAN_COORDINATION, #
-            Tags.CAPACITIES_RESPONSE_PEOPLE_REACHED_RESPONSE_GAPS, #
-            Tags.CAPACITIES_RESPONSE_RED_CROSS_RED_CRESCENT #
+            Tags.CAPACITIES_RESPONSE_HUMANITARIAN_COORDINATION,  #
+            Tags.CAPACITIES_RESPONSE_PEOPLE_REACHED_RESPONSE_GAPS,  #
+            Tags.CAPACITIES_RESPONSE_RED_CROSS_RED_CRESCENT  #
         ]]
 
     @classmethod
@@ -838,8 +845,8 @@ class Tags(Enum):
             Tags.PREGNANT_OR_LACTATING_WOMEN,
             Tags.SINGLE_WOMEN_INCLUDING_WIDOWS,
             Tags.UNACCOMPANIED_OR_SEPARATED_CHILDREN,
-            Tags.LGBTQIA_PLUS, #
-            Tags.UNACCOMPANIED_OR_AND_SEPARATED_CHILDREN #
+            Tags.LGBTQIA_PLUS,  #
+            Tags.UNACCOMPANIED_OR_AND_SEPARATED_CHILDREN  #
         ]]
 
     @classmethod
@@ -847,7 +854,7 @@ class Tags(Enum):
         return [t.value._asdict() for t in [
             Tags.FEMALE,
             Tags.MALE,
-            Tags.ALL #
+            Tags.ALL  #
         ]]
 
     @classmethod
@@ -857,16 +864,16 @@ class Tags(Enum):
             Tags.CHILDREN_YOUTH_5_TO_17,
             Tags.INFANTS_TODDLERS_LESS_THAN_5_YEARS,
             Tags.OLDER_PERSON_60_PLUS,
-            Tags.TWELVE_SEVENTEEN_YEARS, #
-            Tags.EIGHTEEN_TWENTYFOUR_YEARS, #
-            Tags.EIGHTEEN_FIFTYNINE_YEARS, #
-            Tags.TWENTYFIVE_FIFTYNINE_YEARS, #
-            Tags.FIVE_ELEVEN_YEARS, #
-            Tags.FIVE_SEVENTEEN_YEARS, #
-            Tags.LESS_THAN_EIGHTEEN_YEARS, #
-            Tags.LESS_THAN_EIGHTEEN_YEARS_OLD, #
-            Tags.LESS_THAN_FIVE_YEARS, #
-            Tags.GREATER_THAN_SIXTY_YEARS #
+            Tags.TWELVE_SEVENTEEN_YEARS,  #
+            Tags.EIGHTEEN_TWENTYFOUR_YEARS,  #
+            Tags.EIGHTEEN_FIFTYNINE_YEARS,  #
+            Tags.TWENTYFIVE_FIFTYNINE_YEARS,  #
+            Tags.FIVE_ELEVEN_YEARS,  #
+            Tags.FIVE_SEVENTEEN_YEARS,  #
+            Tags.LESS_THAN_EIGHTEEN_YEARS,  #
+            Tags.LESS_THAN_EIGHTEEN_YEARS_OLD,  #
+            Tags.LESS_THAN_FIVE_YEARS,  #
+            Tags.GREATER_THAN_SIXTY_YEARS  #
         ]]
 
     @classmethod
@@ -889,11 +896,11 @@ class Tags(Enum):
             Tags.MINOR_PROBLEM,
             Tags.NO_PROBLEM,
             Tags.OF_CONCERN,
-            Tags.CRITICAL_ISSUE, #
-            Tags.ISSUE_OF_CONCERN, #
-            Tags.MINOR_ISSUE, #
-            Tags.NO_ISSUE, #
-            Tags.SEVERE_ISSUE, #
+            Tags.CRITICAL_ISSUE,  #
+            Tags.ISSUE_OF_CONCERN,  #
+            Tags.MINOR_ISSUE,  #
+            Tags.NO_ISSUE,  #
+            Tags.SEVERE_ISSUE,  #
         ]]
 
     @classmethod
@@ -942,9 +949,11 @@ def id_to_alias_categories():
 
 
 def get_vf_list():
+    """ Get all the NLP virtual framework list """
     show_tags = Tags.sector_list() + Tags.subpillars_1d_list() + \
-        Tags.subpillars_2d_list() + Tags.specific_needs_group_list() + Tags.demographic_group_list() + Tags.severity_list() + Tags.affected_group_list() + \
-        Tags.reliablity_list()
+        Tags.subpillars_2d_list() + Tags.specific_needs_group_list() + \
+        Tags.demographic_group_list() + Tags.severity_list() + \
+        Tags.affected_group_list() + Tags.reliablity_list()
 
     id_to_alias = id_to_alias_categories()
 
