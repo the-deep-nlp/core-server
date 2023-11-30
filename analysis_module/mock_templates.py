@@ -269,6 +269,7 @@ MOCK_ENTRY_CLASSIFICATION_FORMATTED: Dict = {
             "textOrder": 1,
             "relevant": True,
             "prediction_status": True,
+            "geolocations": ["Somalia"],
             "classification": {
                 "1": {
                     "101": {
@@ -787,6 +788,7 @@ MOCK_ENTRY_CLASSIFICATION_FORMATTED: Dict = {
             "textOrder": 2,
             "relevant": True,
             "prediction_status": True,
+            "geolocations": ["Niger", "Nigeria"],
             "classification": {
                 "1": {
                     "101": {
@@ -1300,6 +1302,7 @@ MOCK_ENTRY_CLASSIFICATION_FORMATTED: Dict = {
             "textOrder": 3,
             "relevant": False,
             "prediction_status": False,
+            "geolocations": [],
             "classification": {}
         }
     ]
