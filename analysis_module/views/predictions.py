@@ -13,6 +13,7 @@ from analysis_module.utils import send_classification_tags
 from nlp_scripts.model_prediction.tags_mapping import AF2NLPMapping
 from nlp_scripts.model_prediction.model_prediction import ModelTagsPrediction
 from nlp_scripts.model_prediction.all_tags_mapping import get_vf_list
+from analysis_module.mockserver import process_mock_request
 
 import logging
 
@@ -63,12 +64,13 @@ def entry_classification(request: Request):
     serializer.is_valid(raise_exception=True)
 
     entries = serializer.validated_data["entries"]
+    req_type = NLPRequest.FeaturesType.ENTRY_CLASSIFICATION
+
     if serializer.validated_data.get("mock") or IS_MOCKSERVER:
-        data = MOCK_ENTRY_CLASSIFICATION
-        data.update({
-            "client_id": entries[0]["client_id"]
-        })
-        return Response(data)
+        return process_mock_request(
+            request=serializer.validated_data,
+            request_type=req_type
+        )
     if not entries:
         return Response({})
     # Create a NLPRequest object
@@ -78,8 +80,6 @@ def entry_classification(request: Request):
         request_params=serializer.validated_data,
         created_by=request.user,
     )
-
-    req_type = NLPRequest.FeaturesType.ENTRY_CLASSIFICATION
 
     resp = {
         "type": req_type,
