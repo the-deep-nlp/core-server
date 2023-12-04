@@ -1,3 +1,4 @@
+from django.db import transaction
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
@@ -8,9 +9,11 @@ from core_server.settings import IS_MOCKSERVER
 from core.models import NLPRequest
 from analysis_module.serializers import TagsMappingRequestSerializer, PredictionRequestSerializer
 from analysis_module.mockserver import MOCK_ENTRY_CLASSIFICATION
+from analysis_module.utils import send_classification_tags
 from nlp_scripts.model_prediction.tags_mapping import AF2NLPMapping
 from nlp_scripts.model_prediction.model_prediction import ModelTagsPrediction
 from nlp_scripts.model_prediction.all_tags_mapping import get_vf_list
+from analysis_module.mockserver import process_mock_request
 
 import logging
 
@@ -59,11 +62,17 @@ def nlp_tags(request: Request):
 def entry_classification(request: Request):
     serializer = PredictionRequestSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    if serializer.validated_data.get("mock") or IS_MOCKSERVER:
-        return Response(MOCK_ENTRY_CLASSIFICATION)
+
     entries = serializer.validated_data["entries"]
+    req_type = NLPRequest.FeaturesType.ENTRY_CLASSIFICATION
+
+    if serializer.validated_data.get("mock") or IS_MOCKSERVER:
+        return process_mock_request(
+            request=serializer.validated_data,
+            request_type=req_type
+        )
     if not entries:
-        return Response({"classifications": []})
+        return Response({})
     # Create a NLPRequest object
     nlp_request = NLPRequest.objects.create(
         client_id=entries[0]["client_id"],
@@ -71,17 +80,45 @@ def entry_classification(request: Request):
         request_params=serializer.validated_data,
         created_by=request.user,
     )
-    predictor = ModelTagsPrediction()
-    try:
-        resp_data = predictor(entries)
-    except Exception:
-        logger.warning(
-            f"Failed processing request for nlp request {nlp_request.id}",
-            exc_info=True,
-        )
-        nlp_request.status = NLPRequest.RequestStatus.FAILED
-        return Response({}, status=status.HTTP_400_BAD_REQUEST)
-    else:
-        nlp_request.status = NLPRequest.RequestStatus.SUCCESS
-    nlp_request.save(update_fields=['status'])
-    return Response({"classifications": resp_data})
+
+    resp = {
+        "type": req_type,
+        "message": "Request has been successfully queued.",
+        "request_ids": nlp_request.unique_id
+    }
+
+    transaction.on_commit(
+        lambda: send_classification_tags.delay(nlp_request_id=nlp_request.pk)
+    )
+
+    return Response(
+        resp,
+        status=status.HTTP_202_ACCEPTED,
+    )
+
+
+    # predictor = ModelTagsPrediction()
+    # try:
+    #     entries_lst = [e["entry"] for e in entries]
+        
+    #     pred_data = predictor(entries_lst)
+    #     resp_data = {
+    #         "client_id": entries[0]["client_id"],
+    #         "model_preds": {
+    #             "classification_tags": pred_data
+    #         },
+    #         "prediction_status": NLPRequest.RequestStatus.SUCCESS,
+    #     }
+    #     logger.info("resp data on predictions")
+    #     logger.info(resp_data)
+    # except Exception:
+    #     logger.warning(
+    #         f"Failed processing request for nlp request {nlp_request.id}",
+    #         exc_info=True,
+    #     )
+    #     nlp_request.status = NLPRequest.RequestStatus.FAILED
+    #     return Response({}, status=status.HTTP_400_BAD_REQUEST)
+    # else:
+    #     nlp_request.status = NLPRequest.RequestStatus.SUCCESS
+    # nlp_request.save(update_fields=['status'])
+    # return Response(resp_data)

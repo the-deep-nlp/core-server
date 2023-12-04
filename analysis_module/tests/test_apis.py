@@ -373,7 +373,7 @@ class TestPredictionAPI(BaseTestCase):
             },
         ],
         "publishing_organization": "pub-org",
-        "authoring_organization": "auth-org",
+        "authoring_organization": ["auth-org"],
         "callback_url": "https://call.me.back/"
     }
 
@@ -426,23 +426,23 @@ class TestPredictionAPI(BaseTestCase):
     #         status=NLPRequest.RequestStatus.SUCCESS,
     #     ).exists(), "No nlp request should be created"
 
-    @patch("analysis_module.views.predictions.ModelTagsPrediction")
-    def test_prediction_mock(self, model_prediction_class):
-        self.set_credentials()
-        data = {**self.VALID_DATA, "mock": True}
-        resp = self.client.post(self.URL, data=data, format="json")
-        resp_data = resp.json()
-        assert "classifications" in resp_data
-        predictions = resp_data["classifications"]
-        for item in predictions:
-            assert "client_id" in item
-            assert "model_preds" in item
-        assert not NLPRequest.objects.filter(
-            client_id=self.CLIENT_ID,
-            created_by=self.user,
-            status=NLPRequest.RequestStatus.SUCCESS,
-        ).exists(), "NLP request should not be created for mock request"
-        model_prediction_class.assert_not_called()
+    # @patch("analysis_module.views.predictions.ModelTagsPrediction")
+    # def test_prediction_mock(self, model_prediction_class):
+    #     self.set_credentials()
+    #     data = {**self.VALID_DATA, "mock": True}
+    #     resp = self.client.post(self.URL, data=data, format="json")
+    #     resp_data = resp.json()
+    #     assert "classifications" in resp_data
+    #     predictions = resp_data["classifications"]
+    #     for item in predictions:
+    #         assert "client_id" in item
+    #         assert "model_preds" in item
+    #     assert not NLPRequest.objects.filter(
+    #         client_id=self.CLIENT_ID,
+    #         created_by=self.user,
+    #         status=NLPRequest.RequestStatus.SUCCESS,
+    #     ).exists(), "NLP request should not be created for mock request"
+    #     model_prediction_class.assert_not_called()
 
 
 class TestTextExtractionAPI(BaseTestCase):

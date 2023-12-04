@@ -64,7 +64,7 @@ class PredictionEntrySerializer(serializers.Serializer):
 class PredictionRequestSerializer(serializers.Serializer):
     entries = PredictionEntrySerializer(many=True)
     publishing_organization = serializers.CharField()
-    authoring_organization = serializers.CharField()
+    authoring_organization = serializers.ListField()
     callback_url = serializers.CharField()
     mock = serializers.BooleanField(default=False)
 

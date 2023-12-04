@@ -7,6 +7,8 @@ import uuid
 from celery import shared_task
 from urllib.parse import urljoin
 from typing import Dict, Literal, List, Any
+from nlp_scripts.model_prediction.model_prediction import ModelTagsPrediction
+from nlp_scripts.model_prediction.geolocation import get_geolocations
 
 from django.utils import timezone
 
@@ -157,6 +159,41 @@ def send_callback_url_request(callback_url: str, client_id: str, filepath: str, 
 
     logging.error("No callback url found.")
     return json.dumps({"status": "No callback url found."}), 400
+
+@shared_task
+def send_classification_tags(nlp_request_id: int):
+    nlp_request = NLPRequest.objects.get(pk=nlp_request_id)
+    predictor = ModelTagsPrediction()
+    entries_dict = nlp_request.request_params["entries"]
+    pred_data = predictor(entries_dict)
+
+    entries_only = [item["entry"] for item in entries_dict]
+    geolocations = get_geolocations(entries_only, "nlpthedeep") #GEONAME_API_USER)
+
+    output_data = {
+        "client_id": entries_dict[0]["client_id"],
+        "model_tags": pred_data,
+        "geolocations": geolocations[0]["locations"],
+        "model_info": {
+            "id": "all_tags_model",
+            "version": "1.0.0"
+        },
+        "prediction_status": True
+    }
+    print(output_data)
+
+    callback_url = nlp_request.request_params["callback_url"]
+
+    try:
+        response = requests.post(
+            callback_url,
+            json=output_data,
+            timeout=30
+        )
+        if response.status_code < 200 or response.status_code > 299:
+            logger.error(f"Failed to receive an acknowledgement")
+    except Exception:
+        logger.error("Could not send http request on callback url : {callback_url}", exc_info=True)
 
 
 def send_ecs_http_request(nlp_request: NLPRequest):

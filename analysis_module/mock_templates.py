@@ -64,182 +64,514 @@ MOCK_GEOLOCATION: List = [
 ]
 
 MOCK_ENTRY_CLASSIFICATION: Dict = {
-    "classifications": [
-        {
-            "client_id": "5",
-            "model_preds": {
-                "2": {
-                    "204": {
-                        "2402": {
-                            "prediction": 0.4069949281240046,
-                            "threshold": 0.489,
-                            "is_selected": False,
-                        },
-                        "2401": {
-                            "prediction": 0.27091098129102825,
-                            "threshold": 0.461,
-                            "is_selected": False,
-                        },
-                    }
-                }
+    "client_id": "entry-extraction-client-6000",
+    "model_tags": {
+        "1": {
+            "101": {
+                "prediction": 0.002,
+                "threshold": 0.14,
+                "is_selected": False
             },
-        },
-        {
-            "client_id": "7",
-            "model_preds": {
-                "2": {
-                    "204": {
-                        "2402": {
-                            "prediction": 0.5442236220665992,
-                            "threshold": 0.489,
-                            "is_selected": True,
-                        },
-                        "2401": {
-                            "prediction": 0.4262570897824335,
-                            "threshold": 0.461,
-                            "is_selected": False,
-                        },
-                    },
-                    "202": {
-                        "2206": {
-                            "prediction": 0.25068859880169236,
-                            "threshold": 0.576,
-                            "is_selected": False,
-                        },
-                        "2201": {
-                            "prediction": 0.5456802809044823,
-                            "threshold": 0.431,
-                            "is_selected": True,
-                        },
-                    },
-                },
-                "5": {
-                    "503": {
-                        "5303": {
-                            "prediction": 0.12105567270217965,
-                            "threshold": 0.438,
-                            "is_selected": False,
-                        },
-                        "5306": {
-                            "prediction": 0.0934217669913229,
-                            "threshold": 0.424,
-                            "is_selected": False,
-                        },
-                        "5310": {
-                            "prediction": 0.2706523782039786,
-                            "threshold": 0.478,
-                            "is_selected": False,
-                        },
-                        "5302": {
-                            "prediction": 0.10373815047470006,
-                            "threshold": 0.44,
-                            "is_selected": False,
-                        },
-                        "5307": {
-                            "prediction": 0.10675184680643865,
-                            "threshold": 0.414,
-                            "is_selected": False,
-                        },
-                        "5309": {
-                            "prediction": 0.15713495668023825,
-                            "threshold": 0.512,
-                            "is_selected": False,
-                        },
-                        "5308": {
-                            "prediction": 0.2450807941587348,
-                            "threshold": 0.475,
-                            "is_selected": False,
-                        },
-                        "5301": {
-                            "prediction": 0.16692731163052263,
-                            "threshold": 0.488,
-                            "is_selected": False,
-                        },
-                        "5305": {
-                            "prediction": 0.09886651321893601,
-                            "threshold": 0.508,
-                            "is_selected": False,
-                        },
-                        "5304": {
-                            "prediction": 0.18824445637496742,
-                            "threshold": 0.444,
-                            "is_selected": False,
-                        },
-                    },
-                    "501": {
-                        "5102": {
-                            "prediction": 0.21789910171917756,
-                            "threshold": 0.541,
-                            "is_selected": False,
-                        },
-                        "5109": {
-                            "prediction": 0.3480727123794051,
-                            "threshold": 0.454,
-                            "is_selected": False,
-                        },
-                        "5106": {
-                            "prediction": 0.23486564947864202,
-                            "threshold": 0.381,
-                            "is_selected": False,
-                        },
-                        "5108": {
-                            "prediction": 0.05966722541108756,
-                            "threshold": 0.527,
-                            "is_selected": False,
-                        },
-                        "5111": {
-                            "prediction": 0.46915922655621894,
-                            "threshold": 0.447,
-                            "is_selected": True,
-                        },
-                        "5107": {
-                            "prediction": 0.3090465321041693,
-                            "threshold": 0.449,
-                            "is_selected": False,
-                        },
-                        "5101": {
-                            "prediction": 0.015221919587000888,
-                            "threshold": 0.47,
-                            "is_selected": False,
-                        },
-                        "5103": {
-                            "prediction": 0.3523940058170018,
-                            "threshold": 0.482,
-                            "is_selected": False,
-                        },
-                        "5104": {
-                            "prediction": 0.003284739766450025,
-                            "threshold": 0.786,
-                            "is_selected": False,
-                        },
-                        "5105": {
-                            "prediction": 0.22805604930227613,
-                            "threshold": 0.534,
-                            "is_selected": False,
-                        },
-                        "5110": {
-                            "prediction": 0.20070979371666908,
-                            "threshold": 0.05,
-                            "is_selected": True,
-                        },
-                    },
-                },
-                "4": {
-                    "401": {
-                        "4102": {
-                            "prediction": 0.004212768160319299,
-                            "threshold": 0.814,
-                            "is_selected": False,
-                        },
-                        "4101": {
-                            "prediction": 0.4228575605351778,
-                            "threshold": 0.422,
-                            "is_selected": True,
-                        },
-                    }
-                },
+            "102": {
+                "prediction": 0.648,
+                "threshold": 0.17,
+                "is_selected": True
             },
+            "103": {
+                "prediction": 0.027,
+                "threshold": 0.1,
+                "is_selected": False
+            },
+            "104": {
+                "prediction": 0.062,
+                "threshold": 0.14,
+                "is_selected": False
+            },
+            "105": {
+                "prediction": 0.09,
+                "threshold": 0.18,
+                "is_selected": False
+            },
+            "106": {
+                "prediction": 0.104,
+                "threshold": 0.14,
+                "is_selected": False
+            },
+            "107": {
+                "prediction": 0.005,
+                "threshold": 0.1,
+                "is_selected": False
+            },
+            "108": {
+                "prediction": 0.013,
+                "threshold": 0.12,
+                "is_selected": False
+            },
+            "109": {
+                "prediction": 0.031,
+                "threshold": 0.15,
+                "is_selected": False
+            },
+            "110": {
+                "prediction": 0.014,
+                "threshold": 0.18,
+                "is_selected": False
+            },
+            "111": {
+                "prediction": 0.018,
+                "threshold": 0.14,
+                "is_selected": False
+            }
         },
+        "3": {
+            "301": {
+                "prediction": 0.001,
+                "threshold": 0.01,
+                "is_selected": False
+            },
+            "302": {
+                "prediction": 0.001,
+                "threshold": 0.11,
+                "is_selected": False
+            },
+            "303": {
+                "prediction": 0.083,
+                "threshold": 0.38,
+                "is_selected": False
+            },
+            "304": {
+                "prediction": 0.086,
+                "threshold": 0.01,
+                "is_selected": True
+            },
+            "305": {
+                "prediction": 0.083,
+                "threshold": 0.17,
+                "is_selected": False
+            },
+            "306": {
+                "prediction": 0.026,
+                "threshold": 0.15,
+                "is_selected": False
+            },
+            "307": {
+                "prediction": 0.001,
+                "threshold": 0.09,
+                "is_selected": False
+            },
+            "308": {
+                "prediction": 0.01,
+                "threshold": 0.13,
+                "is_selected": False
+            },
+            "309": {
+                "prediction": 0.003,
+                "threshold": 0.07,
+                "is_selected": False
+            },
+            "310": {
+                "prediction": 0.006,
+                "threshold": 0.16,
+                "is_selected": False
+            },
+            "311": {
+                "prediction": 0.023,
+                "threshold": 0.15,
+                "is_selected": False
+            },
+            "312": {
+                "prediction": 0.026,
+                "threshold": 0.2,
+                "is_selected": False
+            },
+            "313": {
+                "prediction": 0.022,
+                "threshold": 0.16,
+                "is_selected": False
+            },
+            "314": {
+                "prediction": 0.004,
+                "threshold": 0.05,
+                "is_selected": False
+            },
+            "315": {
+                "prediction": 0.003,
+                "threshold": 0.45,
+                "is_selected": False
+            },
+            "316": {
+                "prediction": 0.001,
+                "threshold": 0.06,
+                "is_selected": False
+            },
+            "317": {
+                "prediction": 0.004,
+                "threshold": 0.28,
+                "is_selected": False
+            },
+            "318": {
+                "prediction": 0.0,
+                "threshold": 0.13,
+                "is_selected": False
+            }
+        },
+        "2": {
+            "219": {
+                "prediction": 0.003,
+                "threshold": 0.13,
+                "is_selected": False
+            },
+            "217": {
+                "prediction": 0.001,
+                "threshold": 0.04,
+                "is_selected": False
+            },
+            "218": {
+                "prediction": 0.004,
+                "threshold": 0.09,
+                "is_selected": False
+            },
+            "204": {
+                "prediction": 0.007,
+                "threshold": 0.14,
+                "is_selected": False
+            },
+            "203": {
+                "prediction": 0.007,
+                "threshold": 0.24,
+                "is_selected": False
+            },
+            "201": {
+                "prediction": 0.007,
+                "threshold": 0.17,
+                "is_selected": False
+            },
+            "205": {
+                "prediction": 0.095,
+                "threshold": 0.47,
+                "is_selected": False
+            },
+            "207": {
+                "prediction": 0.016,
+                "threshold": 0.22,
+                "is_selected": False
+            },
+            "206": {
+                "prediction": 0.014,
+                "threshold": 0.16,
+                "is_selected": False
+            },
+            "202": {
+                "prediction": 0.014,
+                "threshold": 0.15,
+                "is_selected": False
+            },
+            "228": {
+                "prediction": 0.006,
+                "threshold": 0.72,
+                "is_selected": False
+            },
+            "229": {
+                "prediction": 0.038,
+                "threshold": 0.55,
+                "is_selected": False
+            },
+            "230": {
+                "prediction": 0.001,
+                "threshold": 0.61,
+                "is_selected": False
+            },
+            "231": {
+                "prediction": 0.0,
+                "threshold": 0.3,
+                "is_selected": False
+            },
+            "232": {
+                "prediction": 0.015,
+                "threshold": 0.23,
+                "is_selected": False
+            },
+            "233": {
+                "prediction": 0.039,
+                "threshold": 0.31,
+                "is_selected": False
+            },
+            "234": {
+                "prediction": 0.005,
+                "threshold": 0.39,
+                "is_selected": False
+            },
+            "215": {
+                "prediction": 0.019,
+                "threshold": 0.15,
+                "is_selected": False
+            },
+            "216": {
+                "prediction": 0.003,
+                "threshold": 0.13,
+                "is_selected": False
+            },
+            "214": {
+                "prediction": 0.001,
+                "threshold": 0.09,
+                "is_selected": False
+            },
+            "213": {
+                "prediction": 0.0,
+                "threshold": 0.26,
+                "is_selected": False
+            },
+            "212": {
+                "prediction": 0.01,
+                "threshold": 0.31,
+                "is_selected": False
+            },
+            "223": {
+                "prediction": 0.028,
+                "threshold": 0.09,
+                "is_selected": False
+            },
+            "222": {
+                "prediction": 0.003,
+                "threshold": 0.16,
+                "is_selected": False
+            },
+            "221": {
+                "prediction": 0.017,
+                "threshold": 0.16,
+                "is_selected": False
+            },
+            "220": {
+                "prediction": 0.017,
+                "threshold": 0.22,
+                "is_selected": False
+            },
+            "224": {
+                "prediction": 0.651,
+                "threshold": 0.21,
+                "is_selected": True
+            },
+            "225": {
+                "prediction": 0.984,
+                "threshold": 0.04,
+                "is_selected": True
+            },
+            "227": {
+                "prediction": 4.394,
+                "threshold": 0.07,
+                "is_selected": True
+            },
+            "226": {
+                "prediction": 1.346,
+                "threshold": 0.09,
+                "is_selected": True
+            },
+            "210": {
+                "prediction": 0.114,
+                "threshold": 0.24,
+                "is_selected": False
+            },
+            "208": {
+                "prediction": 0.044,
+                "threshold": 0.21,
+                "is_selected": False
+            },
+            "209": {
+                "prediction": 0.458,
+                "threshold": 0.05,
+                "is_selected": True
+            }
+        },
+        "6": {
+            "601": {
+                "prediction": 0.0,
+                "threshold": 0.06,
+                "is_selected": False
+            },
+            "602": {
+                "prediction": 0.001,
+                "threshold": 0.48,
+                "is_selected": False
+            },
+            "603": {
+                "prediction": 0.022,
+                "threshold": 0.34,
+                "is_selected": False
+            },
+            "604": {
+                "prediction": 0.0,
+                "threshold": 0.16,
+                "is_selected": False
+            }
+        },
+        "5": {
+            "501": {
+                "prediction": 0.0,
+                "threshold": 0.45,
+                "is_selected": False
+            },
+            "502": {
+                "prediction": 0.0,
+                "threshold": 0.48,
+                "is_selected": False
+            }
+        },
+        "8":{ 
+            "801": {
+                "prediction": 0.0,
+                "threshold": 0.66,
+                "is_selected": False
+            },
+            "802": {
+                "prediction": 0.0,
+                "threshold": 0.3,
+                "is_selected": False
+            },
+            "803": {
+                "prediction": 0.0,
+                "threshold": 0.36,
+                "is_selected": False
+            },
+            "804": {
+                "prediction": 0.0,
+                "threshold": 0.23,
+                "is_selected": False
+            },
+            "805": {
+                "prediction": 0.0,
+                "threshold": 0.58,
+                "is_selected": False
+            },
+            "806": {
+                "prediction": 0.009,
+                "threshold": 0.3,
+                "is_selected": False
+            }
+        },
+        "4": {
+            "401": {
+                "prediction": 0.001,
+                "threshold": 0.29,
+                "is_selected": False
+            },
+            "402": {
+                "prediction": 0.001,
+                "threshold": 0.45,
+                "is_selected": False
+            },
+            "403": {
+                "prediction": 0.01,
+                "threshold": 0.03,
+                "is_selected": False
+            },
+            "404": {
+                "prediction": 0.0,
+                "threshold": 0.34,
+                "is_selected": False
+            },
+            "405": {
+                "prediction": 0.0,
+                "threshold": 0.37,
+                "is_selected": False
+            },
+            "406": {
+                "prediction": 0.001,
+                "threshold": 0.25,
+                "is_selected": False
+            },
+            "407": {
+                "prediction": 0.0,
+                "threshold": 0.07,
+                "is_selected": False
+            },
+            "408": {
+                "prediction": 0.001,
+                "threshold": 0.11,
+                "is_selected": False
+            },
+            "409": {
+                "prediction": 0.0,
+                "threshold": 0.43,
+                "is_selected": False
+            },
+            "410": {
+                "prediction": 0.0,
+                "threshold": 0.23,
+                "is_selected": False
+            },
+            "411": {
+                "prediction": 0.003,
+                "threshold": 0.06,
+                "is_selected": False
+            },
+            "412": {
+                "prediction": 0.0,
+                "threshold": 0.36,
+                "is_selected": False
+            }
+        },
+        "7": {
+            "701": {
+                "prediction": 0.008,
+                "threshold": 0.27,
+                "is_selected": False
+            },
+            "702": {
+                "prediction": 0.02,
+                "threshold": 0.11,
+                "is_selected": False
+            },
+            "703": {
+                "prediction": 0.004,
+                "threshold": 0.05,
+                "is_selected": False
+            },
+            "704": {
+                "prediction": 0.096,
+                "threshold": 0.24,
+                "is_selected": False
+            },
+            "705": {
+                "prediction": 0.061,
+                "threshold": 0.12,
+                "is_selected": False
+            }
+        },
+        "9": {
+            "904": {
+                "prediction": -1,
+                "threshold": -1,
+                "is_selected": False
+            },
+            "905": {
+                "prediction": -1,
+                "threshold": -1,
+                "is_selected": False
+            },
+            "902": {
+                "prediction": -1,
+                "threshold": -1,
+                "is_selected": False
+            },
+            "903": {
+                "prediction": -1,
+                "threshold": -1,
+                "is_selected": False
+            },
+            "906": {
+                "prediction": -1,
+                "threshold": -1,
+                "is_selected": False
+            },
+            "907": {
+                "prediction": -1,
+                "threshold": -1,
+                "is_selected": False
+            }
+        }
+    },
+    "geolocations": [
+        "New York"
     ]
 }
 
