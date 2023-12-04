@@ -372,7 +372,12 @@ def entry_classification_mock(body) -> Any:
 def process_entry_classification_mock(body) -> Any:
     callback_payload = MOCK_ENTRY_CLASSIFICATION
     callback_payload.update({
-       "client_id": body["entries"][0]["client_id"]
+        "client_id": body["entries"][0]["client_id"],
+        "model_info": {
+            "id": "all_tags_model",
+            "version": "1.0.0"
+        },
+        "prediction_status": True
     })
     callback_url = body["callback_url"]
     try:

@@ -90,7 +90,6 @@ def entry_classification(request: Request):
     transaction.on_commit(
         lambda: send_classification_tags.delay(nlp_request_id=nlp_request.pk)
     )
-    #transaction.on_commit(lambda: send_classification_tags(nlp_request=nlp_request))
 
     return Response(
         resp,

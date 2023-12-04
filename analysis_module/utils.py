@@ -173,7 +173,12 @@ def send_classification_tags(nlp_request_id: int):
     output_data = {
         "client_id": entries_dict[0]["client_id"],
         "model_tags": pred_data,
-        "geolocations": geolocations[0]["locations"]
+        "geolocations": geolocations[0]["locations"],
+        "model_info": {
+            "id": "all_tags_model",
+            "version": "1.0.0"
+        },
+        "prediction_status": True
     }
     print(output_data)
 
