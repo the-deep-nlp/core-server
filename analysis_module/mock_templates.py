@@ -1,5 +1,20 @@
 from typing import List, Dict
 
+MODELS_INFO_MOCK: Dict = {
+    "classification_model": {
+        "id": "classification_model_mock",
+        "version": "1.0.0"
+    },
+    "geolocation_model": {
+        "id": "geolocation_model_mock",
+        "version": "1.0.0"
+    },
+    "reliability_model": {
+        "id": "reliability_model_mock",
+        "version": "1.0.0"
+    }
+}
+
 MOCK_GEOLOCATION: List = [
     {
         "ent": "Cauca",

@@ -34,6 +34,7 @@ from analysis_module.views.entry_extraction import (
     entry_extraction
 )
 from analysis_module.views.text_extraction import text_extraction
+from analysis_module.views.models_info import models_detail
 from core.views import token_auth_dummy_view
 
 urlpatterns = [
@@ -48,5 +49,6 @@ urlpatterns = [
     path("api/v1/nlp-tags/", nlp_tags),
     path("api/v1/entry-classification/", entry_classification),
     path("api/v1/analysismodule/status/<uuid:unique_id>/", request_status),
+    path("api/v1/models-info/", models_detail),
     path("api/v1/test-auth/", token_auth_dummy_view),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
