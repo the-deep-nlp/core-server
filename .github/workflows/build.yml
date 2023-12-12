@@ -78,6 +78,14 @@ jobs:
       # SENTRY
       SENTRY_DSN: ''
 
+      # MODEL_INFO
+      CLASSIFICATION_MODEL_ID: ''
+      CLASSIFICATION_MODEL_VERSION: ''
+      GEOLOCATION_MODEL_ID: ''
+      GEOLOCATION_MODEL_VERSION: ''
+      RELIABILITY_MODEL_ID: ''
+      RELIABILITY_MODEL_VERSION: ''
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
