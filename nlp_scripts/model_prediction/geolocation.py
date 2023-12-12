@@ -6,8 +6,9 @@ from geolocation_generator import GeolocationGenerator
 
 logging.getLogger().setLevel(logging.INFO)
 
+
 def download_spacy_model(
-    s3_spacy_path = "s3://deep-geolocation-extraction/models/spacy_finetuned_100doc_5epochs/spacy_finetuned_100doc_5epochs",
+    s3_spacy_path="s3://deep-geolocation-extraction/models/spacy_finetuned_100doc_5epochs/spacy_finetuned_100doc_5epochs"
 ):
     """
     Downloads the spacy model and stores it in the EFS
@@ -25,6 +26,7 @@ def download_spacy_model(
 
     return efs_spacy_path
 
+
 def get_geolocations(
     entries,
     geoname_api_user
@@ -38,10 +40,12 @@ def get_geolocations(
             raw_data=entries,
             geonames_username=geoname_api_user
         )
-        processed_results = [{
-            "entry": x,
-            "locations": [o["ent"] for o in y["entities"]]
-            } for x, y in zip(entries, geolocation_results)
+        processed_results = [
+            {
+                "entry": x,
+                "locations": [o["ent"] for o in y["entities"]]
+            }
+            for x, y in zip(entries, geolocation_results)
         ]
     except Exception as exc:
         logging.error("Geolocation processing failed. %s", str(exc))

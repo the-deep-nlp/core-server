@@ -160,6 +160,7 @@ def send_callback_url_request(callback_url: str, client_id: str, filepath: str, 
     logging.error("No callback url found.")
     return json.dumps({"status": "No callback url found."}), 400
 
+
 @shared_task
 def send_classification_tags(nlp_request_id: int):
     nlp_request = NLPRequest.objects.get(pk=nlp_request_id)
@@ -168,7 +169,7 @@ def send_classification_tags(nlp_request_id: int):
     pred_data = predictor(entries_dict)
 
     entries_only = [item["entry"] for item in entries_dict]
-    geolocations = get_geolocations(entries_only, "nlpthedeep") #GEONAME_API_USER)
+    geolocations = get_geolocations(entries_only, "nlpthedeep")  # GEONAME_API_USER)
 
     output_data = {
         "client_id": entries_dict[0]["client_id"],
@@ -180,7 +181,6 @@ def send_classification_tags(nlp_request_id: int):
         },
         "prediction_status": True
     }
-    print(output_data)
 
     callback_url = nlp_request.request_params["callback_url"]
 
@@ -191,7 +191,7 @@ def send_classification_tags(nlp_request_id: int):
             timeout=30
         )
         if response.status_code < 200 or response.status_code > 299:
-            logger.error(f"Failed to receive an acknowledgement")
+            logger.error(f"Failed to receive an acknowledgement. Status code: {response.status_code}")
     except Exception:
         logger.error("Could not send http request on callback url : {callback_url}", exc_info=True)
 

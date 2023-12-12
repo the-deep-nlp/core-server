@@ -8,10 +8,10 @@ from rest_framework import status
 from core_server.settings import IS_MOCKSERVER
 from core.models import NLPRequest
 from analysis_module.serializers import TagsMappingRequestSerializer, PredictionRequestSerializer
-from analysis_module.mockserver import MOCK_ENTRY_CLASSIFICATION
+# from analysis_module.mockserver import MOCK_ENTRY_CLASSIFICATION
 from analysis_module.utils import send_classification_tags
 from nlp_scripts.model_prediction.tags_mapping import AF2NLPMapping
-from nlp_scripts.model_prediction.model_prediction import ModelTagsPrediction
+# from nlp_scripts.model_prediction.model_prediction import ModelTagsPrediction
 from nlp_scripts.model_prediction.all_tags_mapping import get_vf_list
 from analysis_module.mockserver import process_mock_request
 
@@ -96,11 +96,9 @@ def entry_classification(request: Request):
         status=status.HTTP_202_ACCEPTED,
     )
 
-
     # predictor = ModelTagsPrediction()
     # try:
     #     entries_lst = [e["entry"] for e in entries]
-        
     #     pred_data = predictor(entries_lst)
     #     resp_data = {
     #         "client_id": entries[0]["client_id"],
