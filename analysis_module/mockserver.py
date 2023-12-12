@@ -362,11 +362,13 @@ def process_entry_extraction_mock(body) -> Any:
         except Exception:
             logger.error("Could not send data to callback url", exc_info=True)
 
+
 def entry_classification_mock(body) -> Any:
     process_entry_classification_mock.apply_async(
         args=(body,), countdown=2
     )  # Trigger task after 2 seconds
     return json.dumps({"status": "Successfully received the request."}), 200
+
 
 @shared_task
 def process_entry_classification_mock(body) -> Any:

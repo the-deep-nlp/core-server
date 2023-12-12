@@ -29,7 +29,7 @@ secondary_tags = [
     "affected_groups",
     "specific_needs_groups",
     "severity",
-    "Displaced", ##
+    "Displaced",  #
     "Non displaced"
 ]
 
@@ -102,7 +102,7 @@ def get_predictions_all(
             "gender",
             "affected_groups",
             "specific_needs_groups",
-            "Displaced", ##
+            "Displaced",  #
             "Non displaced"
         ]:
             preds_one_sec_tag = get_preds_entry(
@@ -139,13 +139,13 @@ def convert_current_dict_to_previous_one(
         "affected_groups": {},
         "specific_needs_groups": {},
         "severity": {},
-        "Displaced": {}, ##
+        "Displaced": {},  #
         "Non displaced": {}
     }
 
     for tag, number in ratios_one_entry.items():
         tag_levels = tag.split("->")
-        if tag_levels[0].startswith("subpillars"): #"subpillars" == tag_levels[0]:
+        if tag_levels[0].startswith("subpillars"):  # "subpillars" == tag_levels[0]:
             assert tag_levels[1] in pillars_1d_tags or tag_levels[1] in pillars_2d_tags
 
             if tag_levels[1] in pillars_1d_tags:

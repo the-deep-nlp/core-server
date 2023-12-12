@@ -6,7 +6,7 @@ from .first_level_tags import FirstLevel
 from .second_level_tags import SecondLevel
 from .third_level_tags import ThirdLevel
 from .classification_inference_postprocessing import get_outputs_from_endpoint
-from .utils import get_tag_ids
+# from .utils import get_tag_ids
 
 from .postprocess_tags import convert_current_dict_to_previous_one
 from .tags_to_ids import get_model_tags_mappings

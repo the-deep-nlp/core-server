@@ -4,6 +4,7 @@ from .utils import convert_to_lowercase
 categories = get_categories()
 mappings = get_all_mappings()
 
+
 def get_model_tags_mappings(pred_data, thresholds, selected_tags=None):
     """ Maps the tags to ids """
     def get_threshold_primary_value(pt_key, t_key):
@@ -14,7 +15,7 @@ def get_model_tags_mappings(pred_data, thresholds, selected_tags=None):
 
     def check_demo_grp_selected_tag(gender, age):
         return False
-        #return True if gender in selected_tags["gender"][0] and age in selected_tags["age"][0] else False
+        # return True if gender in selected_tags["gender"][0] and age in selected_tags["age"][0] else False
 
     all_tags_pred = {}
 
@@ -38,7 +39,7 @@ def get_model_tags_mappings(pred_data, thresholds, selected_tags=None):
                 tags[category][tag] = {}
                 tags[category][tag]["prediction"] = round(tag_val, 3)
                 tags[category][tag]["threshold"] = round(get_threshold_primary_value(prim_tags_key, tag_key), 3)
-                tags[category][tag]["is_selected"] = tags[category][tag]["prediction"] >= tags[category][tag]["threshold"] #check_selected_tag(prim_tags_key, tag_key)
+                tags[category][tag]["is_selected"] = tags[category][tag]["prediction"] >= tags[category][tag]["threshold"]
         all_tags_pred.update(tags)
 
     for sec_tags_key, sec_tags_val in pred_data[0]["secondary_tags"].items():

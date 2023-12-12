@@ -416,7 +416,7 @@ MOCK_ENTRY_CLASSIFICATION: Dict = {
                 "is_selected": False
             }
         },
-        "8":{ 
+        "8": {
             "801": {
                 "prediction": 0.0,
                 "threshold": 0.66,
