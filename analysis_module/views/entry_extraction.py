@@ -44,7 +44,10 @@ def entry_extraction(request: Request):
         )
         nlp_reqs.append(nlp_request)
 
-        if serializer.validated_data["request_type"] == ExtractionRequestTypeChoices.USER:
+        if serializer.validated_data["request_type"] in [
+            ExtractionRequestTypeChoices.USER,
+            ExtractionRequestTypeChoices.SYSTEM
+        ]:
             transaction.on_commit(lambda: send_ecs_http_request(nlp_request))
 
     resp = {

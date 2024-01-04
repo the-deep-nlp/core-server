@@ -45,7 +45,10 @@ def text_extraction(request: Request):
         nlp_reqs.append(nlp_request)
         # If user triggered, call ecs immediately, if not cron job will handle
         # but make sure send_ecs_http_request will accordingly updated the last_process_attempted value
-        if serializer.validated_data["request_type"] == ExtractionRequestTypeChoices.USER:
+        if serializer.validated_data["request_type"] in [
+            ExtractionRequestTypeChoices.USER,
+            ExtractionRequestTypeChoices.SYSTEM
+        ]:
             transaction.on_commit(lambda: send_ecs_http_request(nlp_request))
 
     resp = {
