@@ -505,7 +505,7 @@ class TestTextExtractionAPI(BaseTestCase):
             resp = self.client.post(self.URL, data=data, format="json")
 
         assert resp.status_code == 202
-        assert len(callbacks) == 0
+        assert len(callbacks) == 2
 
         resp_data = resp.json()
         assert "request_ids" in resp_data
