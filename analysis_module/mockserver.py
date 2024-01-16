@@ -282,8 +282,21 @@ def process_extraction_mock(body) -> Any:
 
     for document in documents:
         client_id = document["client_id"]
-        text_extraction_id = "12345"
-        random_extracted_text = "This is some random extracted text"
+        text_extraction_id = "06b46e2a-00b6-4676-a375-8a7b938a17c6"
+        random_extracted_text = """
+            This is some random extracted text.
+            On Human Rights Day, observed annually on December 10th, Palestinian human rights organizations—The Palestinian
+            Center for Human Rights, Al Mezan, and Al-Haq—call on the international community to promptly intervene for an
+            immediate ceasefire, pressure Israel to halt its aggression and genocide in the Gaza Strip and its violations
+            in the entire occupied Palestinian territory, and ensure accountability and justice.
+            As the world marks Human Rights Day today, commemorating the adoption of the Universal
+            Declaration of Human Rights (UDHR) by the United Nations General Assembly in 1948;
+            Israel blatantly and systematically violates the majority of the declaration's articles.
+            It subjects 2.3 million Palestinians in Gaza to a genocidal campaign while
+            enjoying complete immunity and support from the United States. Despite the US providing Israel with weapons and
+            munitions and vetoing the UN Security Council resolution calling for an immediate ceasefire in Gaza, the
+            international community has yet to take effective positions to halt the genocide of an entire people.
+        """
         filepath = save_data_local_and_get_url(
             "extraction", client_id, random_extracted_text
         )
@@ -291,8 +304,8 @@ def process_extraction_mock(body) -> Any:
             "text_path": filepath,
             "images_path": [],
             "total_pages": 1,
-            "total_words_count": 1,
-            "status": 1,
+            "total_words_count": 50,
+            "status": NLPRequest.RequestStatus.SUCCESS,
             "client_id": client_id,
             "text_extraction_id": text_extraction_id
         }
