@@ -51,7 +51,7 @@ env = environ.Env(
 
     # ECS
     CLASSIFICATION_MODEL_ENDPOINT=(str, "main-model-cpu"),
-    SUMMARIZATION_V2_ECS_ENDPOINT=(str, None),
+    SUMMARIZATION_V3_ECS_ENDPOINT=(str, None),
     TEXTEXTRACTION_ECS_ENDPOINT=(str, None),
 
     # MODEL INFO

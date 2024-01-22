@@ -156,7 +156,7 @@ class TestAnalysisModuleAPIs(BaseTestCase):
         ).exists()
 
     @override_settings(USE_NEW_SUMMARIZATION=True)
-    def test_summarization_v2_valid_request(self):
+    def test_summarization_v3_valid_request(self):
         requests_count = NLPRequest.objects.count()
         valid_data = {
             "client_id": "client_id",
@@ -170,7 +170,7 @@ class TestAnalysisModuleAPIs(BaseTestCase):
             new_requests_count == requests_count + 1, \
             "One more NLPRequest object should be created"
         assert NLPRequest.objects.filter(
-            type="summarization-v2",
+            type="summarization-v3",
             created_by=self.user,
         ).exists()
 

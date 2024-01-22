@@ -446,7 +446,7 @@ class NLPRequest(BaseModel):
         NGRAMS = "ngrams", "Ngrams"
         TOPICMODEL = "topicmodel", "Topicmodel"
         SUMMARIZATION = "summarization", "Summarization"
-        SUMMARIZATION_V2 = "summarization-v2", "Summarization-V2"
+        SUMMARIZATION_V3 = "summarization-v3", "Summarization-V3"
         GEOLOCATION = "geolocation", "Geolocation"
         TAGS_MAPPING = "tags-mapping", "Tags Mapping"
         ENTRY_CLASSIFICATION = "entry-classification", "Entry Classification"

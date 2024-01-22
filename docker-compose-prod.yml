@@ -43,7 +43,7 @@ x-server: &base-server-config
     MOCKSERVER_PORT: ${MOCKSERVER_PORT:-8081}
 
     # ECS endpoints
-    SUMMARIZATION_V2_ECS_ENDPOINT: ${SUMMARIZATION_V2_ECS_ENDPOINT:?Provide summarization v2 endpoint}
+    SUMMARIZATION_V3_ECS_ENDPOINT: ${SUMMARIZATION_V3_ECS_ENDPOINT:?Provide summarization v3 endpoint}
     TEXTEXTRACTION_ECS_ENDPOINT: ${TEXTEXTRACTION_ECS_ENDPOINT:?Provide text extraction endpoint}
     ENTRYEXTRACTION_ECS_ENDPOINT: ${ENTRYEXTRACTION_ECS_ENDPOINT:?Provide entry extraction endpoint}
 
