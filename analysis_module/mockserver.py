@@ -409,7 +409,7 @@ def process_entry_classification_mock(body) -> Any:
 TYPE_ACTIONS_MOCK = {
     "topicmodel": topicmodeling_mock_model,
     "summarization": summarization_mock_model,
-    "summarization-v2": summarization_mock_model,
+    "summarization-v3": summarization_mock_model,
     "ngrams": ngrams_mock_model,
     "geolocation": geolocation_mock_model,
     "text-extraction": text_extraction_mock,

@@ -14,7 +14,7 @@ from django.utils import timezone
 
 from core.models import NLPRequest
 from core_server.settings import (
-    SUMMARIZATION_V2_ECS_ENDPOINT,
+    SUMMARIZATION_V3_ECS_ENDPOINT,
     TEXT_EXTRACTION_ECS_ENDPOINT,
     ENTRYEXTRACTION_ECS_ENDPOINT
 )
@@ -225,7 +225,7 @@ def send_ecs_http_request(nlp_request: NLPRequest):
 
 
 def get_ecs_id_param_name(request_type: NLPRequest.FeaturesType):
-    if request_type == NLPRequest.FeaturesType.SUMMARIZATION_V2:
+    if request_type == NLPRequest.FeaturesType.SUMMARIZATION_V3:
         return "summarization_id"
     if request_type == NLPRequest.FeaturesType.TEXT_EXTRACTION:
         return "textextraction_id"
@@ -235,8 +235,8 @@ def get_ecs_id_param_name(request_type: NLPRequest.FeaturesType):
 
 
 def get_ecs_url(request_type: NLPRequest.FeaturesType):
-    if request_type == NLPRequest.FeaturesType.SUMMARIZATION_V2:
-        return urljoin(SUMMARIZATION_V2_ECS_ENDPOINT, "/generate_report")
+    if request_type == NLPRequest.FeaturesType.SUMMARIZATION_V3:
+        return urljoin(SUMMARIZATION_V3_ECS_ENDPOINT, "/generate_report")
     elif request_type == NLPRequest.FeaturesType.TEXT_EXTRACTION:
         return urljoin(TEXT_EXTRACTION_ECS_ENDPOINT, "/extract_document")
     elif request_type == NLPRequest.FeaturesType.ENTRY_EXTRACTION:

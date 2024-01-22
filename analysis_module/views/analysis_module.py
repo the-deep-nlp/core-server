@@ -72,30 +72,30 @@ def topic_modeling(request: Request):
 @permission_classes([IsAuthenticated])
 def summarization(request: Request):
     if USE_NEW_SUMMARIZATION:
-        return summarization_v2(request.data, request.user)
+        return summarization_v3(request.data, request.user)
     return process_request(EntriesSerializer, request, "summarization")
 
 
-def summarization_v2(data: Any, user):
+def summarization_v3(data: Any, user):
     serializer = EntriesSerializer(data=data)
     serializer.is_valid(raise_exception=True)
 
     if serializer.validated_data.get("mock") or IS_MOCKSERVER:
         return process_mock_request(
             request=serializer.validated_data,
-            request_type=NLPRequest.FeaturesType.SUMMARIZATION_V2,
+            request_type=NLPRequest.FeaturesType.SUMMARIZATION_V3,
         )
 
     nlp_request = NLPRequest.objects.create(
         client_id=serializer.validated_data["client_id"],
-        type=NLPRequest.FeaturesType.SUMMARIZATION_V2,
+        type=NLPRequest.FeaturesType.SUMMARIZATION_V3,
         request_params=serializer.validated_data,
         created_by=user,
     )
     transaction.on_commit(lambda: send_ecs_http_request(nlp_request))
     resp = {
         "client_id": serializer.data.get("client_id"),
-        "type": NLPRequest.FeaturesType.SUMMARIZATION_V2,
+        "type": NLPRequest.FeaturesType.SUMMARIZATION_V3,
         "message": "Request has been successfully processed",
         "request_id": str(nlp_request.unique_id),
     }
