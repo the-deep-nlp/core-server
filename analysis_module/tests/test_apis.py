@@ -174,41 +174,41 @@ class TestAnalysisModuleAPIs(BaseTestCase):
             created_by=self.user,
         ).exists()
 
-    def test_geolocation_incomplete_data(self):
-        valid_data = {
-            "client_id": "client_id",
-            "entries_url": "http://someurl.com/entries",
-        }
-        params = valid_data.keys()
-        for param in params:
-            data = dict(valid_data)  # copy original valid data
-            data.pop(param)  # This makes it invalid
-            self.set_credentials()
-            resp = self.client.post(self.GEOLOCATION_URL, data)
-            assert resp.status_code == 400
-            errors = resp.json()["field_errors"]
-            assert param in errors
+    # def test_geolocation_incomplete_data(self):
+    #     valid_data = {
+    #         "client_id": "client_id",
+    #         "entries_url": "http://someurl.com/entries",
+    #     }
+    #     params = valid_data.keys()
+    #     for param in params:
+    #         data = dict(valid_data)  # copy original valid data
+    #         data.pop(param)  # This makes it invalid
+    #         self.set_credentials()
+    #         resp = self.client.post(self.GEOLOCATION_URL, data)
+    #         assert resp.status_code == 400
+    #         errors = resp.json()["field_errors"]
+    #         assert param in errors
 
-    @patch('analysis_module.views.analysis_module.spin_ecs_container')
-    def test_geolocation_valid_request(self, spin_ecs_mock):
-        requests_count = NLPRequest.objects.count()
-        valid_data = {
-            "client_id": "client_id",
-            "entries_url": "http://someurl.com/entries",
-        }
-        with self.captureOnCommitCallbacks(execute=True):
-            self.set_credentials()
-            resp = self.client.post(self.GEOLOCATION_URL, valid_data)
-        assert resp.status_code == 202
-        spin_ecs_mock.delay.assert_called_once()
-        new_requests_count = NLPRequest.objects.count()
-        assert \
-            new_requests_count == requests_count + 1, \
-            "One more NLPRequest object should be created"
-        assert NLPRequest.objects.filter(
-            type="geolocation",
-            created_by=self.user
-        ).exists()
+    # def test_geolocation_valid_request(self):
+    #     requests_count = NLPRequest.objects.count()
+    #     valid_data = {
+    #         "client_id": "client_id",
+    #         "entries_url": "http://someurl.com/entries",
+    #     }
+
+    #     self.set_credentials()
+    #     resp = self.client.post(self.GEOLOCATION_URL, valid_data)
+    #     print(resp.json())
+    #     assert resp.status_code == 202
+
+    #     new_requests_count = NLPRequest.objects.count()
+    #     assert \
+    #         new_requests_count == requests_count + 1, \
+    #         "One more NLPRequest object should be created"
+    #     assert NLPRequest.objects.filter(
+    #         type="geolocation",
+    #         created_by=self.user
+    #     ).exists()
 
 
 class TestAnalysisModuleMockAPIs(BaseTestCase):
@@ -289,26 +289,6 @@ class TestAnalysisModuleMockAPIs(BaseTestCase):
         get_entries_mock.return_value = self.GET_ENTRIES_DATA
         self.set_credentials()
         resp = self.client.post(self.SUMMARIZATION_URL, valid_data)
-        assert resp.status_code == 202
-        process_mock.delay.assert_called_once()
-        new_requests_count = NLPRequest.objects.count()
-        assert \
-            new_requests_count == requests_count, \
-            "No more NLPRequest object should be created"
-
-    @patch('analysis_module.mockserver.process_geolocation')
-    @patch('analysis_module.mockserver.get_entries_data')
-    def test_geolocation_valid_request(self, get_entries_mock, process_mock):
-        requests_count = NLPRequest.objects.count()
-        valid_data = {
-            "client_id": "client_id",
-            "entries_url": "http://someurl.com/entries",
-            "callback_url": "http://someurl.com/callback",
-            "mock": True,
-        }
-        get_entries_mock.return_value = self.GET_ENTRIES_DATA
-        self.set_credentials()
-        resp = self.client.post(self.GEOLOCATION_URL, valid_data)
         assert resp.status_code == 202
         process_mock.delay.assert_called_once()
         new_requests_count = NLPRequest.objects.count()

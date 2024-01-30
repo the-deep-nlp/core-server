@@ -113,8 +113,33 @@ def ngrams(request: Request):
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
-def geolocation(request: Request):
-    return process_request(EntriesSerializer, request, "geolocation")
+def geolocation(data: Any, user):
+    serializer = EntriesSerializer(data=data)
+    serializer.is_valid(raise_exception=True)
+
+    if serializer.validated_data.get("mock") or IS_MOCKSERVER:
+        return process_mock_request(
+            request=serializer.validated_data,
+            request_type=NLPRequest.FeaturesType.GEOLOCATION
+        )
+
+    nlp_request = NLPRequest.objects.create(
+        client_id=serializer.validated_data["client_id"],
+        type=NLPRequest.FeaturesType.GEOLOCATION,
+        request_params=serializer.validated_data,
+        created_by=user
+    )
+    transaction.on_commit(lambda: send_ecs_http_request(nlp_request))
+    resp = {
+        "client_id": serializer.data.get("client_id"),
+        "type": NLPRequest.FeaturesType.GEOLOCATION,
+        "message": "Request has been successfully processed.",
+        "request_id": str(nlp_request.unique_id),
+    }
+    return Response(
+        resp,
+        status=status.HTTP_202_ACCEPTED,
+    )
 
 
 @api_view(["GET"])

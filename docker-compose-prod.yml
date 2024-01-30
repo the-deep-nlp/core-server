@@ -46,6 +46,7 @@ x-server: &base-server-config
     SUMMARIZATION_V3_ECS_ENDPOINT: ${SUMMARIZATION_V3_ECS_ENDPOINT:?Provide summarization v3 endpoint}
     TEXTEXTRACTION_ECS_ENDPOINT: ${TEXTEXTRACTION_ECS_ENDPOINT:?Provide text extraction endpoint}
     ENTRYEXTRACTION_ECS_ENDPOINT: ${ENTRYEXTRACTION_ECS_ENDPOINT:?Provide entry extraction endpoint}
+    GEOLOCATION_ECS_ENDPOINT: ${GEOLOCATION_ECS_ENDPOINT:?Provide geolocation endpoint}
 
     # MODEL_INFO
     CLASSIFICATION_MODEL_ID: ${CLASSIFICATION_MODEL_ID:-classification-model}
