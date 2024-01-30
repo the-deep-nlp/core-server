@@ -793,9 +793,9 @@ pycodestyle = ">=2.9.0,<2.10.0"
 pyflakes = ">=2.5.0,<2.6.0"
 
 [[package]]
-name = "geolocation-generator"
+name = "geolocation_generator"
 version = "0.1"
-description = "Detect geolocation entities from the texts"
+description = ""
 category = "main"
 optional = false
 python-versions = "*"
@@ -819,8 +819,8 @@ transformers = ["transformers"]
 [package.source]
 type = "git"
 url = "https://github.com/the-deep-nlp/geolocation-generator.git"
-reference = "a19d621"
-resolved_reference = "a19d6210582985a3f1814976fad4e87ba37e7ce7"
+reference = "ba2ced7"
+resolved_reference = "ba2ced7b1614961c14be1b44de4c3463eb9a7ce6"
 
 [[package]]
 name = "greenlet"
@@ -2899,4 +2899,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10.6"
-content-hash = "3b148bf34ce54587524a52ba0cde6f99ad0dc8053f03142bd89f602541df47f0"
+content-hash = "352456537c3f8827571dfc6133ed63f26658f0ea74ba45f99846854458161806"
