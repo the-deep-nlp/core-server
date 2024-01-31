@@ -586,7 +586,24 @@ MOCK_ENTRY_CLASSIFICATION: Dict = {
         }
     },
     "geolocations": [
-        "New York"
+        {
+            "entity": "Somalia",
+            "meta": {
+                "offset_start": 88,
+                "offset_end": 94,
+                "latitude": -10,
+                "longitude": -55
+            }
+        },
+        {
+            "entity": "Portugal",
+            "meta": {
+                "offset_start": 183,
+                "offset_end": 191,
+                "latitude": 39.6945,
+                "longitude": -8.13057
+            }
+        }
     ]
 }
 
