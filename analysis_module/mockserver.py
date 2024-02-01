@@ -4,7 +4,6 @@ import json
 import requests
 import logging
 import random
-import numpy as np
 
 from random import shuffle
 from math import ceil
