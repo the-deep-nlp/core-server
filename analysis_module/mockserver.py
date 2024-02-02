@@ -215,8 +215,12 @@ def process_geolocation(body) -> Any:
         ent = {}
         ent["entity"] = entity["ent"]
         start = random.randint(0, len(excerpt) - len(entity["ent"]))
-        ent["meta"] = {}
-        ent["meta"].update({"offset_start": start, "offset_end": start + len(entity["ent"])})
+        ent["meta"] = {
+            "offset_start": start,
+            "offset_end": start + len(entity["ent"]),
+            "latitude": None,
+            "longitude": None
+        }
         ent["meta"].update({"latitude": None, "longitude": None})
         for geoid in entity["geoids"]:
             if entity["ent"] == geoid["match"]:
@@ -267,7 +271,7 @@ def process_geolocation(body) -> Any:
 
 
 def geolocation_mock_model(body) -> Any:
-    process_geolocation.delay(body)  # Trigger task after 2 seconds
+    process_geolocation.delay(body)
     return json.dumps({"status": "Successfully received the request."}), 200
 
 
