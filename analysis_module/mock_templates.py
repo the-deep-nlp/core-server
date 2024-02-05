@@ -586,7 +586,24 @@ MOCK_ENTRY_CLASSIFICATION: Dict = {
         }
     },
     "geolocations": [
-        "New York"
+        {
+            "entity": "Somalia",
+            "meta": {
+                "offset_start": 88,
+                "offset_end": 94,
+                "latitude": -10,
+                "longitude": -55
+            }
+        },
+        {
+            "entity": "Portugal",
+            "meta": {
+                "offset_start": 183,
+                "offset_end": 191,
+                "latitude": 39.6945,
+                "longitude": -8.13057
+            }
+        }
     ]
 }
 
@@ -616,7 +633,26 @@ MOCK_ENTRY_CLASSIFICATION_FORMATTED: Dict = {
             "textOrder": 1,
             "relevant": True,
             "prediction_status": True,
-            "geolocations": ["Somalia"],
+            "geolocations": [
+                {
+                    "entity": "Somalia",
+                    "meta": {
+                        "offset_start": 88,
+                        "offset_end": 94,
+                        "latitude": -10,
+                        "longitude": -55
+                    }
+                },
+                {
+                    "entity": "Portugal",
+                    "meta": {
+                        "offset_start": 183,
+                        "offset_end": 191,
+                        "latitude": 39.6945,
+                        "longitude": -8.13057
+                    }
+                }
+            ],
             "classification": {
                 "1": {
                     "101": {
@@ -1135,7 +1171,26 @@ MOCK_ENTRY_CLASSIFICATION_FORMATTED: Dict = {
             "textOrder": 2,
             "relevant": True,
             "prediction_status": True,
-            "geolocations": ["Niger", "Nigeria"],
+            "geolocations": [
+                {
+                    "entity": "Niger",
+                    "meta": {
+                        "offset_start": 88,
+                        "offset_end": 94,
+                        "latitude": -10,
+                        "longitude": -55
+                    }
+                },
+                {
+                    "entity": "Nigeria",
+                    "meta": {
+                        "offset_start": 183,
+                        "offset_end": 191,
+                        "latitude": None,
+                        "longitude": None
+                    }
+                }
+            ],
             "classification": {
                 "1": {
                     "101": {

@@ -4,11 +4,11 @@ import time
 import requests
 import boto3
 import uuid
+import logging
 from celery import shared_task
 from urllib.parse import urljoin
 from typing import Dict, Literal, List, Any
 from nlp_scripts.model_prediction.model_prediction import ModelTagsPrediction
-from nlp_scripts.model_prediction.geolocation import get_geolocations
 
 from django.utils import timezone
 
@@ -19,7 +19,6 @@ from core_server.settings import (
     ENTRYEXTRACTION_ECS_ENDPOINT,
     GEOLOCATION_ECS_ENDPOINT
 )
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -162,6 +161,26 @@ def send_callback_url_request(callback_url: str, client_id: str, filepath: str, 
     return json.dumps({"status": "No callback url found."}), 400
 
 
+def get_geolocations(excerpts: List[str], req_timeout: int = 60):
+    """ Get geolocations from excerpts by requesting from geolocation module """
+    if not GEOLOCATION_ECS_ENDPOINT:
+        logging.error("The geolocation module endpoint not found.")
+        return None
+    data = {"entries_list": excerpts}
+    try:
+        response = requests.post(
+            GEOLOCATION_ECS_ENDPOINT + "/get_geolocations",
+            json=data,
+            timeout=req_timeout
+        )
+        return response.json()
+    except requests.exceptions.Timeout as terr:
+        logging.error("Request timeout to the geolocation endpoint. %s", str(terr))
+    except requests.exceptions.ConnectionError as cerr:
+        logging.error("Request connection error occurred. %s", str(cerr))
+    return None
+
+
 @shared_task
 def send_classification_tags(nlp_request_id: int):
     nlp_request = NLPRequest.objects.get(pk=nlp_request_id)
@@ -170,12 +189,12 @@ def send_classification_tags(nlp_request_id: int):
     pred_data = predictor(entries_dict)
 
     entries_only = [item["entry"] for item in entries_dict]
-    geolocations = get_geolocations(entries_only, "nlpthedeep")  # GEONAME_API_USER)
+    geolocations = get_geolocations(entries_only)
 
     output_data = {
         "client_id": entries_dict[0]["client_id"],
         "model_tags": pred_data,
-        "geolocations": geolocations[0]["locations"],
+        "geolocations": geolocations[0]["locations"] if geolocations else [],
         "model_info": {
             "id": "all_tags_model",
             "version": "1.0.0"

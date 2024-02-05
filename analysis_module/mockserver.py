@@ -4,7 +4,6 @@ import json
 import requests
 import logging
 import random
-import numpy as np
 
 from random import shuffle
 from math import ceil
@@ -213,9 +212,23 @@ def process_geolocation(body) -> Any:
     """geolocation extraction"""
 
     def shape_geo_entities(entity: dict, excerpt: str):
-        ent = entity.copy()
-        start = random.randint(0, len(excerpt) - len(ent["ent"]))
-        ent.update({"offset_start": start, "offset_end": start + len(ent["ent"])})
+        ent = {}
+        ent["entity"] = entity["ent"]
+        start = random.randint(0, len(excerpt) - len(entity["ent"]))
+        ent["meta"] = {
+            "offset_start": start,
+            "offset_end": start + len(entity["ent"]),
+            "latitude": None,
+            "longitude": None
+        }
+        ent["meta"].update({"latitude": None, "longitude": None})
+        for geoid in entity["geoids"]:
+            if entity["ent"] == geoid["match"]:
+                ent["meta"].update({
+                    "latitude": geoid["latitude"],
+                    "longitude": geoid["longitude"]
+                })
+                break
         return ent
 
     request_body = body if isinstance(body, dict) else json.loads(body)
@@ -238,14 +251,10 @@ def process_geolocation(body) -> Any:
         return
 
     data = []
-    for entry_id, excerpt in excerpts:
-        entities = list(
-            np.random.choice(
-                MOCK_GEOLOCATION, size=random.randint(0, len(MOCK_GEOLOCATION))
-            )
-        )
-        entities = [shape_geo_entities(x, excerpt) for x in entities]
-        data.append({"entry_id": int(entry_id), "entities": entities})
+    for idx, (entry_id, excerpt) in enumerate(excerpts):
+        entities = MOCK_GEOLOCATION[idx]
+        entities = [shape_geo_entities(entities, excerpt)]
+        data.append({"entry_id": int(entry_id), "locations": entities})
 
     filepath = save_data_local_and_get_url(
         dir_name="geolocation",
@@ -262,7 +271,7 @@ def process_geolocation(body) -> Any:
 
 
 def geolocation_mock_model(body) -> Any:
-    process_geolocation.delay(body, countdown=2)  # Trigger task after 2 seconds
+    process_geolocation.delay(body)
     return json.dumps({"status": "Successfully received the request."}), 200
 
 
