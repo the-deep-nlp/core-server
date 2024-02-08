@@ -188,7 +188,7 @@ def process_topicmodeling(body) -> Any:
         for x in range(0, len(excerpt_ids), ceil(len(excerpt_ids) / clusters))
     ]
 
-    data = {key: val for key, val in enumerate(data)}
+    data = dict(enumerate(data))
 
     filepath = save_data_local_and_get_url(
         dir_name="topicmodel", client_id=client_id, data=data

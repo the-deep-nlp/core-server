@@ -65,7 +65,32 @@ def process_request(
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def topic_modeling(request: Request):
-    return process_request(TopicModelDeepRequest, request, "topicmodel")
+    serializer = TopicModelDeepRequest(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    if serializer.validated_data.get("mock") or IS_MOCKSERVER:
+        return process_mock_request(
+            request=serializer.validated_data,
+            request_type=NLPRequest.FeaturesType.TOPICMODEL
+        )
+
+    nlp_request = NLPRequest.objects.create(
+        client_id=serializer.validated_data["client_id"],
+        type=NLPRequest.FeaturesType.TOPICMODEL,
+        request_params=serializer.validated_data,
+        created_by=request.user
+    )
+    transaction.on_commit(lambda: send_ecs_http_request(nlp_request))
+    resp = {
+        "client_id": serializer.data.get("client_id"),
+        "type": NLPRequest.FeaturesType.TOPICMODEL,
+        "message": "Request has been successfully processed.",
+        "request_id": str(nlp_request.unique_id),
+    }
+    return Response(
+        resp,
+        status=status.HTTP_202_ACCEPTED,
+    )
 
 
 @api_view(["POST"])

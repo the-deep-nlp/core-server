@@ -47,6 +47,7 @@ x-server: &base-server-config
     TEXTEXTRACTION_ECS_ENDPOINT: ${TEXTEXTRACTION_ECS_ENDPOINT:?Provide text extraction endpoint}
     ENTRYEXTRACTION_ECS_ENDPOINT: ${ENTRYEXTRACTION_ECS_ENDPOINT:?Provide entry extraction endpoint}
     GEOLOCATION_ECS_ENDPOINT: ${GEOLOCATION_ECS_ENDPOINT:?Provide geolocation endpoint}
+    TOPICMODEL_ECS_ENDPOINT: ${TOPICMODEL_ECS_ENDPOINT:?Provide topic model endpoint}
 
     # MODEL_INFO
     CLASSIFICATION_MODEL_ID: ${CLASSIFICATION_MODEL_ID:-classification-model}
