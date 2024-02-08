@@ -246,28 +246,22 @@ def send_ecs_http_request(nlp_request: NLPRequest):
 
 
 def get_ecs_id_param_name(request_type: NLPRequest.FeaturesType):
-    if request_type == NLPRequest.FeaturesType.SUMMARIZATION_V3:
-        return "summarization_id"
-    if request_type == NLPRequest.FeaturesType.TEXT_EXTRACTION:
-        return "textextraction_id"
-    if request_type == NLPRequest.FeaturesType.ENTRY_EXTRACTION:
-        return "entryextraction_id"  # not needed probably, just to be in line with the rest.
-    if request_type == NLPRequest.FeaturesType.GEOLOCATION:
-        return "geolocation_id"
-    if request_type == NLPRequest.FeaturesType.TOPICMODEL:
-        return "topicmodel_id"
-    return None
+    mapper = {
+        NLPRequest.FeaturesType.TOPICMODEL: "topicmodel_id",
+        NLPRequest.FeaturesType.GEOLOCATION: "geolocation_id",
+        NLPRequest.FeaturesType.ENTRY_EXTRACTION: "entryextraction_id",
+        NLPRequest.FeaturesType.TEXT_EXTRACTION: "textextraction_id",
+        NLPRequest.FeaturesType.SUMMARIZATION_V3: "summarization_id"
+    }
+    return mapper.get(request_type, None)
 
 
 def get_ecs_url(request_type: NLPRequest.FeaturesType):
-    if request_type == NLPRequest.FeaturesType.SUMMARIZATION_V3:
-        return urljoin(SUMMARIZATION_V3_ECS_ENDPOINT, "/generate_report")
-    elif request_type == NLPRequest.FeaturesType.TEXT_EXTRACTION:
-        return urljoin(TEXT_EXTRACTION_ECS_ENDPOINT, "/extract_document")
-    elif request_type == NLPRequest.FeaturesType.ENTRY_EXTRACTION:
-        return urljoin(ENTRYEXTRACTION_ECS_ENDPOINT, "/extract_entries")
-    elif request_type == NLPRequest.FeaturesType.GEOLOCATION:
-        return urljoin(GEOLOCATION_ECS_ENDPOINT, "/get_geolocations")
-    elif request_type == NLPRequest.FeaturesType.TOPICMODEL:
-        return urljoin(TOPICMODEL_ECS_ENDPOINT, "/get_excerpt_clusters")
-    return None
+    mapper = {
+        NLPRequest.FeaturesType.TOPICMODEL: urljoin(TOPICMODEL_ECS_ENDPOINT, "/get_excerpt_clusters"),
+        NLPRequest.FeaturesType.GEOLOCATION: urljoin(GEOLOCATION_ECS_ENDPOINT, "/get_geolocations"),
+        NLPRequest.FeaturesType.ENTRY_EXTRACTION: urljoin(ENTRYEXTRACTION_ECS_ENDPOINT, "/extract_entries"),
+        NLPRequest.FeaturesType.TEXT_EXTRACTION: urljoin(TEXT_EXTRACTION_ECS_ENDPOINT, "/extract_document"),
+        NLPRequest.FeaturesType.SUMMARIZATION_V3: urljoin(SUMMARIZATION_V3_ECS_ENDPOINT, "/generate_report")
+    }
+    return mapper.get(request_type, None)
