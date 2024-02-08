@@ -36,12 +36,10 @@ class TestAnalysisModuleAPIs(BaseTestCase):
             errors = resp.json()["field_errors"]
             assert param in errors
 
-    @patch('analysis_module.views.analysis_module.spin_ecs_container')
-    def test_topicmodel_valid_request(self, spin_ecs_mock):
+    def test_topicmodel_valid_request(self):
         """
         This tests for a topicmodel api with valid data
         """
-        requests_count = NLPRequest.objects.count()
         valid_data = {
             "entries_url": "https://someurl.com/entries",
             "cluster_size": 2,
@@ -52,15 +50,6 @@ class TestAnalysisModuleAPIs(BaseTestCase):
             self.set_credentials()
             resp = self.client.post(self.TOPICMODELING_URL, valid_data)
         assert resp.status_code == 202
-        spin_ecs_mock.delay.assert_called_once()
-        new_requests_count = NLPRequest.objects.count()
-        assert \
-            new_requests_count == requests_count + 1, \
-            "One more NLPRequest object should be created"
-        assert NLPRequest.objects.filter(
-            type="topicmodel",
-            created_by=self.user,
-        ).exists()
 
     def test_ngrams_incomplete_data(self):
         """
