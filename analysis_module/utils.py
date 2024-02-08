@@ -17,7 +17,8 @@ from core_server.settings import (
     SUMMARIZATION_V3_ECS_ENDPOINT,
     TEXT_EXTRACTION_ECS_ENDPOINT,
     ENTRYEXTRACTION_ECS_ENDPOINT,
-    GEOLOCATION_ECS_ENDPOINT
+    GEOLOCATION_ECS_ENDPOINT,
+    TOPICMODEL_ECS_ENDPOINT
 )
 
 logger = logging.getLogger(__name__)
@@ -253,6 +254,8 @@ def get_ecs_id_param_name(request_type: NLPRequest.FeaturesType):
         return "entryextraction_id"  # not needed probably, just to be in line with the rest.
     if request_type == NLPRequest.FeaturesType.GEOLOCATION:
         return "geolocation_id"
+    if request_type == NLPRequest.FeaturesType.TOPICMODEL:
+        return "topicmodel_id"
     return None
 
 
@@ -265,4 +268,6 @@ def get_ecs_url(request_type: NLPRequest.FeaturesType):
         return urljoin(ENTRYEXTRACTION_ECS_ENDPOINT, "/extract_entries")
     elif request_type == NLPRequest.FeaturesType.GEOLOCATION:
         return urljoin(GEOLOCATION_ECS_ENDPOINT, "/get_geolocations")
+    elif request_type == NLPRequest.FeaturesType.TOPICMODEL:
+        return urljoin(TOPICMODEL_ECS_ENDPOINT, "/get_excerpt_clusters")
     return None
