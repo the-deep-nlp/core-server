@@ -170,6 +170,13 @@ def process_topicmodeling(body) -> Any:
     callback_url = request_body.get("callback_url")
     clusters = request_body.get("max_clusters_num", 5)
 
+    labels = [
+        "Sudan Crisis 2022",
+        "Earthquake of magnitude 7.2 in 2015",
+        "Flood Disaster in Morocco",
+        "Human Trafficking in African regions"
+    ]
+
     try:
         excerpt_ids = [x["entry_id"] for x in get_entries_data(entries_url)]
     except Exception:
@@ -183,12 +190,13 @@ def process_topicmodeling(body) -> Any:
 
     shuffle(excerpt_ids)
 
-    data = [
-        excerpt_ids[x:x + ceil(len(excerpt_ids) / clusters)]
-        for x in range(0, len(excerpt_ids), ceil(len(excerpt_ids) / clusters))
-    ]
-
-    data = dict(enumerate(data))
+    data = {
+        idx: {
+            "entry_id": excerpt_ids[x:x + ceil(len(excerpt_ids) / clusters)],
+            "label": labels[idx] if idx < len(labels) else "Random Cluster Topic"
+        }
+        for idx, x in enumerate(range(0, len(excerpt_ids), ceil(len(excerpt_ids) / clusters)))
+    }
 
     filepath = save_data_local_and_get_url(
         dir_name="topicmodel", client_id=client_id, data=data
