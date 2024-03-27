@@ -639,8 +639,8 @@ MOCK_ENTRY_CLASSIFICATION_FORMATTED: Dict = {
                     "meta": {
                         "offset_start": 88,
                         "offset_end": 94,
-                        "latitude": -10,
-                        "longitude": -55
+                        "latitude": 5.15,
+                        "longitude": 46.19
                     }
                 },
                 {
@@ -649,7 +649,43 @@ MOCK_ENTRY_CLASSIFICATION_FORMATTED: Dict = {
                         "offset_start": 183,
                         "offset_end": 191,
                         "latitude": 39.6945,
-                        "longitude": -8.13057
+                        "longitude": 8.13057
+                    }
+                },
+                {
+                    "entity": "Colombia",
+                    "meta": {
+                        "offset_start": 195,
+                        "offset_end": 198,
+                        "latitude": 4.57,
+                        "longitude": 74.29
+                    }
+                },
+                {
+                    "entity": "Arauca",
+                    "meta": {
+                        "offset_start": 105,
+                        "offset_end": 108,
+                        "latitude": 7.07,
+                        "longitude": 70.71
+                    }
+                },
+                {
+                    "entity": "Turkey",
+                    "meta": {
+                        "offset_start": 255,
+                        "offset_end": 158,
+                        "latitude": 38.96,
+                        "longitude": 35.24
+                    }
+                },
+                {
+                    "entity": "Antalya",
+                    "meta": {
+                        "offset_start": 135,
+                        "offset_end": 138,
+                        "latitude": 36.89,
+                        "longitude": 30.71
                     }
                 }
             ],
