@@ -317,10 +317,35 @@ def process_extraction_mock(body) -> Any:
         filepath = save_data_local_and_get_url(
             "extraction", client_id, random_extracted_text
         )
+        tables_path = [
+            [{
+                "page_number": 1,
+                "order": 0,
+                "image_link": "https://text-extraction-mock-data.s3.amazonaws.com/timetable.png",
+                "content_link": "https://text-extraction-mock-data.s3.amazonaws.com/table_timetable.xlsx"
+            },
+            {
+                "page_number": 1,
+                "order": 1,
+                "image_link": "https://text-extraction-mock-data.s3.amazonaws.com/risk_analysis.png",
+                "content_link": "https://text-extraction-mock-data.s3.amazonaws.com/risk_analysis.xlsx"
+            }],
+            [{
+                "page_number": 2,
+                "order": 0,
+                "image_link": "https://text-extraction-mock-data.s3.amazonaws.com/table2.png",
+                "content_link": "https://text-extraction-mock-data.s3.amazonaws.com/table2.xlsx"
+            }]
+        ]
+        images_path = [
+            "https://text-extraction-mock-data.s3.amazonaws.com/rose.jpg",
+            "https://text-extraction-mock-data.s3.amazonaws.com/USAID1619883462_1024.jpg"
+        ]
         callback_data = {
             "text_path": filepath,
-            "images_path": [],
+            "images_path": images_path,
             "total_pages": 1,
+            "tables_path": tables_path,
             "total_words_count": 50,
             "status": NLPRequest.RequestStatus.SUCCESS,
             "client_id": client_id,
