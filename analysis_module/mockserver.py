@@ -132,7 +132,8 @@ def process_summarization(body: dict) -> Any:
     callback_url = request_body.get("callback_url")
 
     try:
-        excerpts = [x["excerpt"] for x in get_entries_data(entries_url)]
+        input_payload = get_entries_data(entries_url)
+        excerpts = [x["excerpt"] for x in input_payload["data"]]
     except Exception:
         send_callback_url_request(
             callback_url=callback_url,
@@ -178,7 +179,10 @@ def process_topicmodeling(body) -> Any:
     ]
 
     try:
-        excerpt_ids = [x["entry_id"] for x in get_entries_data(entries_url)]
+        input_payload = get_entries_data(entries_url)
+        excerpt_ids = [x["entry_id"] for x in input_payload["data"]]
+        # To get the list of unique tags
+        # tags = input_payload["tags"]
     except Exception:
         send_callback_url_request(
             callback_url=callback_url,
