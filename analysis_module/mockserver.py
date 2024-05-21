@@ -305,11 +305,21 @@ def process_extraction_mock(body) -> Any:
         client_id = document["client_id"]
         text_extraction_id = "06b46e2a-00b6-4676-a375-8a7b938a17c6"
         random_extracted_text = """
+            ********* [PAGE 1 START] *********
             This is some random extracted text.
             On Human Rights Day, observed annually on December 10th, Palestinian human rights organizations—The Palestinian
             Center for Human Rights, Al Mezan, and Al-Haq—call on the international community to promptly intervene for an
             immediate ceasefire, pressure Israel to halt its aggression and genocide in the Gaza Strip and its violations
             in the entire occupied Palestinian territory, and ensure accountability and justice.
+            ********* [OCR CONTENT START] *********
+            Given the high concentration of children inRafah- including many who are highly
+            vulnerable and at the edge of survival- as well as the likely intensity of the
+            violence,with potential evacuation corridors likely mined or littered with unexploded
+            ordnance; and shelter and services in areas for elocation very likely to be
+            limited-UNicEF is warning of a further catastrophe for children,with military
+            operations resulting in very high civilian casualties and the few remaining basic
+            services and infrastructure they need to survive being totally destroyed.
+            ********* [OCR CONTENT END] *********
             As the world marks Human Rights Day today, commemorating the adoption of the Universal
             Declaration of Human Rights (UDHR) by the United Nations General Assembly in 1948;
             Israel blatantly and systematically violates the majority of the declaration's articles.
@@ -317,12 +327,20 @@ def process_extraction_mock(body) -> Any:
             enjoying complete immunity and support from the United States. Despite the US providing Israel with weapons and
             munitions and vetoing the UN Security Council resolution calling for an immediate ceasefire in Gaza, the
             international community has yet to take effective positions to halt the genocide of an entire people.
+            ********* [PAGE 1 END] *********
+            ********* [PAGE 2 START] *********
+            In Burundi, around 32,000 refugees-nearly half of the refugee population in the
+            country -are living in areas affected by the floods, with 500 of them requiring
+            urgent assistance. In the capital, Bujumbura,refugee families along with many
+            Burundians,including elderly people, have had to elocate multiple times as water
+            levels continue to rise.
+            ********* [PAGE 2 END] *********
         """
         filepath = save_data_local_and_get_url(
             "extraction", client_id, random_extracted_text
         )
         tables_path = [
-            [{
+            {
                 "page_number": 1,
                 "order": 0,
                 "image_link": "https://text-extraction-mock-data.s3.amazonaws.com/timetable.png",
@@ -333,13 +351,13 @@ def process_extraction_mock(body) -> Any:
                 "order": 1,
                 "image_link": "https://text-extraction-mock-data.s3.amazonaws.com/risk_analysis.png",
                 "content_link": "https://text-extraction-mock-data.s3.amazonaws.com/risk_analysis.xlsx"
-            }],
-            [{
+            },
+            {
                 "page_number": 2,
                 "order": 0,
                 "image_link": "https://text-extraction-mock-data.s3.amazonaws.com/table2.png",
                 "content_link": "https://text-extraction-mock-data.s3.amazonaws.com/table2.xlsx"
-            }]
+            }
         ]
         images_path = [
             "https://text-extraction-mock-data.s3.amazonaws.com/rose.jpg",
