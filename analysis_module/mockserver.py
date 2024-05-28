@@ -311,7 +311,7 @@ def process_extraction_mock(body) -> Any:
             Center for Human Rights, Al Mezan, and Al-Haq—call on the international community to promptly intervene for an
             immediate ceasefire, pressure Israel to halt its aggression and genocide in the Gaza Strip and its violations
             in the entire occupied Palestinian territory, and ensure accountability and justice.
-            ********* [OCR CONTENT START] *********
+            " ------------------------------------------------------------------------------ "
             Given the high concentration of children inRafah- including many who are highly
             vulnerable and at the edge of survival- as well as the likely intensity of the
             violence,with potential evacuation corridors likely mined or littered with unexploded
@@ -319,7 +319,7 @@ def process_extraction_mock(body) -> Any:
             limited-UNicEF is warning of a further catastrophe for children,with military
             operations resulting in very high civilian casualties and the few remaining basic
             services and infrastructure they need to survive being totally destroyed.
-            ********* [OCR CONTENT END] *********
+            " ------------------------------------------------------------------------------ "
             As the world marks Human Rights Day today, commemorating the adoption of the Universal
             Declaration of Human Rights (UDHR) by the United Nations General Assembly in 1948;
             Israel blatantly and systematically violates the majority of the declaration's articles.
@@ -360,8 +360,19 @@ def process_extraction_mock(body) -> Any:
             }
         ]
         images_path = [
-            "https://text-extraction-mock-data.s3.amazonaws.com/rose.jpg",
-            "https://text-extraction-mock-data.s3.amazonaws.com/USAID1619883462_1024.jpg"
+            {
+                "page_number": 1,
+                "images": [
+                    "https://text-extraction-mock-data.s3.amazonaws.com/rose.jpg",
+                    "https://text-extraction-mock-data.s3.amazonaws.com/USAID1619883462_1024.jpg"
+                ]
+            },
+            {
+                "page_number": 2,
+                "images": [
+                    "https://text-extraction-mock-data.s3.amazonaws.com/forum.png"
+                ]
+            }
         ]
         callback_data = {
             "text_path": filepath,
