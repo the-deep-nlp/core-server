@@ -24,9 +24,9 @@ logger = logging.getLogger("__name__")
 logger.setLevel(logging.INFO)
 
 
-def get_entries_data(url: str) -> Any:
+def get_entries_data(url: str, timeout: int=30) -> Any:
     """get data"""
-    response = requests.get(url)
+    response = requests.get(url, timeout=timeout)
     entries_data = json.loads(response.text)
     return entries_data
 
