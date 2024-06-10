@@ -357,6 +357,36 @@ def process_extraction_mock(body) -> Any:
                 "order": 0,
                 "image_link": "https://text-extraction-mock-data.s3.amazonaws.com/table2.png",
                 "content_link": "https://text-extraction-mock-data.s3.amazonaws.com/table2.xlsx"
+            },
+            {
+                "page_number": 2,
+                "order": 1,
+                "image_link": "https://text-extraction-mock-data.s3.amazonaws.com/table2.png",
+                "content_link": "https://text-extraction-mock-data.s3.amazonaws.com/table2.xlsx"
+            },
+            {
+                "page_number": 3,
+                "order": 0,
+                "image_link": "https://text-extraction-mock-data.s3.amazonaws.com/table2.png",
+                "content_link": "https://text-extraction-mock-data.s3.amazonaws.com/table2.xlsx"
+            },
+            {
+                "page_number": 3,
+                "order": 1,
+                "image_link": "https://text-extraction-mock-data.s3.amazonaws.com/table2.png",
+                "content_link": "https://text-extraction-mock-data.s3.amazonaws.com/table2.xlsx"
+            },
+            {
+                "page_number": 3,
+                "order": 2,
+                "image_link": "https://text-extraction-mock-data.s3.amazonaws.com/table2.png",
+                "content_link": "https://text-extraction-mock-data.s3.amazonaws.com/table2.xlsx"
+            },
+            {
+                "page_number": 4,
+                "order": 0,
+                "image_link": "https://text-extraction-mock-data.s3.amazonaws.com/table2.png",
+                "content_link": "https://text-extraction-mock-data.s3.amazonaws.com/table2.xlsx"
             }
         ]
         images_path = [
@@ -364,13 +394,23 @@ def process_extraction_mock(body) -> Any:
                 "page_number": 1,
                 "images": [
                     "https://text-extraction-mock-data.s3.amazonaws.com/rose.jpg",
+                    "https://text-extraction-mock-data.s3.amazonaws.com/USAID1619883462_1024.jpg",
+                    "https://text-extraction-mock-data.s3.amazonaws.com/USAID1619883462_1024.jpg",
+                    "https://text-extraction-mock-data.s3.amazonaws.com/USAID1619883462_1024.jpg",
+                    "https://text-extraction-mock-data.s3.amazonaws.com/USAID1619883462_1024.jpg",
+                    "https://text-extraction-mock-data.s3.amazonaws.com/USAID1619883462_1024.jpg",
+                    "https://text-extraction-mock-data.s3.amazonaws.com/USAID1619883462_1024.jpg",
+                    "https://text-extraction-mock-data.s3.amazonaws.com/USAID1619883462_1024.jpg",
+                    "https://text-extraction-mock-data.s3.amazonaws.com/USAID1619883462_1024.jpg",
                     "https://text-extraction-mock-data.s3.amazonaws.com/USAID1619883462_1024.jpg"
                 ]
             },
             {
                 "page_number": 2,
                 "images": [
-                    "https://text-extraction-mock-data.s3.amazonaws.com/forum.png"
+                    "https://text-extraction-mock-data.s3.amazonaws.com/forum.png",
+                    "https://text-extraction-mock-data.s3.amazonaws.com/USAID1619883462_1024.jpg",
+                    "https://text-extraction-mock-data.s3.amazonaws.com/USAID1619883462_1024.jpg"
                 ]
             }
         ]
