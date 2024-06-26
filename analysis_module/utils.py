@@ -161,47 +161,6 @@ def send_callback_url_request(callback_url: str, client_id: str, filepath: str, 
     logging.error("No callback url found.")
     return json.dumps({"status": "No callback url found."}), 400
 
-@shared_task
-def send_callback_url_request_for_summarization(
-    callback_url: str,
-    client_id: str,
-    summary_filepath: str,
-    analytical_statement_filepath: str,
-    info_gaps_filepath: str,
-    status: int
-) -> Any:
-    """send callback url"""
-
-    time.sleep(1)
-    if callback_url:
-        response_callback_url = requests.post(
-            callback_url,
-            json={
-                "client_id": client_id,
-                "summary_url": summary_filepath,
-                "analytical_statement_url": analytical_statement_filepath,
-                "info_gaps_url": info_gaps_filepath,
-                "status": status,
-            },
-            timeout=30,
-        )
-        if response_callback_url.status_code == 200:
-            logging.info("Request sent successfully.")
-            return json.dumps({"status": "Request sent successfully."})
-        else:
-            logging.info(
-                f"Some errors occurred. StatusCode: {response_callback_url.status_code}"
-            )
-            return json.dumps(
-                {
-                    "status": f"Error occurred with statuscode: {response_callback_url.status_code}"
-                }
-            )
-
-    logging.error("No callback url found.")
-    return json.dumps({"status": "No callback url found."}), 400
-
-
 def get_geolocations(excerpts: List[str], req_timeout: int = 60):
     """ Get geolocations from excerpts by requesting from geolocation module """
     if not GEOLOCATION_ECS_ENDPOINT:
