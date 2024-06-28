@@ -24,11 +24,10 @@ logger = logging.getLogger("__name__")
 logger.setLevel(logging.INFO)
 
 
-def get_entries_data(url: str, timeout: int=30) -> Any:
+def get_entries_data(url: str, timeout: int = 30) -> Any:
     """get data"""
     response = requests.get(url, timeout=timeout)
-    return response.json() #json.loads(response.text)
-    #return entries_data
+    return response.json()
 
 
 def save_data_local_and_get_url(dir_name: str, client_id: str, data: Any) -> str:

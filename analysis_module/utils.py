@@ -161,6 +161,7 @@ def send_callback_url_request(callback_url: str, client_id: str, filepath: str, 
     logging.error("No callback url found.")
     return json.dumps({"status": "No callback url found."}), 400
 
+
 def get_geolocations(excerpts: List[str], req_timeout: int = 60):
     """ Get geolocations from excerpts by requesting from geolocation module """
     if not GEOLOCATION_ECS_ENDPOINT:
