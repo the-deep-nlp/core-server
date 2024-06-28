@@ -135,7 +135,7 @@ def process_summarization(body: dict) -> Any:
         input_payload = get_entries_data(entries_url)
         excerpts = [x["excerpt"] for x in input_payload["data"]]
     except Exception:
-        send_callback_url_request_for_summarization(
+        send_callback_url_request(
             callback_url=callback_url,
             client_id=client_id,
             filepath="",
