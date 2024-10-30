@@ -239,6 +239,8 @@ def get_tags_data_for_exportable(
         master[key_title] = [a for e in c["excel")["values") for a in e if a]
 
         """
+        if "common" in ex:
+            ex["excel"].update(ex["common"])
         output = [c for a in ex["excel"]["values"] for c in a if c]
 
     elif tip == "matrix1dWidget":
