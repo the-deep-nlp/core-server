@@ -7,7 +7,11 @@ from rest_framework import status
 
 from core_server.settings import IS_MOCKSERVER
 from core.models import NLPRequest
-from analysis_module.serializers import TagsMappingRequestSerializer, PredictionRequestSerializer
+from analysis_module.serializers import (
+    TagsMappingRequestSerializer,
+    PredictionRequestSerializer,
+    PredictionRequestWithLLMSerializer
+)
 # from analysis_module.mockserver import MOCK_ENTRY_CLASSIFICATION
 from analysis_module.utils import send_classification_tags
 from nlp_scripts.model_prediction.tags_mapping import AF2NLPMapping
@@ -120,3 +124,42 @@ def entry_classification(request: Request):
     #     nlp_request.status = NLPRequest.RequestStatus.SUCCESS
     # nlp_request.save(update_fields=['status'])
     # return Response(resp_data)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def llm_entry_classification(request: Request):
+    serializer = PredictionRequestWithLLMSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    entries = serializer.validated_data["entries"]
+    req_type = NLPRequest.FeaturesType.ENTRY_CLASSIFICATION_LLM
+
+    if serializer.validated_data.get("mock") or IS_MOCKSERVER:
+        return process_mock_request(
+            request=serializer.validated_data,
+            request_type=req_type
+        )
+    if not entries:
+        return Response({})
+    
+    nlp_request = NLPRequest.objects.create(
+        client_id=entries[0]["client_id"],
+        type=NLPRequest.FeaturesType.ENTRY_CLASSIFICATION_LLM,
+        request_params=serializer.validated_data,
+        created_by=request.user,
+    )
+    resp = {
+        "type": req_type,
+        "message": "Request has been successfully queued.",
+        "request_ids": nlp_request.unique_id
+    }
+
+    # transaction.on_commit(
+    #     lambda:
+    # )
+
+    return Response(
+        resp,
+        status=status.HTTP_202_ACCEPTED
+    )

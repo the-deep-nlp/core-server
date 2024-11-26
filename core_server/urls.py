@@ -27,6 +27,7 @@ from analysis_module.views.analysis_module import (
 from analysis_module.views.predictions import (
     tags_mapping,
     entry_classification,
+    llm_entry_classification,
     nlp_tags,
 )
 
@@ -51,4 +52,5 @@ urlpatterns = [
     path("api/v1/analysismodule/status/<uuid:unique_id>/", request_status),
     path("api/v1/models-info/", models_detail),
     path("api/v1/test-auth/", token_auth_dummy_view),
+    path("api/v1/llm-entry-classification/", llm_entry_classification)
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

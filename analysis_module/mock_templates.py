@@ -607,6 +607,30 @@ MOCK_ENTRY_CLASSIFICATION: Dict = {
     ]
 }
 
+MOCK_ENTRY_CLASSIFICATION_LLM: Dict = {
+    "model_tags": {},
+    "geolocations": [
+        {
+            "entity": "Somalia",
+            "meta": {
+                "offset_start": 88,
+                "offset_end": 94,
+                "latitude": -10,
+                "longitude": -55
+            }
+        },
+        {
+            "entity": "Portugal",
+            "meta": {
+                "offset_start": 183,
+                "offset_end": 191,
+                "latitude": 39.6945,
+                "longitude": -8.13057
+            }
+        }
+    ]
+}
+
 
 """
 it's a huge output (and it can be bigger that this one). Maybe we can truncate it.

@@ -69,6 +69,20 @@ class PredictionRequestSerializer(serializers.Serializer):
     mock = serializers.BooleanField(default=False)
 
 
+class PredictionEntryWithLLMSerializer(serializers.Serializer):
+    client_id = serializers.CharField()
+    entry = serializers.CharField()
+    project_id = serializers.IntegerField(required=True)
+    af_id = serializers.IntegerField(required=True)
+
+class PredictionRequestWithLLMSerializer(serializers.Serializer):
+    entries = PredictionEntryWithLLMSerializer(many=True)
+    publishing_organization = serializers.CharField()
+    authoring_organization = serializers.ListField()
+    callback_url = serializers.CharField()
+    mock = serializers.BooleanField(default=False)
+
+
 class ExtractionDocumentSerializer(serializers.Serializer):
     url = serializers.CharField()
     client_id = serializers.CharField()

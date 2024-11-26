@@ -450,6 +450,7 @@ class NLPRequest(BaseModel):
         GEOLOCATION = "geolocation", "Geolocation"
         TAGS_MAPPING = "tags-mapping", "Tags Mapping"
         ENTRY_CLASSIFICATION = "entry-classification", "Entry Classification"
+        ENTRY_CLASSIFICATION_LLM = "entry-classification-llm", "Entry Classification LLM"
         TEXT_EXTRACTION = "text-extraction", "Text Extraction"
         ENTRY_EXTRACTION = "entry-extraction-classification", "Entry Extraction Classification"
 
