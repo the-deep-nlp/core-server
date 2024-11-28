@@ -236,7 +236,7 @@ class LLMTagsPrediction:
 
         assert self.model_family in self.AVAILABLE_FOUNDATION_MODELS, ValueError("Selected model family not implemented")
 
-        self.cursor = self.__get_deep_db_connection()
+        self.cursor = self.__get_deep_db_connection().cursor
         self.selected_widgets = self.__get_framework_widgets()
         self.widgets = WidgetSchema(self.selected_widgets, self.model_family)
 
@@ -321,12 +321,12 @@ class LLMTagsPrediction:
                 for c in v:
                     alias = schema[c]["alias"]
                     elements = alias.split("->")
-                    if len(elements) == 3:
+                    if len(elements) == 3: # prediction without subcolumn
                         sector, pillar, subpillar = elements
                         if pillar not in results[k].keys(): results[k].update({pillar: {}})
                         if not subpillar in results[k][pillar].keys(): results[k][pillar].update({subpillar: {}})
                         results[k][pillar][subpillar].update({sector: []})
-                    elif len(elements) == 4:
+                    elif len(elements) == 4: # prediction with subcolumn
                         sector, subsector, pillar, subpillar = elements
                         if pillar not in results[k].keys(): results[k].update({pillar: {}})
                         if not subpillar in results[k][pillar].keys(): results[k][pillar].update({subpillar: {}})
