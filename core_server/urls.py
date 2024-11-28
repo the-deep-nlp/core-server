@@ -30,6 +30,7 @@ from analysis_module.views.predictions import (
     nlp_tags,
 )
 
+from analysis_module.views.predictions_v2 import entry_classification as llm_entry_classification
 from analysis_module.views.entry_extraction import (
     entry_extraction
 )
@@ -48,6 +49,7 @@ urlpatterns = [
     path("api/v1/tags-mapping/", tags_mapping),
     path("api/v1/nlp-tags/", nlp_tags),
     path("api/v1/entry-classification/", entry_classification),
+    path("api/v1/entry-classification-llm/", llm_entry_classification),
     path("api/v1/analysismodule/status/<uuid:unique_id>/", request_status),
     path("api/v1/models-info/", models_detail),
     path("api/v1/test-auth/", token_auth_dummy_view),
