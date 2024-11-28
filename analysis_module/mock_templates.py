@@ -608,7 +608,26 @@ MOCK_ENTRY_CLASSIFICATION: Dict = {
 }
 
 MOCK_ENTRY_CLASSIFICATION_LLM: Dict = {
-    "model_tags": {},
+    "model_tags": {
+        "matrix2d_widgetid": {
+            "pillar-0": {
+                "subpillar-0": {
+                    "sector-1": []
+                }
+            },
+            "pillar-1": {
+                "subpillar-7": {
+                    "sector-9": ["uosh6efecs60roor", "uosh6efecs60roo2"]
+                }
+            }
+        },
+        "matrix1d_widgetid": {
+            "adlhxznozhgzmcau": {
+                "a8r02hgzlifk1uhd": "sadhbasjkmdhb"
+            },
+            "another-id": "usofasasdasd"
+        }
+    },
     "geolocations": [
         {
             "entity": "Somalia",
