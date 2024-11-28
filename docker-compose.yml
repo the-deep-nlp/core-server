@@ -70,6 +70,8 @@ x-server: &base-server-config
     RELIABILITY_MODEL_ID: ${RELIABILITY_MODEL_ID:-reliability-model}
     RELIABILITY_MODEL_VERSION: ${RELIABILITY_MODEL_VERSION:-1.0.0}
 
+    OPENAI_API_KEY: ${OPENAI_API_KEY:-abcd}
+
   volumes:
     - ./:/code/
   tty: true
