@@ -155,3 +155,15 @@ class EntryExtractionSerializer(serializers.Serializer):
         default=ExtractionRequestTypeChoices.USER,
     )
     mock = serializers.BooleanField(default=False)
+
+class EntryExtractionSerializerLLM(serializers.Serializer):
+
+    documents = DocumentEntryExtractionUnionField()
+    af_id =  serializers.CharField()
+    project_id = serializers.CharField()
+    callback_url = serializers.CharField()
+    request_type = serializers.ChoiceField(
+        choices=ExtractionRequestTypeChoices,
+        default=ExtractionRequestTypeChoices.USER,
+    )
+    mock = serializers.BooleanField(default=False)

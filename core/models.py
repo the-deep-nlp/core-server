@@ -453,6 +453,7 @@ class NLPRequest(BaseModel):
         ENTRY_CLASSIFICATION_LLM = "entry-classification-llm", "Entry Classificationv-LLM"
         TEXT_EXTRACTION = "text-extraction", "Text Extraction"
         ENTRY_EXTRACTION = "entry-extraction-classification", "Entry Extraction Classification"
+        ENTRY_EXTRACTION_LLM = "entry-extraction-classification-llm", "Entry Extraction Classification-LLM"
 
     client_id = models.CharField(max_length=50)
     status = models.IntegerField(choices=RequestStatus.choices, default=RequestStatus.INITIATED)

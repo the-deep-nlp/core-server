@@ -1,4 +1,5 @@
 import os
+import redis
 import pandas as pd
 
 from dataclasses import make_dataclass, field, dataclass
@@ -235,7 +236,7 @@ class LLMTagsPrediction:
         self.model_family = model_family
 
         assert self.model_family in self.AVAILABLE_FOUNDATION_MODELS, ValueError("Selected model family not implemented")
-
+       
         self.cursor = self.__get_deep_db_connection().cursor
         self.selected_widgets = self.__get_framework_widgets()
         self.widgets = WidgetSchema(self.selected_widgets, self.model_family)
@@ -244,15 +245,23 @@ class LLMTagsPrediction:
     def __get_deep_db_connection(self):
         return connect_db()
 
+    def __get_elasticache(self, port: int = 6379):
+        
+        return redis.StrictRedis(
+            host=env("REDIS_HOST"),
+            port=port,
+            decode_responses=True
+        )
 
     def __get_framework_widgets(self): 
-    
+        
+        #self.redis = self.__get_elasticache()
+        #afw = self.redis.get(f"af_id:{self.af_id}")
         self.cursor.execute(af_widget_by_id.format(self.af_id))
         afw = pd.DataFrame(self.cursor.fetchall(), columns=[c.name for c in self.cursor.description])
         afw = afw[afw.widget_id.isin(self.AVAILABLE_WIDGETS)]
 
         return afw
-
 
     def __predict_entry(self, excerpt: str):
 
@@ -262,7 +271,7 @@ class LLMTagsPrediction:
         def select_model_instance(model_name: str):
             
             if self.model_family == "bedrock": model = ChatBedrock(model_id=model_name, temperature=0)
-            elif self.model_family == "openai": model = ChatOpenAI(model = model_name, temperature=0)
+            elif self.model_family == "openai": model = ChatOpenAI(model=model_name, temperature=0)
             
             return model
     
@@ -301,6 +310,7 @@ class LLMTagsPrediction:
 
         results = {}
         for k, v in prediction.items():
+            # don't add nothing to the result if no tags are predicted
             if not v: continue
 
             type_ = self.widgets.schemas[k].type

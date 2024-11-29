@@ -609,22 +609,42 @@ MOCK_ENTRY_CLASSIFICATION: Dict = {
 
 MOCK_ENTRY_CLASSIFICATION_LLM = {
     "client_id": "entry-classification-llm-client-6000",
+    # this mdoel prediction refer to the framework_id: 2691
+    # entry_id: 888099, project_id: 4677 (DRC Lebanon Protection Monitoring Framework)
     "model_tags": {
-            "element0":{
-                "f24b17hxt6xkz5q7":{
-                    "yzvsxjnagd6epm3w": True,
-                    "5avlf7jjck6bz7rz": True
-                }
-            },
-            "element1":{
-                "pillar-0":{
-                    "subpillar-0":{
-                        "sector-9":[
-                        ]
+        "aers0cn11qld0nfv":{
+            "ru816f687bjnfos5":{
+                "edgb9tmi3nizdwji":{
+                    "0f9k0w9nd7eewqov":[],
+                    "7zix7dtg8qmucxyl":[]
                     }
                 }
+            },
+        "aofu2gc37ga68oyr":{
+            "1mihrcvim7h9j5nq":{
+                "zxd8bqptjidyqwh5":True
             }
         },
+        "l44malh7rjlhq312":{
+            "6qz2zednb92k36rz":{
+                "53bwesslq9emavfk":True,
+                "rph8vhyl6sc4zlxo":True
+            }
+        },
+        "vq1y3nsp3svrfb3w":{
+            "06j0a9eec1dwthbm":{
+                "kl7et2cwvw7fw51w":True
+
+            },
+            "djc1q3rh59eig0jp":{
+                "uvrdg7yfktzt0myc":True
+            },
+            "bwre533206cy9q5v":{
+                "dk96teqcbeti0ais":True,
+                "dpsn75wx13ct9oti":True
+            }
+        }
+    },
     "geolocations": [
         {
             "entity": "Somalia",
