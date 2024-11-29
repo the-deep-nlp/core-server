@@ -1,7 +1,9 @@
 import os
+import json
 import redis
 import pandas as pd
 
+from box import Box
 from dataclasses import make_dataclass, field, dataclass
 from pydantic import BaseModel, Field, create_model
 from concurrent.futures import ThreadPoolExecutor
@@ -20,13 +22,14 @@ os.environ["OPENAI_API_KEY"] = env("OPENAI_API_KEY")
 
 class WidgetsMappings:
     
-    def __init__(self, selected_widgets: pd.DataFrame):
+    def __init__(self, selected_widgets: list):
 
         self.mappings = {}
         self.selected_widgets = selected_widgets
         self.WidgetTypes = make_dataclass(
             'WidgetTypes', 
-            [(widget_id, str, field(default=widget_id))for widget_id in selected_widgets.widget_id]
+            [(widget, str, field(default=widget))for widget in list(set([element.widget_id 
+                                                                         for element in self.selected_widgets]))]
         )
         self.create_mappings()
 
@@ -75,7 +78,7 @@ class WidgetsMappings:
 
     def create_mappings(self):
     
-        for _, d in self.selected_widgets.iterrows():
+        for d in self.selected_widgets:
             
             if d.widget_id == self.WidgetTypes.matrix1dWidget:
                 self.__process_widget_1d(d.key, d.properties, d.version)
@@ -106,7 +109,7 @@ class WidgetSchema:
         properties: dict
         pyd_class: BaseModel
 
-    def __init__(self, selected_widgets: pd.DataFrame, model_family: str = "openai"):
+    def __init__(self, selected_widgets: list, model_family: str = "openai"):
 
         self.schemas = {}
         self.max_widget_length = 50
@@ -203,7 +206,7 @@ class WidgetSchema:
 
     def create_schemas(self):
 
-        for _, d in self.selected_widgets.iterrows():
+        for d in self.selected_widgets:
             
             if d.widget_id == self.mappings_instance.WidgetTypes.matrix1dWidget:
                 self.__process_widget_1d(d.key, d.properties, "Pillar")
@@ -229,37 +232,48 @@ class LLMTagsPrediction:
     AVAILABLE_WIDGETS: list = ["matrix2dWidget", "matrix1dWidget"] # it'll be extended to all widget types
     AVAILABLE_FOUNDATION_MODELS: list = ["bedrock", "openai"]
 
-
     def __init__(self, analysis_framework_id: int, model_family: str = "openai"):
 
         self.af_id = analysis_framework_id
         self.model_family = model_family
 
         assert self.model_family in self.AVAILABLE_FOUNDATION_MODELS, ValueError("Selected model family not implemented")
-       
-        self.cursor = self.__get_deep_db_connection().cursor
+
+        # self.cursor = self.__get_deep_db_connection().cursor
         self.selected_widgets = self.__get_framework_widgets()
         self.widgets = WidgetSchema(self.selected_widgets, self.model_family)
-
 
     def __get_deep_db_connection(self):
         return connect_db()
 
     def __get_elasticache(self, port: int = 6379):
-        
-        return redis.StrictRedis(
-            host=env("REDIS_HOST"),
-            port=port,
-            decode_responses=True
-        )
+        return redis.Redis(host=env("REDIS_HOST"), 
+                           port=port, 
+                           decode_responses=True)
 
-    def __get_framework_widgets(self): 
+    def __get_framework_widgets(self, expire_time: int = 1200): 
         
-        #self.redis = self.__get_elasticache()
-        #afw = self.redis.get(f"af_id:{self.af_id}")
-        self.cursor.execute(af_widget_by_id.format(self.af_id))
-        afw = pd.DataFrame(self.cursor.fetchall(), columns=[c.name for c in self.cursor.description])
-        afw = afw[afw.widget_id.isin(self.AVAILABLE_WIDGETS)]
+        # let's get or save the af_id widget original data on elasticache for 20 minutes
+        # avoiding multiple db connection and executions on the same analysis framework id. 
+
+        self.redis = self.__get_elasticache()
+        cached_afw = self.redis.get(f"af_id:{self.af_id}")
+        if cached_afw:
+            afw = [Box(element) for element in json.loads(cached_afw)]
+        else:
+            self.cursor = self.__get_deep_db_connection().cursor
+            self.cursor.execute(af_widget_by_id.format(self.af_id))
+            fetch = self.cursor.fetchall()
+            if not fetch:
+                raise ValueError(f"Not possible to retrieve framework widgets: {self.af_id}")
+            else:
+                afw = [Box(dict(zip([c.name for c in self.cursor.description], row))) for row in fetch]
+                afw = [element for element in afw if afw.widget_id in self.AVAILABLE_WIDGETS]
+                self.redis.set(
+                    name=f"af_id:{self.af_id}", 
+                    ex=expire_time, 
+                    value=json.dumps(afw)
+                )
 
         return afw
 
@@ -275,7 +289,7 @@ class LLMTagsPrediction:
             
             return model
     
-        def create_chain(prompt: str, llm: str, pydantic_model: BaseModel, model_family: str):
+        def create_chain(prompt: str, llm: str, pydantic_model: BaseModel):
             
             tagging_prompt = ChatPromptTemplate.from_template(prompt)
             _llm = select_model_instance(model_name=llm).with_structured_output(pydantic_model)
@@ -285,8 +299,7 @@ class LLMTagsPrediction:
         parallel_tasks = RunnableParallel(**{k: 
                                              create_chain(v.prompt, 
                                                           v.model, 
-                                                          v.pyd_class,
-                                                          self.model_family) for k, v in self.widgets.schemas.items()})
+                                                          v.pyd_class) for k, v in self.widgets.schemas.items()})
 
         results = parallel_tasks.invoke({"input": excerpt})
         
