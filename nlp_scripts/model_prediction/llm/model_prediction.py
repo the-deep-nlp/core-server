@@ -1,7 +1,6 @@
 import os
 import json
 import redis
-import pandas as pd
 
 from box import Box
 from dataclasses import make_dataclass, field, dataclass

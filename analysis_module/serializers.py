@@ -71,8 +71,8 @@ class PredictionRequestSerializer(serializers.Serializer):
 
 class PredictionRequestSerializerV2(serializers.Serializer):
     entries = PredictionEntrySerializer(many=True)
-    af_id = serializers.CharField()
-    project_id = serializers.CharField()
+    af_id = serializers.IntegerField()
+    project_id = serializers.IntegerField()
     publishing_organization = serializers.CharField()
     authoring_organization = serializers.ListField()
     callback_url = serializers.CharField()
