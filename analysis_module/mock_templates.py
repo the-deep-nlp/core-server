@@ -1804,3 +1804,120 @@ MOCK_ENTRY_CLASSIFICATION_FORMATTED: Dict = {
         }
     ]
 }
+
+MOCK_ENTRY_EXTRACTION_LLM  = {
+    # this model prediction refer to the framework_id: 2691
+    # structured_text task: 007d8b24-92c7-407d-8ec1-eb9c1eb7bcdf (s3://nlp-tasks-processed-results-prod-20230602041457655100000005/textextraction/structured/007d8b24-92c7-407d-8ec1-eb9c1eb7bcdf/extracted_text.json)
+    # project_id: 4677 (DRC Lebanon Protection Monitoring Framework)
+    "client_id": "entry-classification-llm-client-6000",
+     "metadata": {
+        "total_pages": 10,
+        "total_words_count": 5876
+    },
+    "blocks": [
+    {
+      "type":"text",
+      "text":"UNHCR’s partners continue to facilitate cloth mask production by refugee and host community women. So far, 115,000 cloth masks have been produced, of which close to 72,000 have been distributed, including 29,000 to the elderly population.",
+      "page":5,
+      "textOrder":7,
+      "relevant": True,
+      "prediction_status": True,
+      "geolocations": [],
+      "classification":{
+         "aers0cn11qld0nfv":{
+            "ru816f687bjnfos5":{
+               "edgb9tmi3nizdwji":{
+                  "0f9k0w9nd7eewqov":[
+                     
+                  ]
+               },
+               "epzm3h0tal56xcul":{
+                  "0f9k0w9nd7eewqov":[
+                     
+                  ]
+               },
+               "0tuqi4jholiq0qzl":{
+                  "0f9k0w9nd7eewqov":[
+                     
+                  ]
+               }
+            }
+         },
+         "aofu2gc37ga68oyr":{
+            "1mihrcvim7h9j5nq":{
+               "dxhur2cuu63ukfqx":True
+            }
+         },
+         "vq1y3nsp3svrfb3w":{
+            "06j0a9eec1dwthbm":{
+               "kphdesz6b5uzzxki":True,
+               "b8qbfc5t89ftroft":True
+            }
+         }
+      }
+   },
+   {
+      "type":"text",
+      "text":"An additional 2,000 Taka (about US$ 24) will be distributed to each of the same households next month. The cash payments are an additional support to many families due to livelihoods having been affected by lockdowns and general economic pressures due to the COVID-19 impact on economies globally and in Bangladesh.",
+      "page":5,
+      "textOrder":8,
+      "relevant": True,
+      "prediction_status": True,
+      "geolocations": [
+        {
+            "entity": "Somalia",
+            "meta": {
+                "offset_start": 88,
+                "offset_end": 94,
+                "latitude": -10,
+                "longitude": -55
+            }
+        },
+        {
+            "entity": "Portugal",
+            "meta": {
+                "offset_start": 183,
+                "offset_end": 191,
+                "latitude": 39.6945,
+                "longitude": -8.13057
+            }
+        }
+     ],
+      "classification":{
+         "aers0cn11qld0nfv":{
+            "ru816f687bjnfos5":{
+               "edgb9tmi3nizdwji":{
+                  "0f9k0w9nd7eewqov":[
+                     
+                  ]
+               },
+               "0tuqi4jholiq0qzl":{
+                  "0f9k0w9nd7eewqov":[
+                     
+                  ]
+               }
+            }
+         },
+         "aofu2gc37ga68oyr":{
+            "1mihrcvim7h9j5nq":{
+               "dxhur2cuu63ukfqx":True
+            }
+         },
+         "l44malh7rjlhq312":{
+            "357ps7h8r3ati9jz":{
+               "kthspg6najppllz7": True
+            },
+            "6qz2zednb92k36rz":{
+               "53bwesslq9emavfk": True,
+               "rph8vhyl6sc4zlxo": True
+            }
+         },
+         "vq1y3nsp3svrfb3w":{
+            "djc1q3rh59eig0jp":{
+               "6pxate9tivbmynh8":True
+            }
+         }
+      }
+   }
+]
+}

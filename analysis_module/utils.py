@@ -287,6 +287,7 @@ def get_ecs_id_param_name(request_type: NLPRequest.FeaturesType):
         NLPRequest.FeaturesType.TOPICMODEL: "topicmodel_id",
         NLPRequest.FeaturesType.GEOLOCATION: "geolocation_id",
         NLPRequest.FeaturesType.ENTRY_EXTRACTION: "entryextraction_id",
+        NLPRequest.FeaturesType.ENTRY_CLASSIFICATION_LLM: "entryextraction_llm_id",
         NLPRequest.FeaturesType.TEXT_EXTRACTION: "textextraction_id",
         NLPRequest.FeaturesType.SUMMARIZATION_V3: "summarization_id"
     }
@@ -298,6 +299,7 @@ def get_ecs_url(request_type: NLPRequest.FeaturesType):
         NLPRequest.FeaturesType.TOPICMODEL: urljoin(TOPICMODEL_ECS_ENDPOINT, "/get_excerpt_clusters"),
         NLPRequest.FeaturesType.GEOLOCATION: urljoin(GEOLOCATION_ECS_ENDPOINT, "/get_geolocations"),
         NLPRequest.FeaturesType.ENTRY_EXTRACTION: urljoin(ENTRYEXTRACTION_ECS_ENDPOINT, "/extract_entries"),
+        NLPRequest.FeaturesType.ENTRY_CLASSIFICATION_LLM: urljoin(ENTRYEXTRACTION_ECS_ENDPOINT, "/extract_entries_llm"),
         NLPRequest.FeaturesType.TEXT_EXTRACTION: urljoin(TEXT_EXTRACTION_ECS_ENDPOINT, "/extract_document"),
         NLPRequest.FeaturesType.SUMMARIZATION_V3: urljoin(SUMMARIZATION_V3_ECS_ENDPOINT, "/generate_report")
     }
