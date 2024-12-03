@@ -500,6 +500,12 @@ def process_entry_extraction_mock(body) -> Any:
         except Exception:
             logger.error("Could not send data to callback url", exc_info=True)
 
+def entry_extraction_llm_mock(body) -> Any:
+    process_entry_extraction_llm_mock.apply_async(
+        args=(body,), countdown=2
+    )  # Trigger task after 2 seconds
+    return json.dumps({"status": "Successfully received the request."}), 200
+
 @shared_task
 def process_entry_extraction_llm_mock(body) -> Any:
     documents = body.get("documents") or []
@@ -616,7 +622,7 @@ TYPE_ACTIONS_MOCK = {
     "geolocation": geolocation_mock_model,
     "text-extraction": text_extraction_mock,
     "entry-extraction-classification": entry_extraction_mock,
-    "entry-extraction-classification-llm": entry_classification_llm_mock,
+    "entry-extraction-classification-llm": entry_extraction_llm_mock,
     "entry-classification": entry_classification_mock,
     "entry-classification-llm": entry_classification_llm_mock
 }
