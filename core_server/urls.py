@@ -31,6 +31,7 @@ from analysis_module.views.predictions import (
 )
 
 from analysis_module.views.predictions_v2 import entry_classification as llm_entry_classification
+from analysis_module.views.entry_extraction_v2 import entry_extraction as llm_entry_extraction
 from analysis_module.views.entry_extraction import (
     entry_extraction
 )
@@ -44,6 +45,7 @@ urlpatterns = [
     path("api/v1/summarization/", summarization),
     path("api/v1/text-extraction/", text_extraction),
     path("api/v1/entry-extraction-classification/", entry_extraction),
+    path("api/v1/entry-extraction-classification-llm/", llm_entry_extraction),
     path("api/v1/ngrams/", ngrams),
     path("api/v1/geolocation/", geolocation),
     path("api/v1/tags-mapping/", tags_mapping),

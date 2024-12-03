@@ -159,8 +159,8 @@ class EntryExtractionSerializer(serializers.Serializer):
 class EntryExtractionSerializerLLM(serializers.Serializer):
 
     documents = DocumentEntryExtractionUnionField()
-    af_id =  serializers.CharField()
-    project_id = serializers.CharField()
+    af_id =  serializers.IntegerField()
+    project_id = serializers.IntegerField()
     callback_url = serializers.CharField()
     request_type = serializers.ChoiceField(
         choices=ExtractionRequestTypeChoices,
