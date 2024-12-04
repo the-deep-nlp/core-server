@@ -609,41 +609,45 @@ MOCK_ENTRY_CLASSIFICATION: Dict = {
 
 MOCK_ENTRY_CLASSIFICATION_LLM = {
     "client_id": "entry-classification-llm-client-6000",
-    # this mdoel prediction refer to the framework_id: 2691
-    # entry_id: 888099, project_id: 4677 (DRC Lebanon Protection Monitoring Framework)
+    # this mdoel prediction refer to the framework_id: 1623
+    # entry_id: 510021, project_id: 2587 (2021 IFRC ESSN Turkey)
     "model_tags": {
-        "aers0cn11qld0nfv":{
-            "ru816f687bjnfos5":{
-                "edgb9tmi3nizdwji":{
-                    "0f9k0w9nd7eewqov":[],
-                    "7zix7dtg8qmucxyl":[]
+            "element1":{
+                "pillar-0":{
+                    "subpillar-4":{
+                        "sector-1":[
+                        "t31unid23fntmwrb"
+                        ],
+                        "sector-4":[
+                        "subsector-1"
+                        ]
+                    },
+                    "subpillar-3":{
+                        "sector-4":[
+                        "subsector-1"
+                        ]
+                    }
+                },
+                "pillar-1":{
+                    "subpillar-1":{
+                        "sector-4":[
+                        "subsector-1"
+                        ]
                     }
                 }
             },
-        "aofu2gc37ga68oyr":{
-            "1mihrcvim7h9j5nq":{
-                "zxd8bqptjidyqwh5":True
-            }
-        },
-        "l44malh7rjlhq312":{
-            "6qz2zednb92k36rz":{
-                "53bwesslq9emavfk":True,
-                "rph8vhyl6sc4zlxo":True
-            }
-        },
-        "vq1y3nsp3svrfb3w":{
-            "06j0a9eec1dwthbm":{
-                "kl7et2cwvw7fw51w":True
-
+            "overview-matrix1dWidget-d48u7z4yohwuu7zg":{
+                "8lowwhswgb5j9f5s":{
+                    "gjsbosuej330kl45":True,
+                    "iwsqjtrs2u5z8qgk":True
+                }
             },
-            "djc1q3rh59eig0jp":{
-                "uvrdg7yfktzt0myc":True
-            },
-            "bwre533206cy9q5v":{
-                "dk96teqcbeti0ais":True,
-                "dpsn75wx13ct9oti":True
+            "element0":{
+                "pillar-3":{
+                    "subpillar-21":True,
+                    "subpillar-20":True
+                }
             }
-        }
     },
     "geolocations": [
         {
@@ -1806,9 +1810,9 @@ MOCK_ENTRY_CLASSIFICATION_FORMATTED: Dict = {
 }
 
 MOCK_ENTRY_EXTRACTION_LLM  = {
-    # this model prediction refer to the framework_id: 2691
-    # structured_text task: 007d8b24-92c7-407d-8ec1-eb9c1eb7bcdf (s3://nlp-tasks-processed-results-prod-20230602041457655100000005/textextraction/structured/007d8b24-92c7-407d-8ec1-eb9c1eb7bcdf/extracted_text.json)
-    # project_id: 4677 (DRC Lebanon Protection Monitoring Framework)
+    # this model prediction refer to the framework_id: 1623
+    # lead_id 67027, url: 'https://reliefweb.int/sites/reliefweb.int/files/resources/UNHCR-Turkey-Operational-Update-October-2019.pdf'
+    # project_id: 2587 (2021 IFRC ESSN Turkey)
     "client_id": "entry-classification-llm-client-6000",
      "metadata": {
         "total_pages": 10,
@@ -1817,55 +1821,46 @@ MOCK_ENTRY_EXTRACTION_LLM  = {
     "blocks": [
     {
       "type":"text",
-      "text":"UNHCR’s partners continue to facilitate cloth mask production by refugee and host community women. So far, 115,000 cloth masks have been produced, of which close to 72,000 have been distributed, including 29,000 to the elderly population.",
-      "page":5,
-      "textOrder":7,
-      "relevant": True,
-      "prediction_status": True,
-      "geolocations": [],
+      "text":"4 million Refugees and asylum-seekers in Turkey including over 3.6 million Syrian nationals and close to 400,000 registered refugees and asylum-seekers of other nationalities. Over 98% of Syrian refugees live across Turkey in 81 provinces",
+      "page":0,
+      "textOrder":2,
+      "relevant":True,
+      "prediction_status":True,
       "classification":{
-         "aers0cn11qld0nfv":{
-            "ru816f687bjnfos5":{
-               "edgb9tmi3nizdwji":{
-                  "0f9k0w9nd7eewqov":[
+         "element1":{
+            "pillar-0":{
+               "o9kyhltzmplk0a1k":{
+                  "sector-9":[
                      
                   ]
-               },
-               "epzm3h0tal56xcul":{
-                  "0f9k0w9nd7eewqov":[
-                     
-                  ]
-               },
-               "0tuqi4jholiq0qzl":{
-                  "0f9k0w9nd7eewqov":[
+               }
+            },
+            "46bg6n1o50obgx77":{
+               "v2kfnyjbn41vv46j":{
+                  "sector-9":[
                      
                   ]
                }
             }
          },
-         "aofu2gc37ga68oyr":{
-            "1mihrcvim7h9j5nq":{
-               "dxhur2cuu63ukfqx":True
+         "overview-matrix1dWidget-d48u7z4yohwuu7zg":{
+            "8lowwhswgb5j9f5s":{
+               "qycslaise1s014vm":True,
+               "7wps5hbnemt59dv9":True
             }
          },
-         "vq1y3nsp3svrfb3w":{
-            "06j0a9eec1dwthbm":{
-               "kphdesz6b5uzzxki":True,
-               "b8qbfc5t89ftroft":True
+         "element0":{
+            "pillar-0":{
+               "nxjm8rsprb9fu2wq":True
+            },
+            "kyiciutprwct1vph":{
+               "4ftpwnssu2ugeekk":True
             }
          }
-      }
-   },
-   {
-      "type":"text",
-      "text":"An additional 2,000 Taka (about US$ 24) will be distributed to each of the same households next month. The cash payments are an additional support to many families due to livelihoods having been affected by lockdowns and general economic pressures due to the COVID-19 impact on economies globally and in Bangladesh.",
-      "page":5,
-      "textOrder":8,
-      "relevant": True,
-      "prediction_status": True,
-      "geolocations": [
+      },
+    "geolocations": [
         {
-            "entity": "Somalia",
+            "entity": "Niger",
             "meta": {
                 "offset_start": 88,
                 "offset_end": 94,
@@ -1874,47 +1869,40 @@ MOCK_ENTRY_EXTRACTION_LLM  = {
             }
         },
         {
-            "entity": "Portugal",
+            "entity": "Nigeria",
             "meta": {
                 "offset_start": 183,
                 "offset_end": 191,
-                "latitude": 39.6945,
-                "longitude": -8.13057
+                "latitude": None,
+                "longitude": None
             }
         }
-     ],
+    ],
+   },
+   {
+      "type":"text",
+      "text":"9,700 Refugees departed for resettlement in 2019 as of end of October, over 78 per cent of whom are Syrians",
+      "page":0,
+      "textOrder":3,
+      "relevant":True,
+      "prediction_status":True,
       "classification":{
-         "aers0cn11qld0nfv":{
-            "ru816f687bjnfos5":{
-               "edgb9tmi3nizdwji":{
-                  "0f9k0w9nd7eewqov":[
-                     
-                  ]
-               },
-               "0tuqi4jholiq0qzl":{
-                  "0f9k0w9nd7eewqov":[
+         "element1":{
+            "pillar-0":{
+               "o9kyhltzmplk0a1k":{
+                  "sector-9":[
                      
                   ]
                }
             }
          },
-         "aofu2gc37ga68oyr":{
-            "1mihrcvim7h9j5nq":{
-               "dxhur2cuu63ukfqx":True
+         "overview-matrix1dWidget-d48u7z4yohwuu7zg":{
+            "8lowwhswgb5j9f5s":{True
             }
          },
-         "l44malh7rjlhq312":{
-            "357ps7h8r3ati9jz":{
-               "kthspg6najppllz7": True
-            },
-            "6qz2zednb92k36rz":{
-               "53bwesslq9emavfk": True,
-               "rph8vhyl6sc4zlxo": True
-            }
-         },
-         "vq1y3nsp3svrfb3w":{
-            "djc1q3rh59eig0jp":{
-               "6pxate9tivbmynh8":True
+         "element0":{
+            "kyiciutprwct1vph":{
+               "4ftpwnssu2ugeekk":True
             }
          }
       }
