@@ -67,5 +67,5 @@ env = environ.Env(
     OPENAI_MAIN_MODEL=(str, "gpt-4o"),
     OPENAI_SMALL_MODEL=(str, "gpt-4o-mini"),
     BEDROCK_MAIN_MODEL=(str, "anthropic.claude-3-5-sonnet-20240620-v1:0"),
-    BEDROCK_SMALL_MODEL=(str, "anthropic.claude-3-5-haiku-20241022-v1:0"),
+    BEDROCK_SMALL_MODEL=(str, "us.amazon.nova-micro-v1:0")
 )
