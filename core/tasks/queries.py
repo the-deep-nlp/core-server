@@ -97,6 +97,7 @@ where pp.is_private=false
 group by pp.id
 having count(ll.id) > 10
 """
+
 # NOTE: having count(ll.id) > 10. 10 is experimental here. There are a lot of
 # garbage projects with less than 10 leads. So this filter significantly
 # reduces the number or projects to fetch.
@@ -218,3 +219,5 @@ geolocation_q = """SELECT
     id, title
     FROM geo_geoarea
 """
+
+af_widget_by_id = "SELECT * from analysis_framework_widget ll WHERE ll.analysis_framework_id={}"

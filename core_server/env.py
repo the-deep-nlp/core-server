@@ -61,4 +61,11 @@ env = environ.Env(
     GEOLOCATION_MODEL_VERSION=str,
     RELIABILITY_MODEL_ID=str,
     RELIABILITY_MODEL_VERSION=str,
+
+    # LLM
+    OPENAI_API_KEY=str,
+    OPENAI_MAIN_MODEL=(str, "gpt-4o"),
+    OPENAI_SMALL_MODEL=(str, "gpt-4o-mini"),
+    BEDROCK_MAIN_MODEL=(str, "anthropic.claude-3-5-sonnet-20240620-v1:0"),
+    BEDROCK_SMALL_MODEL=(str, "us.amazon.nova-micro-v1:0")
 )

@@ -69,6 +69,16 @@ class PredictionRequestSerializer(serializers.Serializer):
     mock = serializers.BooleanField(default=False)
 
 
+class PredictionRequestSerializerV2(serializers.Serializer):
+    entries = PredictionEntrySerializer(many=True)
+    af_id = serializers.IntegerField()
+    project_id = serializers.IntegerField()
+    publishing_organization = serializers.CharField()
+    authoring_organization = serializers.ListField()
+    callback_url = serializers.CharField()
+    mock = serializers.BooleanField(default=False)
+
+
 class ExtractionDocumentSerializer(serializers.Serializer):
     url = serializers.CharField()
     client_id = serializers.CharField()
@@ -137,8 +147,19 @@ class DocumentEntryExtractionUnionField(serializers.ListField):
 
 
 class EntryExtractionSerializer(serializers.Serializer):
-
     documents = DocumentEntryExtractionUnionField()
+    callback_url = serializers.CharField()
+    request_type = serializers.ChoiceField(
+        choices=ExtractionRequestTypeChoices,
+        default=ExtractionRequestTypeChoices.USER,
+    )
+    mock = serializers.BooleanField(default=False)
+
+
+class EntryExtractionSerializerLLM(serializers.Serializer):
+    documents = DocumentEntryExtractionUnionField()
+    af_id = serializers.IntegerField()
+    project_id = serializers.IntegerField()
     callback_url = serializers.CharField()
     request_type = serializers.ChoiceField(
         choices=ExtractionRequestTypeChoices,

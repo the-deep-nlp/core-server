@@ -607,6 +607,69 @@ MOCK_ENTRY_CLASSIFICATION: Dict = {
     ]
 }
 
+MOCK_ENTRY_CLASSIFICATION_LLM = {
+    "client_id": "entry-classification-llm-client-6000",
+    # this mdoel prediction refer to the framework_id: 1623
+    # entry_id: 510021, project_id: 2587 (2021 IFRC ESSN Turkey)
+    "model_tags": {
+        "element1": {
+            "pillar-0": {
+                "subpillar-4": {
+                    "sector-1": [
+                        "t31unid23fntmwrb"
+                    ],
+                    "sector-4": [
+                        "subsector-1"
+                    ]
+                },
+                "subpillar-3": {
+                    "sector-4": [
+                        "subsector-1"
+                    ]
+                }
+            },
+            "pillar-1": {
+                "subpillar-1": {
+                    "sector-4": [
+                        "subsector-1"
+                    ]
+                }
+            }
+        },
+        "overview-matrix1dWidget-d48u7z4yohwuu7zg": {
+            "8lowwhswgb5j9f5s": {
+                "gjsbosuej330kl45": True,
+                "iwsqjtrs2u5z8qgk": True
+            }
+        },
+        "element0": {
+            "pillar-3": {
+                "subpillar-21": True,
+                "subpillar-20": True
+            }
+        }
+    },
+    "geolocations": [
+        {
+            "entity": "Somalia",
+            "meta": {
+                "offset_start": 88,
+                "offset_end": 94,
+                "latitude": -10,
+                "longitude": -55
+            }
+        },
+        {
+            "entity": "Portugal",
+            "meta": {
+                "offset_start": 183,
+                "offset_end": 191,
+                "latitude": 39.6945,
+                "longitude": -8.13057
+            }
+        }
+    ]
+}
 
 """
 it's a huge output (and it can be bigger that this one). Maybe we can truncate it.
@@ -1743,5 +1806,98 @@ MOCK_ENTRY_CLASSIFICATION_FORMATTED: Dict = {
             "geolocations": [],
             "classification": {}
         }
+    ]
+}
+
+MOCK_ENTRY_EXTRACTION_LLM = {
+    # this model prediction refer to the framework_id: 1623
+    # lead_id 67027, url: 'https://reliefweb.int/sites/reliefweb.int/files/resources/UNHCR-Turkey-Operational-Update-October-2019.pdf' #  noqa
+    # project_id: 2587 (2021 IFRC ESSN Turkey)
+    "client_id": "entry-classification-llm-client-6000",
+    "metadata": {
+        "total_pages": 10,
+        "total_words_count": 5876
+    },
+    "blocks": [{
+        "type": "text",
+        "text": "4 million Refugees and asylum-seekers in Turkey including over 3.6 million Syrian nationals and close to 400,000 registered refugees and asylum-seekers of other nationalities. Over 98% of Syrian refugees live across Turkey in 81 provinces",
+        "page": 0,
+        "textOrder": 2,
+        "relevant": True,
+        "prediction_status": True,
+        "classification": {
+            "element1": {
+                "pillar-0": {
+                    "o9kyhltzmplk0a1k": {
+                        "sector-9": []
+                    }
+                },
+                "46bg6n1o50obgx77": {
+                    "v2kfnyjbn41vv46j": {
+                        "sector-9": []
+                    }
+                }
+            },
+            "overview-matrix1dWidget-d48u7z4yohwuu7zg": {
+                "8lowwhswgb5j9f5s": {
+                    "qycslaise1s014vm": True,
+                    "7wps5hbnemt59dv9": True
+                }
+            },
+            "element0": {
+                "pillar-0": {
+                    "nxjm8rsprb9fu2wq": True
+                },
+                "kyiciutprwct1vph": {
+                    "4ftpwnssu2ugeekk": True
+                }
+            }
+        },
+        "geolocations": [
+            {
+                "entity": "Niger",
+                "meta": {
+                    "offset_start": 88,
+                    "offset_end": 94,
+                    "latitude": -10,
+                    "longitude": -55
+                }
+            },
+            {
+                "entity": "Nigeria",
+                "meta": {
+                    "offset_start": 183,
+                    "offset_end": 191,
+                    "latitude": None,
+                    "longitude": None
+                }
+            }
+        ],
+    },
+    {
+        "type": "text",
+        "text": "9,700 Refugees departed for resettlement in 2019 as of end of October, over 78 per cent of whom are Syrians",
+        "page": 0,
+        "textOrder": 3,
+        "relevant": True,
+        "prediction_status": True,
+        "classification": {
+            "element1": {
+                "pillar-0": {
+                    "o9kyhltzmplk0a1k": {
+                        "sector-9": []
+                    }
+                }
+            },
+            "overview-matrix1dWidget-d48u7z4yohwuu7zg": {
+                "8lowwhswgb5j9f5s": True
+            },
+            "element0": {
+                "kyiciutprwct1vph": {
+                    "4ftpwnssu2ugeekk": True
+                }
+            }
+        }
+    }
     ]
 }

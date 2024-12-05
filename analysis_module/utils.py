@@ -9,6 +9,7 @@ from celery import shared_task
 from urllib.parse import urljoin
 from typing import Dict, Literal, List, Any
 from nlp_scripts.model_prediction.model_prediction import ModelTagsPrediction
+from nlp_scripts.model_prediction.llm.model_prediction import LLMTagsPrediction
 
 from django.utils import timezone
 
@@ -183,7 +184,7 @@ def get_geolocations(excerpts: List[str], req_timeout: int = 60):
 
 
 @shared_task
-def send_classification_tags(nlp_request_id: int):
+def send_classification_tags(nlp_request_id: int, version: str = "v1"):
     nlp_request = NLPRequest.objects.get(pk=nlp_request_id)
     predictor = ModelTagsPrediction()
     entries_dict = nlp_request.request_params["entries"]
@@ -198,6 +199,41 @@ def send_classification_tags(nlp_request_id: int):
         "geolocations": geolocations[0]["locations"] if geolocations else [],
         "model_info": {
             "id": "all_tags_model",
+            "version": "1.0.0"
+        },
+        "prediction_status": True
+    }
+
+    callback_url = nlp_request.request_params["callback_url"]
+
+    try:
+        response = requests.post(
+            callback_url,
+            json=output_data,
+            timeout=30
+        )
+        if response.status_code < 200 or response.status_code > 299:
+            logger.error(f"Failed to receive an acknowledgement. Status code: {response.status_code}")
+    except Exception:
+        logger.error("Could not send http request on callback url : {callback_url}", exc_info=True)
+
+
+@shared_task
+def send_classification_tags_llm(nlp_request_id: int, version: str = "v1"):
+    nlp_request = NLPRequest.objects.get(pk=nlp_request_id)
+    predictor = LLMTagsPrediction(analysis_framework_id=nlp_request.request_params['af_id'])
+    entries_dict = nlp_request.request_params["entries"]
+    pred_data = predictor.predict(entries_dict)[0]
+
+    entries_only = [item["entry"] for item in entries_dict]
+    geolocations = get_geolocations(entries_only)
+
+    output_data = {
+        "client_id": entries_dict[0]["client_id"],
+        "model_tags": pred_data,
+        "geolocations": geolocations[0]["locations"] if geolocations else [],
+        "model_info": {
+            "id": "llm_model",
             "version": "1.0.0"
         },
         "prediction_status": True
@@ -250,6 +286,7 @@ def get_ecs_id_param_name(request_type: NLPRequest.FeaturesType):
         NLPRequest.FeaturesType.TOPICMODEL: "topicmodel_id",
         NLPRequest.FeaturesType.GEOLOCATION: "geolocation_id",
         NLPRequest.FeaturesType.ENTRY_EXTRACTION: "entryextraction_id",
+        NLPRequest.FeaturesType.ENTRY_EXTRACTION_LLM: "entryextraction_id",
         NLPRequest.FeaturesType.TEXT_EXTRACTION: "textextraction_id",
         NLPRequest.FeaturesType.SUMMARIZATION_V3: "summarization_id"
     }
@@ -261,6 +298,7 @@ def get_ecs_url(request_type: NLPRequest.FeaturesType):
         NLPRequest.FeaturesType.TOPICMODEL: urljoin(TOPICMODEL_ECS_ENDPOINT, "/get_excerpt_clusters"),
         NLPRequest.FeaturesType.GEOLOCATION: urljoin(GEOLOCATION_ECS_ENDPOINT, "/get_geolocations"),
         NLPRequest.FeaturesType.ENTRY_EXTRACTION: urljoin(ENTRYEXTRACTION_ECS_ENDPOINT, "/extract_entries"),
+        NLPRequest.FeaturesType.ENTRY_EXTRACTION_LLM: urljoin(ENTRYEXTRACTION_ECS_ENDPOINT, "/extract_entries_llm"),
         NLPRequest.FeaturesType.TEXT_EXTRACTION: urljoin(TEXT_EXTRACTION_ECS_ENDPOINT, "/extract_document"),
         NLPRequest.FeaturesType.SUMMARIZATION_V3: urljoin(SUMMARIZATION_V3_ECS_ENDPOINT, "/generate_report")
     }

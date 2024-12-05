@@ -16,7 +16,11 @@ from rest_framework import status
 
 from core.models import NLPRequest
 from core_server.settings import ENDPOINT_NAME
-from .mock_templates import MOCK_ENTRY_CLASSIFICATION, MOCK_ENTRY_CLASSIFICATION_FORMATTED, MOCK_GEOLOCATION  # noqa
+from .mock_templates import (MOCK_ENTRY_CLASSIFICATION,
+                             MOCK_ENTRY_CLASSIFICATION_LLM,
+                             MOCK_ENTRY_CLASSIFICATION_FORMATTED,
+                             MOCK_ENTRY_EXTRACTION_LLM,
+                             MOCK_GEOLOCATION) # noqa
 from .utils import send_callback_url_request
 
 
@@ -497,8 +501,71 @@ def process_entry_extraction_mock(body) -> Any:
             logger.error("Could not send data to callback url", exc_info=True)
 
 
+def entry_extraction_llm_mock(body) -> Any:
+    process_entry_extraction_llm_mock.apply_async(
+        args=(body,), countdown=2
+    )  # Trigger task after 2 seconds
+    return json.dumps({"status": "Successfully received the request."}), 200
+
+
+@shared_task
+def process_entry_extraction_llm_mock(body) -> Any:
+    documents = body.get("documents") or []
+
+    callback_url = body.get("callback_url")
+    if not documents or not callback_url:
+        return
+
+    for document in documents:
+        client_id = document["client_id"]
+        text_extraction_id = document["text_extraction_id"]
+        # random_extracted_text = "This is some random entry extracted text"
+        random_entry_extraction_classification = MOCK_ENTRY_EXTRACTION_LLM
+        random_entry_extraction_classification.update({
+            "classification_model_info": {
+                "name": "llm_model",
+                "version": "1.0.0"
+            },
+            "client_id": client_id,
+            "entry_extraction_id": "73f9ca13-deb2-4f39-8e86-a856490bfc0d",  # random
+            "text_extraction_id": text_extraction_id
+        })
+        filepath = save_data_local_and_get_url(
+            "entry_extraction", client_id, random_entry_extraction_classification
+        )
+
+        """
+        the text_extraction_id is not something easy to retrieve in case the request is
+        set with the "url". In both cases, with the url, or the textextractionid, the text
+        was already extracted, and it's not (easily) to retrieve the id from the presigned url.
+        In the case of a request with the id, is instead possible to get the right document.
+        """
+        callback_data = {
+            "client_id": client_id,
+            "entry_extraction_classification_path": filepath,
+            "text_extraction_id": text_extraction_id,
+            "status": 1
+        }
+        try:
+            requests.post(
+                callback_url,
+                json=callback_data,
+                timeout=30,
+            )
+            logger.info("Successfully send data on callback url for entry extraction.")
+        except Exception:
+            logger.error("Could not send data to callback url", exc_info=True)
+
+
 def entry_classification_mock(body) -> Any:
     process_entry_classification_mock.apply_async(
+        args=(body,), countdown=2
+    )  # Trigger task after 2 seconds
+    return json.dumps({"status": "Successfully received the request."}), 200
+
+
+def entry_classification_llm_mock(body) -> Any:
+    process_entry_classification_llm_mock.apply_async(
         args=(body,), countdown=2
     )  # Trigger task after 2 seconds
     return json.dumps({"status": "Successfully received the request."}), 200
@@ -527,6 +594,29 @@ def process_entry_classification_mock(body) -> Any:
         logger.error("Could not send data to callback url", exc_info=True)
 
 
+@shared_task
+def process_entry_classification_llm_mock(body) -> Any:
+    callback_payload = MOCK_ENTRY_CLASSIFICATION_LLM
+    callback_payload.update({
+        "client_id": body["entries"][0]["client_id"],
+        "model_info": {
+            "id": "llm_model",
+            "version": "1.0.0"
+        },
+        "prediction_status": True
+    })
+    callback_url = body["callback_url"]
+    try:
+        requests.post(
+            callback_url,
+            json=callback_payload,
+            timeout=30
+        )
+        logger.info("Successfully send data on callback url for entry classification")
+    except Exception:
+        logger.error("Could not send data to callback url", exc_info=True)
+
+
 TYPE_ACTIONS_MOCK = {
     "topicmodel": topicmodeling_mock_model,
     "summarization": summarization_mock_model,
@@ -535,7 +625,9 @@ TYPE_ACTIONS_MOCK = {
     "geolocation": geolocation_mock_model,
     "text-extraction": text_extraction_mock,
     "entry-extraction-classification": entry_extraction_mock,
-    "entry-classification": entry_classification_mock
+    "entry-extraction-classification-llm": entry_extraction_llm_mock,
+    "entry-classification": entry_classification_mock,
+    "entry-classification-llm": entry_classification_llm_mock
 }
 
 

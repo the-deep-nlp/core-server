@@ -57,6 +57,7 @@ jobs:
       CSRF_TRUSTED_ORIGINS: ''
       SUMMARIZATION_V3_ECS_ENDPOINT: ''
       ENTRYEXTRACTION_ECS_ENDPOINT: ''
+      ENTRYEXTRACTION_LLM_ECS_ENDPOINT: ''
       GEOLOCATION_ECS_ENDPOINT: ''
       TOPICMODEL_ECS_ENDPOINT: ''
 
@@ -88,6 +89,7 @@ jobs:
       RELIABILITY_MODEL_ID: ''
       RELIABILITY_MODEL_VERSION: ''
 
+      OPENAI_API_KEY: ''
     steps:
       - name: Checkout
         uses: actions/checkout@v3
