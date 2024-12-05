@@ -18,6 +18,7 @@ from core_server.settings import (
     SUMMARIZATION_V3_ECS_ENDPOINT,
     TEXT_EXTRACTION_ECS_ENDPOINT,
     ENTRYEXTRACTION_ECS_ENDPOINT,
+    ENTRYEXTRACTION_LLM_ECS_ENDPOINT,
     GEOLOCATION_ECS_ENDPOINT,
     TOPICMODEL_ECS_ENDPOINT
 )
@@ -298,7 +299,7 @@ def get_ecs_url(request_type: NLPRequest.FeaturesType):
         NLPRequest.FeaturesType.TOPICMODEL: urljoin(TOPICMODEL_ECS_ENDPOINT, "/get_excerpt_clusters"),
         NLPRequest.FeaturesType.GEOLOCATION: urljoin(GEOLOCATION_ECS_ENDPOINT, "/get_geolocations"),
         NLPRequest.FeaturesType.ENTRY_EXTRACTION: urljoin(ENTRYEXTRACTION_ECS_ENDPOINT, "/extract_entries"),
-        NLPRequest.FeaturesType.ENTRY_EXTRACTION_LLM: urljoin(ENTRYEXTRACTION_ECS_ENDPOINT, "/extract_entries_llm"),
+        NLPRequest.FeaturesType.ENTRY_EXTRACTION_LLM: urljoin(ENTRYEXTRACTION_LLM_ECS_ENDPOINT, "/extract_entries_llm"),
         NLPRequest.FeaturesType.TEXT_EXTRACTION: urljoin(TEXT_EXTRACTION_ECS_ENDPOINT, "/extract_document"),
         NLPRequest.FeaturesType.SUMMARIZATION_V3: urljoin(SUMMARIZATION_V3_ECS_ENDPOINT, "/generate_report")
     }
