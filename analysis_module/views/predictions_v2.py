@@ -37,7 +37,7 @@ def entry_classification(request: Request):
     # Create a NLPRequest object
     nlp_request = NLPRequest.objects.create(
         client_id=entries[0]["client_id"],
-        type=NLPRequest.FeaturesType.ENTRY_CLASSIFICATION_V2,
+        type=NLPRequest.FeaturesType.ENTRY_CLASSIFICATION_LLM,
         request_params=serializer.validated_data,
         created_by=request.user,
     )
