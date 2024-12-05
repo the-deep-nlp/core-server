@@ -16,11 +16,11 @@ from rest_framework import status
 
 from core.models import NLPRequest
 from core_server.settings import ENDPOINT_NAME
-from .mock_templates import (MOCK_ENTRY_CLASSIFICATION, 
+from .mock_templates import (MOCK_ENTRY_CLASSIFICATION,
                              MOCK_ENTRY_CLASSIFICATION_LLM,
-                             MOCK_ENTRY_CLASSIFICATION_FORMATTED, 
+                             MOCK_ENTRY_CLASSIFICATION_FORMATTED,
                              MOCK_ENTRY_EXTRACTION_LLM,
-                             MOCK_GEOLOCATION)  # noqa
+                             MOCK_GEOLOCATION) # noqa
 from .utils import send_callback_url_request
 
 
@@ -500,11 +500,13 @@ def process_entry_extraction_mock(body) -> Any:
         except Exception:
             logger.error("Could not send data to callback url", exc_info=True)
 
+
 def entry_extraction_llm_mock(body) -> Any:
     process_entry_extraction_llm_mock.apply_async(
         args=(body,), countdown=2
     )  # Trigger task after 2 seconds
     return json.dumps({"status": "Successfully received the request."}), 200
+
 
 @shared_task
 def process_entry_extraction_llm_mock(body) -> Any:
@@ -553,6 +555,7 @@ def process_entry_extraction_llm_mock(body) -> Any:
             logger.info("Successfully send data on callback url for entry extraction.")
         except Exception:
             logger.error("Could not send data to callback url", exc_info=True)
+
 
 def entry_classification_mock(body) -> Any:
     process_entry_classification_mock.apply_async(

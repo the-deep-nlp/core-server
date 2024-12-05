@@ -62,7 +62,7 @@ env = environ.Env(
     RELIABILITY_MODEL_ID=str,
     RELIABILITY_MODEL_VERSION=str,
 
-    # LLM 
+    # LLM
     OPENAI_API_KEY=str,
     OPENAI_MAIN_MODEL=(str, "gpt-4o"),
     OPENAI_SMALL_MODEL=(str, "gpt-4o-mini"),

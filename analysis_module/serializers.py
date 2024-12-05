@@ -147,7 +147,6 @@ class DocumentEntryExtractionUnionField(serializers.ListField):
 
 
 class EntryExtractionSerializer(serializers.Serializer):
-
     documents = DocumentEntryExtractionUnionField()
     callback_url = serializers.CharField()
     request_type = serializers.ChoiceField(
@@ -156,10 +155,10 @@ class EntryExtractionSerializer(serializers.Serializer):
     )
     mock = serializers.BooleanField(default=False)
 
-class EntryExtractionSerializerLLM(serializers.Serializer):
 
+class EntryExtractionSerializerLLM(serializers.Serializer):
     documents = DocumentEntryExtractionUnionField()
-    af_id =  serializers.IntegerField()
+    af_id = serializers.IntegerField()
     project_id = serializers.IntegerField()
     callback_url = serializers.CharField()
     request_type = serializers.ChoiceField(

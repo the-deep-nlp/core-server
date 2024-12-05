@@ -1,35 +1,32 @@
 import re
 from nlp_scripts.model_prediction.llm.prompt_utils import  *
 
+
 def manage_description(name, description):
-    
     m_desc, s_desc = description
     _, s_name = name
     if s_desc:
         return s_desc
     elif m_desc:
         return f"{m_desc}. Subcategory: {s_name}"
-    
-    
-def _sanitize_keys_with_uniqueness(key, max_length: int = 64):
 
+
+def _sanitize_keys_with_uniqueness(key, max_length: int = 64):
     sanitized = re.sub(r'[^a-zA-Z0-9_-]', '_', key)
-    sanitized = re.sub(r'^_+', '', sanitized) # pydantic model keys can't start with _
+    sanitized = re.sub(r'^_+', '', sanitized)  # pydantic model keys can't start with _
     sanitized = sanitized[:max_length]
-    
     return sanitized
-    
-    
+
+
 def add_element(name, description, alias, main_class=None):
-    
     element = {
         "alias": alias,
         "type": "boolean",
         "default": False,
     }
-    if main_class: 
+    if main_class:
         element["main_class"] = main_class
-    if (isinstance(description, str) and description) or (isinstance(description, list) and any(c!="" for c in description)):
+    if (isinstance(description, str) and description) or (isinstance(description, list) and any(c != "" for c in description)):
         element.update({
             "description": description if isinstance(description, str) else manage_description(name, description)
         })
@@ -47,21 +44,20 @@ def add_element(name, description, alias, main_class=None):
 
 
 def process_primary_tags(ex: list, order="columns", type_="2d", max_length: int = 50):
-    
     def get_tooltip(el):
         if el.get("tooltip"):
             return  el.get("tooltip")
-        else: return ""
-    
+        else:
+            return ""
+
     properties = {}
     id_to_info = {}
     for c in ex[order]:
-
         name_main = c["label"].strip()
         description_main = get_tooltip(c)
-        alias_main = c["key"]   
+        alias_main = c["key"]
         id_to_info.update({c["key"]: {"label": c["label"], "order": c["order"]}})
-        
+
         if type_ == "1d":
             for cc in c["cells"]:
                 name = cc["label"].strip()
@@ -74,11 +70,8 @@ def process_primary_tags(ex: list, order="columns", type_="2d", max_length: int 
                     alias="->".join([alias_main, alias])
                 )
                 properties.update(prop)
-                
-                
-        elif type_=="2d" and f"sub{order.title()}" in c.keys() and c.get(f"sub{order.title()}"):
+        elif type_ == "2d" and f"sub{order.title()}" in c.keys() and c.get(f"sub{order.title()}"):
             for cc in c[f"sub{order.title()}"]:
-
                 name = cc["label"].strip()
                 description = get_tooltip(cc)
                 alias = cc["key"]
@@ -92,13 +85,14 @@ def process_primary_tags(ex: list, order="columns", type_="2d", max_length: int 
                 properties.update(prop)
         else:
             properties.update(add_element(name_main, description_main, alias_main, name_main))
-    
-    if len(properties)>=max_length:
+
+    if len(properties) >= max_length:
         for k, v in properties.items():
             # change description to the short one in case of a big framework
             properties[k]["description"] = properties[k]["plain_description"]
 
     return properties, id_to_info
+
 
 def combine_properties(properties_row: dict, properties_columns: dict, max_length: int = 50, reduce_on_length: bool = True):
     
@@ -121,9 +115,9 @@ def combine_properties(properties_row: dict, properties_columns: dict, max_lengt
                 }
             })
                             
-            if len(schema)>=max_length and reduce_on_length:
+            if len(schema) >= max_length and reduce_on_length:
                 # if the schema is big let's not consider the full description (if present)
-                # instead this will cause a big slow down of the classification process 
+                # instead this will cause a big slow down of the classification process
                 # and conrresponding losing of context by the llm
                 for k, v in schema.items():
                     schema[k]["description"] = schema[k]["plain_description"]

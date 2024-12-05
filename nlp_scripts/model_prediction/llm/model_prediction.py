@@ -19,6 +19,7 @@ from core.tasks.queries import af_widget_by_id
 
 os.environ["OPENAI_API_KEY"] = env("OPENAI_API_KEY")
 
+
 class WidgetsMappings:
     
     def __init__(self, selected_widgets: list):
@@ -26,8 +27,8 @@ class WidgetsMappings:
         self.mappings = {}
         self.selected_widgets = selected_widgets
         self.WidgetTypes = make_dataclass(
-            'WidgetTypes', 
-            [(widget, str, field(default=widget))for widget in list(set([element.widget_id 
+            'WidgetTypes',
+            [(widget, str, field(default=widget))for widget in list(set([element.widget_id
                                                                          for element in self.selected_widgets]))]
         )
         self.create_mappings()
@@ -65,7 +66,7 @@ class WidgetsMappings:
 
     def __process_widget_multiselect(self, key: str, properties: dict, version: int):
         raise NotImplementedError
-    
+
     def __process_widget_organigram(self, key: str, properties: dict, version: int):
         raise NotImplementedError
 
@@ -76,40 +77,31 @@ class WidgetsMappings:
         raise NotImplementedError
 
     def create_mappings(self):
-    
         for d in self.selected_widgets:
-            
             if d.widget_id == self.WidgetTypes.matrix1dWidget:
                 self.__process_widget_1d(d.key, d.properties, d.version)
-            
             elif d.widget_id == self.WidgetTypes.matrix2dWidget:
                 self.__process_widget_2d(d.key, d.properties, d.version)
-
             elif d.widget_id == self.WidgetTypes.multiselectWidget:
                 self.__process_widget_multiselect(d.key, d.properties, d.version)
-            
             elif d.widget_id == self.WidgetTypes.organigramWidget:
                 self.__process_widget_organigram(d.key, d.properties, d.version)
-            
             elif d.widget_id == self.WidgetTypes.dateRangeWidget:
                 self.__process_widget_daterange(d.key, d.properties, d.version)
-
             elif d.widget_id == self.WidgetTypes.scaleWidget:
                 self.__process_widget_scale(d.key, d.properties, d.version)
 
 
 class WidgetSchema:
-
     @dataclass
     class Schema:
-        type : str
+        type: str
         prompt: str
         model: str
         properties: dict
         pyd_class: BaseModel
 
     def __init__(self, selected_widgets: list, model_family: str = "openai"):
-
         self.schemas = {}
         self.max_widget_length = 50
         self.selected_widgets = selected_widgets
@@ -118,10 +110,11 @@ class WidgetSchema:
         self.mappings = self.mappings_instance.mappings
         self.create_schemas()
 
-    def __foundation_model_id_selection(self, 
-                                        schema: BaseModel = None, 
-                                        ln_threshold: int = 30):
-    
+    def __foundation_model_id_selection(
+        self,
+        schema: BaseModel = None,
+        ln_threshold: int = 30
+    ):
         length = len(schema.schema()["properties"].keys())
         
         if self.model_family == "bedrock":

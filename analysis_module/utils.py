@@ -185,7 +185,6 @@ def get_geolocations(excerpts: List[str], req_timeout: int = 60):
 
 @shared_task
 def send_classification_tags(nlp_request_id: int, version: str = "v1"):
-    
     nlp_request = NLPRequest.objects.get(pk=nlp_request_id)
     predictor = ModelTagsPrediction()
     entries_dict = nlp_request.request_params["entries"]
@@ -221,7 +220,6 @@ def send_classification_tags(nlp_request_id: int, version: str = "v1"):
 
 @shared_task
 def send_classification_tags_llm(nlp_request_id: int, version: str = "v1"):
-    
     nlp_request = NLPRequest.objects.get(pk=nlp_request_id)
     predictor = LLMTagsPrediction(analysis_framework_id=nlp_request.request_params['af_id'])
     entries_dict = nlp_request.request_params["entries"]
@@ -253,6 +251,7 @@ def send_classification_tags_llm(nlp_request_id: int, version: str = "v1"):
             logger.error(f"Failed to receive an acknowledgement. Status code: {response.status_code}")
     except Exception:
         logger.error("Could not send http request on callback url : {callback_url}", exc_info=True)
+
 
 def send_ecs_http_request(nlp_request: NLPRequest):
     ecs_id_param_name = get_ecs_id_param_name(nlp_request.type)
