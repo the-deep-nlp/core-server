@@ -1,5 +1,5 @@
 import re
-from nlp_scripts.model_prediction.llm.prompt_utils import  *
+from nlp_scripts.model_prediction.llm.prompt_utils import MULTI_DESCRIPTION
 
 
 def manage_description(name, description):
@@ -26,7 +26,8 @@ def add_element(name, description, alias, main_class=None):
     }
     if main_class:
         element["main_class"] = main_class
-    if (isinstance(description, str) and description) or (isinstance(description, list) and any(c != "" for c in description)):
+    if ((isinstance(description, str) and description) or
+            (isinstance(description, list) and any(c != "" for c in description))):
         element.update({
             "description": description if isinstance(description, str) else manage_description(name, description)
         })
@@ -35,18 +36,18 @@ def add_element(name, description, alias, main_class=None):
             "description": name if isinstance(name, str) else f"{name[0]}, {name[1]}"
         })
     element.update({
-            "plain_description": name if isinstance(name, str) else f"{name[0]}, {name[1]}"
-        })
+        "plain_description": name if isinstance(name, str) else f"{name[0]}, {name[1]}"
+    })
     return {
-         _sanitize_keys_with_uniqueness(name.replace(" ", "_").lower()) if isinstance(name, str) else _sanitize_keys_with_uniqueness(
-             [el.replace(" ", "_").lower() for el in name][1]): element
+        (_sanitize_keys_with_uniqueness(name.replace(" ", "_").lower()) if isinstance(name, str) else
+            _sanitize_keys_with_uniqueness([el.replace(" ", "_").lower() for el in name][1])): element
     }
 
 
 def process_primary_tags(ex: list, order="columns", type_="2d", max_length: int = 50):
     def get_tooltip(el):
         if el.get("tooltip"):
-            return  el.get("tooltip")
+            return el.get("tooltip")
         else:
             return ""
 
@@ -95,7 +96,6 @@ def process_primary_tags(ex: list, order="columns", type_="2d", max_length: int 
 
 
 def combine_properties(properties_row: dict, properties_columns: dict, max_length: int = 50, reduce_on_length: bool = True):
-    
     schema = {}
     for i, col in properties_columns.items():
         for j, row in properties_row.items():
@@ -114,7 +114,6 @@ def combine_properties(properties_row: dict, properties_columns: dict, max_lengt
                     "plain_description": plain_description
                 }
             })
-                            
             if len(schema) >= max_length and reduce_on_length:
                 # if the schema is big let's not consider the full description (if present)
                 # instead this will cause a big slow down of the classification process

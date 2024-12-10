@@ -1,4 +1,3 @@
-import re
 from typing import Dict, Union
 from .first_level_tags import FirstLevel
 from .second_level_tags import SecondLevel

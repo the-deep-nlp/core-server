@@ -1811,7 +1811,7 @@ MOCK_ENTRY_CLASSIFICATION_FORMATTED: Dict = {
 
 MOCK_ENTRY_EXTRACTION_LLM = {
     # this model prediction refer to the framework_id: 1623
-    # lead_id 67027, url: 'https://reliefweb.int/sites/reliefweb.int/files/resources/UNHCR-Turkey-Operational-Update-October-2019.pdf' #  noqa
+    # lead_id 67027, url: 'https://reliefweb.int/sites/reliefweb.int/files/resources/UNHCR-Turkey-Operational-Update-October-2019.pdf'  # noqa
     # project_id: 2587 (2021 IFRC ESSN Turkey)
     "client_id": "entry-classification-llm-client-6000",
     "metadata": {
@@ -1820,7 +1820,7 @@ MOCK_ENTRY_EXTRACTION_LLM = {
     },
     "blocks": [{
         "type": "text",
-        "text": "4 million Refugees and asylum-seekers in Turkey including over 3.6 million Syrian nationals and close to 400,000 registered refugees and asylum-seekers of other nationalities. Over 98% of Syrian refugees live across Turkey in 81 provinces",
+        "text": "4 million Refugees and asylum-seekers in Turkey including over 3.6 million Syrian nationals and close to 400,000 registered refugees and asylum-seekers of other nationalities. Over 98% of Syrian refugees live across Turkey in 81 provinces",  # noqa
         "page": 0,
         "textOrder": 2,
         "relevant": True,
@@ -1873,10 +1873,9 @@ MOCK_ENTRY_EXTRACTION_LLM = {
                 }
             }
         ],
-    },
-    {
+    }, {
         "type": "text",
-        "text": "9,700 Refugees departed for resettlement in 2019 as of end of October, over 78 per cent of whom are Syrians",
+        "text": "9,700 Refugees departed for resettlement in 2019 as of end of October, over 78 per cent of whom are Syrians",  # noqa
         "page": 0,
         "textOrder": 3,
         "relevant": True,
