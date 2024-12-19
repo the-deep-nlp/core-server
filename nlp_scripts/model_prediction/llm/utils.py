@@ -92,9 +92,7 @@ def process_primary_tags(ex: list, order="columns", type_="2d", max_length: int 
                 )
                 properties.update(prop)
         elif (
-            type_ == "2d"
-            and f"sub{order.title()}" in c.keys()
-            and c.get(f"sub{order.title()}")
+            type_ == "2d" and f"sub{order.title()}" in c.keys() and c.get(f"sub{order.title()}")
         ):
             for cc in c[f"sub{order.title()}"]:
                 name = cc["label"].strip()
