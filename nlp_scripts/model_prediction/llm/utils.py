@@ -12,8 +12,8 @@ def manage_description(name, description):
 
 
 def _sanitize_keys_with_uniqueness(key, max_length: int = 64):
-    sanitized = re.sub(r'[^a-zA-Z0-9_-]', '_', key)
-    sanitized = re.sub(r'^_+', '', sanitized)  # pydantic model keys can't start with _
+    sanitized = re.sub(r"[^a-zA-Z0-9_-]", "_", key)
+    sanitized = re.sub(r"^_+", "", sanitized)  # pydantic model keys can't start with _
     sanitized = sanitized[:max_length]
     return sanitized
 
@@ -26,30 +26,48 @@ def add_element(name, description, alias, main_class=None):
     }
     if main_class:
         element["main_class"] = main_class
-    if ((isinstance(description, str) and description) or
-            (isinstance(description, list) and any(c != "" for c in description))):
-        element.update({
-            "description": description if isinstance(description, str) else manage_description(name, description)
-        })
+    if (isinstance(description, str) and description) or (
+        isinstance(description, list) and any(c != "" for c in description)
+    ):
+        element.update(
+            {
+                "description": (
+                    description
+                    if isinstance(description, str)
+                    else manage_description(name, description)
+                )
+            }
+        )
     else:
-        element.update({
-            "description": name if isinstance(name, str) else f"{name[0]}, {name[1]}"
-        })
-    element.update({
-        "plain_description": name if isinstance(name, str) else f"{name[0]}, {name[1]}"
-    })
+        element.update(
+            {"description": name if isinstance(name, str) else f"{name[0]}, {name[1]}"}
+        )
+    element.update(
+        {
+            "plain_description": (
+                name if isinstance(name, str) else f"{name[0]}, {name[1]}"
+            )
+        }
+    )
     return {
-        (_sanitize_keys_with_uniqueness(name.replace(" ", "_").lower()) if isinstance(name, str) else
-            _sanitize_keys_with_uniqueness([el.replace(" ", "_").lower() for el in name][1])): element
+        (
+            _sanitize_keys_with_uniqueness(name.replace(" ", "_").lower())
+            if isinstance(name, str)
+            else _sanitize_keys_with_uniqueness(
+                [el.replace(" ", "_").lower() for el in name][-1]
+            )
+        ): element
     }
 
 
+def get_tooltip(el):
+    if el.get("tooltip"):
+        return el.get("tooltip")
+    else:
+        return ""
+
+
 def process_primary_tags(ex: list, order="columns", type_="2d", max_length: int = 50):
-    def get_tooltip(el):
-        if el.get("tooltip"):
-            return el.get("tooltip")
-        else:
-            return ""
 
     properties = {}
     id_to_info = {}
@@ -64,28 +82,38 @@ def process_primary_tags(ex: list, order="columns", type_="2d", max_length: int 
                 name = cc["label"].strip()
                 description = get_tooltip(cc)
                 alias = cc["key"]
-                id_to_info.update({cc["key"]: {"label": cc["label"], "order": cc["order"]}})
-                prop = add_element(
-                    name=[name_main, name],
-                    description=[description_main, description],
-                    alias="->".join([alias_main, alias])
+                id_to_info.update(
+                    {cc["key"]: {"label": cc["label"], "order": cc["order"]}}
                 )
-                properties.update(prop)
-        elif type_ == "2d" and f"sub{order.title()}" in c.keys() and c.get(f"sub{order.title()}"):
-            for cc in c[f"sub{order.title()}"]:
-                name = cc["label"].strip()
-                description = get_tooltip(cc)
-                alias = cc["key"]
-                id_to_info.update({cc["key"]: {"label": cc["label"], "order": cc["order"]}})
                 prop = add_element(
                     name=[name_main, name],
                     description=[description_main, description],
                     alias="->".join([alias_main, alias]),
-                    main_class=name_main
+                )
+                properties.update(prop)
+        elif (
+            type_ == "2d"
+            and f"sub{order.title()}" in c.keys()
+            and c.get(f"sub{order.title()}")
+        ):
+            for cc in c[f"sub{order.title()}"]:
+                name = cc["label"].strip()
+                description = get_tooltip(cc)
+                alias = cc["key"]
+                id_to_info.update(
+                    {cc["key"]: {"label": cc["label"], "order": cc["order"]}}
+                )
+                prop = add_element(
+                    name=[name_main, name],
+                    description=[description_main, description],
+                    alias="->".join([alias_main, alias]),
+                    main_class=name_main,
                 )
                 properties.update(prop)
         else:
-            properties.update(add_element(name_main, description_main, alias_main, name_main))
+            properties.update(
+                add_element(name_main, description_main, alias_main, name_main)
+            )
 
     if len(properties) >= max_length:
         for k, v in properties.items():
@@ -95,25 +123,81 @@ def process_primary_tags(ex: list, order="columns", type_="2d", max_length: int 
     return properties, id_to_info
 
 
-def combine_properties(properties_row: dict, properties_columns: dict, max_length: int = 50, reduce_on_length: bool = True):
+def process_organigram_tags(ex: dict, properties={}, id_to_info={}, parents=None, i=0):
+
+    if i == 0:
+        properties = {}
+        id_to_info = {}
+        ex = ex["options"]["children"]
+        i = 1
+
+    for el in ex:
+        if parents:
+            parents = [parents] if isinstance(parents, str) else parents
+            name = parents + [el["label"].strip()]
+        else:
+            name = el["label"].strip()
+
+        description = get_tooltip(el)
+        alias = el["key"]
+        id_to_info.update({alias: {"label": el["label"], "order": el["order"]}})
+
+        properties.update(add_element(name=name, description=description, alias=alias))
+
+        if not el.get("children", []):
+            continue
+        else:
+            process_organigram_tags(el["children"], properties, id_to_info, name, i)
+
+    return properties, id_to_info
+
+
+def process_multiselect_tags(ex: dict):
+
+    properties = {}
+    id_to_info = {}
+    for c in ex["options"]:
+
+        name = c["label"].strip()
+        description = get_tooltip(c)
+        alias = c["key"]
+        id_to_info.update({c["key"]: {"label": c["label"], "order": c["order"]}})
+        properties.update(add_element(name=name, description=description, alias=alias))
+
+    return properties, id_to_info
+
+
+def combine_properties(
+    properties_row: dict,
+    properties_columns: dict,
+    max_length: int = 50,
+    reduce_on_length: bool = True,
+):
     schema = {}
     for i, col in properties_columns.items():
         for j, row in properties_row.items():
 
             name = _sanitize_keys_with_uniqueness(f"{i}_{j}")
             alias = f"{col['alias']}->{row['alias']}"
-            description = MULTI_DESCRIPTION.format(col['description'], row['description'])
-            plain_description = MULTI_DESCRIPTION.format(col['plain_description'], row['plain_description'])
+            description = MULTI_DESCRIPTION.format(
+                col["description"], row["description"]
+            )
+            plain_description = MULTI_DESCRIPTION.format(
+                col["plain_description"], row["plain_description"]
+            )
 
-            schema.update({
-                name: {
-                    "alias": alias,
-                    "type": "boolean",
-                    "default": False,
-                    "description": description,
-                    "plain_description": plain_description
+            schema.update(
+                {
+                    name: {
+                        "alias": alias,
+                        "type": "boolean",
+                        "default": False,
+                        "description": description,
+                        "plain_description": plain_description,
+                    }
                 }
-            })
+            )
+
             if len(schema) >= max_length and reduce_on_length:
                 # if the schema is big let's not consider the full description (if present)
                 # instead this will cause a big slow down of the classification process

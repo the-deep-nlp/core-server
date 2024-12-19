@@ -13,11 +13,17 @@ from langchain_openai import ChatOpenAI
 
 from nlp_scripts.model_prediction.llm.prompt_utils import (
     DESCRIPTION_PILLARS,
+    DESCRIPTION_ORGANIGRAM,
     MAIN_PROMT,
     INPUT_PASSAGE,
-    DESCRIPTION_MATRIX
+    DESCRIPTION_MATRIX,
 )
-from nlp_scripts.model_prediction.llm.utils import process_primary_tags, combine_properties
+from nlp_scripts.model_prediction.llm.utils import (
+    process_primary_tags,
+    combine_properties,
+    process_multiselect_tags,
+    process_organigram_tags,
+)
 from utils.db import connect_db
 from core_server.env import env
 from core.tasks.queries import af_widget_by_id
@@ -30,18 +36,19 @@ class WidgetsMappings:
         self.mappings = {}
         self.selected_widgets = selected_widgets
         self.WidgetTypes = make_dataclass(
-            'WidgetTypes',
-            [(widget, str, field(default=widget))for widget in list(set([element.widget_id
-                                                                         for element in self.selected_widgets]))]
+            "WidgetTypes",
+            [
+                (widget, str, field(default=widget))
+                for widget in list(
+                    set([element.widget_id for element in self.selected_widgets])
+                )
+            ],
         )
         self.create_mappings()
 
     def __update(self, key: str, value: dict, version: int, widget_type: str):
         self.mappings.update({key: value})
-        self.mappings[key].update({
-            "version": version,
-            "widget_id": widget_type
-        })
+        self.mappings[key].update({"version": version, "widget_id": widget_type})
 
     def __process_widget_1d(self, key: str, properties: dict, version: int):
         _, rows = process_primary_tags(properties, order="rows", type_="1d")
@@ -49,7 +56,7 @@ class WidgetsMappings:
             key=key,
             value=rows,
             version=version,
-            widget_type=self.WidgetTypes.matrix1dWidget
+            widget_type=self.WidgetTypes.matrix1dWidget,
         )
 
     def __process_widget_2d(self, key: str, properties: dict, version: int):
@@ -61,14 +68,28 @@ class WidgetsMappings:
             key=key,
             value=rows,
             version=version,
-            widget_type=self.WidgetTypes.matrix2dWidget
+            widget_type=self.WidgetTypes.matrix2dWidget,
         )
 
     def __process_widget_multiselect(self, key: str, properties: dict, version: int):
-        raise NotImplementedError
+
+        _, rows = process_multiselect_tags(properties)
+        self.__update(
+            key=key,
+            value=rows,
+            version=version,
+            widget_type=self.WidgetTypes.multiselectWidget,
+        )
 
     def __process_widget_organigram(self, key: str, properties: dict, version: int):
-        raise NotImplementedError
+
+        _, rows = process_organigram_tags(properties)
+        self.__update(
+            key=key,
+            value=rows,
+            version=version,
+            widget_type=self.WidgetTypes.organigramWidget,
+        )
 
     def __process_widget_daterange(self, key: str, properties: dict, version: int):
         raise NotImplementedError
@@ -111,15 +132,15 @@ class WidgetSchema:
         self.create_schemas()
 
     def __foundation_model_id_selection(
-        self,
-        schema: BaseModel = None,
-        ln_threshold: int = 30
+        self, schema: BaseModel = None, ln_threshold: int = 30
     ):
         length = len(schema.schema()["properties"].keys())
 
         if self.model_family == "bedrock":
             model_id_main = env("BEDROCK_MAIN_MODEL")
-            model_id_small = env("BEDROCK_SMALL_MODEL")  # haiku model overclassify a lot for some reason
+            model_id_small = env(
+                "BEDROCK_SMALL_MODEL"
+            )  # haiku model overclassify a lot for some reason
             return model_id_main if length <= ln_threshold else model_id_main
         elif self.model_family == "openai":
             model_id_main = env("OPENAI_MAIN_MODEL")
@@ -130,54 +151,109 @@ class WidgetSchema:
     def __update(self, key: str, value: Schema):
         self.schemas.update({key: value})
 
-    def __process_widget_1d(self, key: str, properties: dict, class_name: str = "Pillars"):
+    def __process_widget_1d(
+        self, key: str, properties: dict, class_name: str = "Pillars"
+    ):
         properties, _ = process_primary_tags(properties, order="rows", type_="1d")
         # dynamic pydantic class creation
         pillars = create_model(
             class_name,
             __base__=BaseModel,
             __doc__=DESCRIPTION_PILLARS.format(class_name.lower()),
-            **{k: (bool, Field(title=k, description=v['description'], default=False))
-                for k, v in properties.items()}
+            **{
+                k: (bool, Field(title=k, description=v["description"], default=False))
+                for k, v in properties.items()
+            },
         )
-        self.__update(key, self.Schema(
-            type=self.mappings_instance.WidgetTypes.matrix1dWidget,
-            prompt=MAIN_PROMT.format(class_name) + INPUT_PASSAGE,
-            model=self.__foundation_model_id_selection(schema=pillars),
-            properties=properties,
-            pyd_class=pillars
-        ))
+        self.__update(
+            key,
+            self.Schema(
+                type=self.mappings_instance.WidgetTypes.matrix1dWidget,
+                prompt=MAIN_PROMT.format(class_name) + INPUT_PASSAGE,
+                model=self.__foundation_model_id_selection(schema=pillars),
+                properties=properties,
+                pyd_class=pillars,
+            ),
+        )
 
-    def __process_widget_2d(self, key: str, properties: dict, class_name: str = "Matrix"):
+    def __process_widget_2d(
+        self, key: str, properties: dict, class_name: str = "Matrix"
+    ):
         properties_row, _ = process_primary_tags(properties, order="rows")
         properties_columns, _ = process_primary_tags(properties, order="columns")
-        properties = combine_properties(properties_columns=properties_columns,
-                                        properties_row=properties_row,
-                                        max_length=self.max_widget_length,
-                                        reduce_on_length=True)  # setting the description reduction
+        properties = combine_properties(
+            properties_columns=properties_columns,
+            properties_row=properties_row,
+            max_length=self.max_widget_length,
+            reduce_on_length=True,
+        )  # setting the description reduction
         # dynamic pydantic class creation
         matrix = create_model(
             class_name,
             __base__=BaseModel,
             __doc__=DESCRIPTION_MATRIX.format(class_name.lower()),
-            **{k: (
-                bool, Field(title=k, description=v['description'], default=False))
-                for k, v in properties.items()}
+            **{
+                k: (bool, Field(title=k, description=v["description"], default=False))
+                for k, v in properties.items()
+            },
         )
 
-        self.__update(key, self.Schema(
-            type=self.mappings_instance.WidgetTypes.matrix2dWidget,
-            prompt=MAIN_PROMT.format(class_name) + INPUT_PASSAGE,
-            model=self.__foundation_model_id_selection(schema=matrix),
-            properties=properties,
-            pyd_class=matrix
-        ))
+        self.__update(
+            key,
+            self.Schema(
+                type=self.mappings_instance.WidgetTypes.matrix2dWidget,
+                prompt=MAIN_PROMT.format(class_name) + INPUT_PASSAGE,
+                model=self.__foundation_model_id_selection(schema=matrix),
+                properties=properties,
+                pyd_class=matrix,
+            ),
+        )
 
     def __process_widget_multiselect(self, key: str, properties: dict, class_name: str):
-        raise NotImplementedError
+
+        properties, _ = process_multiselect_tags(properties)
+        multiselect = create_model(
+            class_name,
+            __base__=BaseModel,
+            __doc__=DESCRIPTION_PILLARS.format(class_name.lower()),
+            **{
+                k: (bool, Field(title=k, description=v["description"], default=False))
+                for k, v in properties.items()
+            },
+        )
+        self.__update(
+            key,
+            self.Schema(
+                type=self.mappings_instance.WidgetTypes.multiselectWidget,
+                prompt=MAIN_PROMT.format(class_name.lower()) + INPUT_PASSAGE,
+                model=self.__foundation_model_id_selection(schema=multiselect),
+                properties=properties,
+                pyd_class=multiselect,
+            ),
+        )
 
     def __process_widget_organigram(self, key: str, properties: dict, class_name: str):
-        raise NotImplementedError
+
+        properties, _ = process_organigram_tags(properties)
+        organigram = create_model(
+            class_name,
+            __base__=BaseModel,
+            __doc__=DESCRIPTION_ORGANIGRAM.format(class_name.lower()),
+            **{
+                k: (bool, Field(title=k, description=v["description"], default=False))
+                for k, v in properties.items()
+            },
+        )
+        self.__update(
+            key,
+            self.Schema(
+                type=self.mappings_instance.WidgetTypes.organigramWidget,
+                prompt=MAIN_PROMT.format(class_name.lower()) + INPUT_PASSAGE,
+                model=self.__foundation_model_id_selection(schema=organigram),
+                properties=properties,
+                pyd_class=organigram,
+            ),
+        )
 
     def __process_widget_daterange(self, key: str, properties: dict, class_name: str):
         raise NotImplementedError
@@ -204,14 +280,21 @@ class WidgetSchema:
 
 class LLMTagsPrediction:
 
-    AVAILABLE_WIDGETS: list = ["matrix2dWidget", "matrix1dWidget"]  # it'll be extended to all widget types
+    AVAILABLE_WIDGETS: list = [
+        "matrix2dWidget",
+        "matrix1dWidget",
+        "multiselectWidget",
+        "organigramWidget",
+    ]  # it'll be extended to all widget types
     AVAILABLE_FOUNDATION_MODELS: list = ["bedrock", "openai"]
 
     def __init__(self, analysis_framework_id: int, model_family: str = "openai"):
         self.af_id = analysis_framework_id
         self.model_family = model_family
 
-        assert self.model_family in self.AVAILABLE_FOUNDATION_MODELS, ValueError("Selected model family not implemented")
+        assert self.model_family in self.AVAILABLE_FOUNDATION_MODELS, ValueError(
+            "Selected model family not implemented"
+        )
 
         # self.cursor = self.__get_deep_db_connection().cursor
         self.selected_widgets = self.__get_framework_widgets()
@@ -221,9 +304,7 @@ class LLMTagsPrediction:
         return connect_db()
 
     def __get_elasticache(self, port: int = 6379):
-        return redis.Redis(host=env("REDIS_HOST"),
-                           port=port,
-                           decode_responses=True)
+        return redis.Redis(host=env("REDIS_HOST"), port=port, decode_responses=True)
 
     def __get_framework_widgets(self, expire_time: int = 1200):
         # let's get or save the af_id widget original data on elasticache for 20 minutes
@@ -237,14 +318,21 @@ class LLMTagsPrediction:
             self.cursor.execute(af_widget_by_id.format(self.af_id))
             fetch = self.cursor.fetchall()
             if not fetch:
-                raise ValueError(f"Not possible to retrieve framework widgets: {self.af_id}")
+                raise ValueError(
+                    f"Not possible to retrieve framework widgets: {self.af_id}"
+                )
             else:
-                afw = [Box(dict(zip([c.name for c in self.cursor.description], row))) for row in fetch]
-                afw = [element for element in afw if element.widget_id in self.AVAILABLE_WIDGETS]
+                afw = [
+                    Box(dict(zip([c.name for c in self.cursor.description], row)))
+                    for row in fetch
+                ]
+                afw = [
+                    element
+                    for element in afw
+                    if element.widget_id in self.AVAILABLE_WIDGETS
+                ]
                 self.redis.set(
-                    name=f"af_id:{self.af_id}",
-                    ex=expire_time,
-                    value=json.dumps(afw)
+                    name=f"af_id:{self.af_id}", ex=expire_time, value=json.dumps(afw)
                 )
         return afw
 
@@ -261,13 +349,17 @@ class LLMTagsPrediction:
 
         def create_chain(prompt: str, llm: str, pydantic_model: BaseModel):
             tagging_prompt = ChatPromptTemplate.from_template(prompt)
-            _llm = select_model_instance(model_name=llm).with_structured_output(pydantic_model)
+            _llm = select_model_instance(model_name=llm).with_structured_output(
+                pydantic_model
+            )
             return tagging_prompt | _llm
 
         # running the excerpt tagging in a parallel way across all the widgets of the framework
         parallel_tasks = RunnableParallel(
-            **{k: create_chain(v.prompt, v.model, v.pyd_class)
-                for k, v in self.widgets.schemas.items()}
+            **{
+                k: create_chain(v.prompt, v.model, v.pyd_class)
+                for k, v in self.widgets.schemas.items()
+            }
         )
 
         results = parallel_tasks.invoke({"input": excerpt})
@@ -327,10 +419,21 @@ class LLMTagsPrediction:
                         if sector not in results[k][pillar][subpillar].keys():
                             results[k][pillar][subpillar].update({sector: []})
                         results[k][pillar][subpillar][sector].append(subsector)
+
             elif type_ == self.widgets.mappings_instance.WidgetTypes.multiselectWidget:
-                raise NotImplementedError
+
+                if k not in results.keys():
+                    results.update({k: []})
+                for c in v:
+                    results[k].append(schema[c]["alias"])
+
             elif type_ == self.widgets.mappings_instance.WidgetTypes.organigramWidget:
-                raise NotImplementedError
+
+                if k not in results.keys():
+                    results.update({k: []})
+                for c in v:
+                    results[k].append(schema[c]["alias"])
+
             elif type_ == self.widgets.mappings_instance.WidgetTypes.dateRangeWidget:
                 raise NotImplementedError
             elif type_ == self.widgets.mappings_instance.WidgetTypes.scaleWidget:
