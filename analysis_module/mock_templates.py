@@ -647,7 +647,8 @@ MOCK_ENTRY_CLASSIFICATION_LLM = {
                 "subpillar-21": True,
                 "subpillar-20": True
             }
-        }
+        },
+        "sector-8": ['md09g0cqo0csct4e']
     },
     "geolocations": [
         {
